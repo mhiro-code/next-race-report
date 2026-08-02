@@ -14,8 +14,6 @@ const state = {
 const elements = {
   sourceLink: document.querySelector("#source-link"),
   pageUpdated: document.querySelector("#page-updated"),
-  refreshButton: document.querySelector("#refresh-button"),
-  message: document.querySelector("#message"),
   horseCount: document.querySelector("#horse-count"),
   raceCount: document.querySelector("#race-count"),
   newCount: document.querySelector("#new-count"),
@@ -124,9 +122,7 @@ function render() {
   elements.pageNumber.textContent = `${state.page} / ${totalPages}`;
 }
 
-async function loadData(showMessage = false) {
-  elements.refreshButton.disabled = true;
-  elements.message.textContent = showMessage ? "再読込中…" : "";
+async function loadData() {
   try {
     const cacheBust = `?v=${Date.now()}`;
     const [raceResponse, dataLabResponse, jraResponse] = await Promise.all([
@@ -158,12 +154,8 @@ async function loadData(showMessage = false) {
     elements.totalCount.textContent = state.data.rows.length;
     state.page = 1;
     render();
-    elements.message.textContent = showMessage ? `${state.data.rows.length}頭の登録データを再読込しました` : "";
   } catch {
-    elements.message.textContent = "表示データを読み込めませんでした。";
     elements.rows.innerHTML = '<tr><td class="empty" colspan="4">データを読み込めませんでした。</td></tr>';
-  } finally {
-    elements.refreshButton.disabled = false;
   }
 }
 
@@ -205,6 +197,4 @@ elements.nextPage.addEventListener("click", () => {
   state.page += 1;
   render();
 });
-elements.refreshButton.addEventListener("click", () => loadData(true));
-
 loadData();

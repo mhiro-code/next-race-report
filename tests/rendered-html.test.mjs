@@ -50,3 +50,48 @@ test("includes a self-contained GitHub Pages entry point", async () => {
   assert.ok(races.rows.length > 0);
   assert.ok(prizes.length > 0);
 });
+
+test("GitHub Pages does not show a misleading refresh button", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const script = await readFile(new URL("../pages.js", import.meta.url), "utf8");
+
+  assert.doesNotMatch(html, /id=["']refresh-button["']/);
+  assert.doesNotMatch(script, /refreshButton|#refresh-button/);
+  assert.match(html, /GitHub Actionsから更新します/);
+});
+
+test("next-race updater parses the netkeiba table format", async () => {
+  const { findPartsNumber, parseRows } = await import("../scripts/fetch-next-races.mjs");
+  const mainHtml = `<div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>`;
+  const tableHtml = `
+    <table>
+      <tr><th>更新</th><th>馬名</th><th>予定レース</th></tr>
+      <tr>
+        <td>NEW</td>
+        <td><a href="https://db.netkeiba.com/horse/2022100001/">テストホース</a></td>
+        <td><a href="https://race.netkeiba.com/special/index.html?id=1">テストS</a></td>
+      </tr>
+    </table>`;
+
+  assert.equal(findPartsNumber(mainHtml), "12345");
+  assert.deepEqual(parseRows(tableHtml), [
+    {
+      update: "NEW",
+      horse: "テストホース",
+      next_race: "テストS",
+      horse_url: "https://db.netkeiba.com/horse/2022100001/",
+      race_url: "https://race.netkeiba.com/special/index.html?id=1",
+    },
+  ]);
+});
+
+test("manual update workflow runs the updater", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/update-next-races.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /node scripts\/fetch-next-races\.mjs/);
+  assert.match(workflow, /git push/);
+});

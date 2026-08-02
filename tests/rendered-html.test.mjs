@@ -95,3 +95,49 @@ test("manual update workflow runs the updater", async () => {
   assert.match(workflow, /node scripts\/fetch-next-races\.mjs/);
   assert.match(workflow, /git push/);
 });
+
+test("weekly graded-race data contains the three registered races", async () => {
+  const payload = JSON.parse(
+    await readFile(
+      new URL("../app/weekly-graded-races-2026.json", import.meta.url),
+      "utf8",
+    ),
+  );
+
+  assert.deepEqual(
+    payload.races.map((race) => [race.race, race.registration_count, race.full_gate]),
+    [
+      ["エルムステークス", 14, 14],
+      ["CBC賞", 20, 18],
+      ["レパードステークス", 13, 15],
+    ],
+  );
+  assert.equal(
+    payload.races.reduce((total, race) => total + race.rows.length, 0),
+    47,
+  );
+  const cbc = payload.races.find((race) => race.race === "CBC賞");
+  assert.equal(cbc.rows[0].horse, "フィオライア");
+  assert.equal(cbc.rows[0].total_yen, 89_000_000);
+  assert.ok(cbc.rows.every((row) => row.weight_kg === null));
+});
+
+test("GitHub Pages loads weekly rankings and preserves unpublished handicaps", async () => {
+  const script = await readFile(new URL("../pages.js", import.meta.url), "utf8");
+
+  assert.match(script, /weekly-graded-races-2026\.json/);
+  assert.match(script, /未発表/);
+  assert.match(script, /ハンデ未発表のため斤量による優先条件はまだ反映していません/);
+});
+
+test("weekly exporter uses the correct RA offsets without changing TK offsets", async () => {
+  const script = await readFile(
+    new URL("../tools/windows/target-weekly-graded-races.ps1", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(script, /SyubetuCD = Get-TextFromBytes \$recordBytes 615 2/);
+  assert.match(script, /SyubetuCD = Get-TextFromBytes \$recordBytes 616 2/);
+  assert.match(script, /JyokenCD1 = Get-TextFromBytes \$recordBytes 622 3/);
+  assert.match(script, /JyokenCD5 = Get-TextFromBytes \$recordBytes 634 3/);
+});

@@ -1,5 +1,15 @@
 $ErrorActionPreference = "Stop"
 
+# JV-Link is normally registered as a 32-bit COM component.
+if ([IntPtr]::Size -eq 8) {
+    $powerShell32 = Join-Path $env:WINDIR "SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+    if (-not (Test-Path -LiteralPath $powerShell32)) {
+        throw "32-bit Windows PowerShell was not found."
+    }
+    & $powerShell32 -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+    exit $LASTEXITCODE
+}
+
 # Reads TARGET frontier JV data already stored on this PC.
 # No JV-Link connection or network download is performed.
 # Target meetings: 2026-08-08 and 2026-08-09 graded races.
@@ -25,6 +35,7 @@ $raCount = 0
 $seCount = 0
 $umFileCount = 0
 $umRecordCount = 0
+$jvLink = $null
 
 function Get-TextFromBytes {
     param(
@@ -118,117 +129,138 @@ try {
         throw "TARGET UM_DATA folder was not found: $horseDataRoot"
     }
 
-    Write-Host "Locating special-race registration records (TK)..."
-    # dataRoot was already verified above, so always search it recursively.
-    $registrationSearchRoots = @($dataRoot)
-    if ((-not [string]::IsNullOrWhiteSpace($targetRoot)) -and
-        (Test-Path -LiteralPath $targetRoot -PathType Container)) {
-        $registrationSearchRoots += $targetRoot
+    Write-Host "Reading special-race registration records through JV-Link (TOKU)..."
+    $jvLink = New-Object -ComObject "JVDTLab.JVLink"
+    $returnCode = $jvLink.JVInit("UNKNOWN")
+    if ($returnCode -ne 0) {
+        throw "JVInit failed. Return code: $returnCode"
     }
-    if ((-not [string]::IsNullOrWhiteSpace($jvDataRoot)) -and
-        (Test-Path -LiteralPath $jvDataRoot -PathType Container)) {
-        $registrationSearchRoots += $jvDataRoot
-    }
-    $registrationSearchRoots = @($registrationSearchRoots | Select-Object -Unique)
-    Write-Host ("Search roots: {0}" -f ($registrationSearchRoots -join ", "))
 
-    $registrationFiles = @()
-    foreach ($searchRoot in $registrationSearchRoots) {
-        if ([string]::IsNullOrWhiteSpace($searchRoot)) { continue }
-        $registrationFiles += Get-ChildItem -LiteralPath $searchRoot -File -Recurse -ErrorAction SilentlyContinue
+    $readCount = 0
+    $downloadCount = 0
+    $lastFileTimestamp = ""
+    $returnCode = $jvLink.JVOpen(
+        "TOKU",
+        "20260730000000",
+        2,
+        [ref]$readCount,
+        [ref]$downloadCount,
+        [ref]$lastFileTimestamp
+    )
+    if ($returnCode -ne 0) {
+        throw "JVOpen TOKU failed. Return code: $returnCode"
     }
-    $registrationFiles = @($registrationFiles | Sort-Object FullName -Unique)
+    Write-Host "JVOpen TOKU: OK"
+    Write-Host "Read files: $readCount"
+    Write-Host "Download files: $downloadCount"
 
-    foreach ($file in $registrationFiles) {
-        $registrationFileCount++
-        if ((Get-FileRecordSpec $file.FullName) -ne "TK") {
-            if (($registrationFileCount % 1000) -eq 0) {
-                Write-Host ("Registration search: {0:N0} files" -f $registrationFileCount)
+    if ($downloadCount -gt 0) {
+        Write-Host "Waiting for registration download..."
+        do {
+            Start-Sleep -Milliseconds 500
+            $downloaded = $jvLink.JVStatus()
+            if ($downloaded -lt 0) {
+                throw "JVStatus failed. Return code: $downloaded"
             }
+        } while ($downloaded -lt $downloadCount)
+    }
+
+    $bufferSize = 110000
+    while ($true) {
+        $buffer = ""
+        $fileName = ""
+        $bytesRead = $jvLink.JVRead([ref]$buffer, $bufferSize, [ref]$fileName)
+        if ($bytesRead -eq 0) { break }
+        if ($bytesRead -eq -1) { continue }
+        if ($bytesRead -eq -3) {
+            Start-Sleep -Milliseconds 500
+            continue
+        }
+        if ($bytesRead -lt 0) {
+            throw "JVRead failed. Return code: $bytesRead"
+        }
+
+        $registrationFileCount++
+        $recordBytes = $encoding.GetBytes($buffer)
+        if ($recordBytes.Length -lt 655) { continue }
+        if ((Get-TextFromBytes $recordBytes 0 2) -ne "TK") { continue }
+
+        $tkFileCount++
+        $raceDate = Get-RaceDate $recordBytes
+        $gradeCode = Get-TextFromBytes $recordBytes 614 1
+        $raceName = Get-TextFromBytes $recordBytes 32 60
+        $tkRaceSummaries += "$raceDate $gradeCode $raceName"
+        if ($targetRaceDates -notcontains $raceDate) { continue }
+        if ($gradedRaceCodes -notcontains $gradeCode) { continue }
+
+        $raceId = Get-RaceId $recordBytes
+        $dataKubun = Get-TextFromBytes $recordBytes 2 1
+        if ($dataKubun -eq "0") {
+            [void]$registeredRaces.Remove($raceId)
             continue
         }
 
-        $fileBytes = [IO.File]::ReadAllBytes($file.FullName)
-        $tkFileCount++
-        $recordSize = 21657
-        for ($offset = 0; ($offset + $recordSize) -le $fileBytes.Length; $offset += $recordSize) {
-            $recordBytes = Get-RecordBytes $fileBytes $offset $recordSize
-            if ((Get-TextFromBytes $recordBytes 0 2) -ne "TK") { continue }
+        $registeredCountText = Get-TextFromBytes $recordBytes 652 3
+        $registeredCount = 0
+        if (-not [int]::TryParse($registeredCountText, [ref]$registeredCount)) {
+            throw "Invalid registered horse count '$registeredCountText' in race $raceId"
+        }
 
-            $raceDate = Get-RaceDate $recordBytes
-            $gradeCode = Get-TextFromBytes $recordBytes 614 1
-            $raceName = Get-TextFromBytes $recordBytes 32 60
-            $tkRaceSummaries += "$raceDate $gradeCode $raceName"
-            if ($targetRaceDates -notcontains $raceDate) { continue }
-            if ($gradedRaceCodes -notcontains $gradeCode) { continue }
+        $entries = @()
+        for ($index = 0; $index -lt [Math]::Min($registeredCount, 300); $index++) {
+            $horseOffset = 655 + (70 * $index)
+            $kettoNum = Get-TextFromBytes $recordBytes ($horseOffset + 3) 10
+            if ([string]::IsNullOrWhiteSpace($kettoNum)) { continue }
 
-            $raceId = Get-RaceId $recordBytes
-            $dataKubun = Get-TextFromBytes $recordBytes 2 1
-            if ($dataKubun -eq "0") {
-                [void]$registeredRaces.Remove($raceId)
-                continue
+            $horseName = Get-TextFromBytes $recordBytes ($horseOffset + 13) 36
+            $rawWeight = Get-TextFromBytes $recordBytes ($horseOffset + 66) 3
+            $weightKg = $null
+            $weightValue = 0
+            if ([int]::TryParse($rawWeight, [ref]$weightValue) -and $weightValue -gt 0) {
+                $weightKg = $weightValue / 10.0
             }
 
-            $registeredCountText = Get-TextFromBytes $recordBytes 652 3
-            $registeredCount = 0
-            if (-not [int]::TryParse($registeredCountText, [ref]$registeredCount)) {
-                throw "Invalid registered horse count '$registeredCountText' in race $raceId"
-            }
-
-            $entries = @()
-            for ($index = 0; $index -lt [Math]::Min($registeredCount, 300); $index++) {
-                $horseOffset = 655 + (70 * $index)
-                $kettoNum = Get-TextFromBytes $recordBytes ($horseOffset + 3) 10
-                if ([string]::IsNullOrWhiteSpace($kettoNum)) { continue }
-
-                $horseName = Get-TextFromBytes $recordBytes ($horseOffset + 13) 36
-                $rawWeight = Get-TextFromBytes $recordBytes ($horseOffset + 66) 3
-                $weightKg = $null
-                $weightValue = 0
-                if ([int]::TryParse($rawWeight, [ref]$weightValue) -and $weightValue -gt 0) {
-                    $weightKg = $weightValue / 10.0
-                }
-
-                $entry = [PSCustomObject]@{
-                    RaceDate = $raceDate
-                    RaceId = $raceId
-                    RaceName = Get-TextFromBytes $recordBytes 32 60
-                    GradeCD = $gradeCode
-                    Grade = Get-GradeLabel $gradeCode
-                    JyoCD = Get-TextFromBytes $recordBytes 19 2
-                    SyubetuCD = Get-TextFromBytes $recordBytes 615 2
-                    KigoCD = Get-TextFromBytes $recordBytes 617 3
-                    JyuryoCD = Get-TextFromBytes $recordBytes 620 1
-                    DistanceMeters = Get-TextFromBytes $recordBytes 636 4
-                    TrackCD = Get-TextFromBytes $recordBytes 640 2
-                    HandiDate = Get-TextFromBytes $recordBytes 644 8
-                    RegisteredCount = $registeredCount
-                    KettoNum = $kettoNum
-                    HorseName = $horseName
-                    RegisteredWeightKg = $weightKg
-                    SourceDataKubun = $dataKubun
-                }
-                $entries += $entry
-            }
-
-            $registeredRaces[$raceId] = [PSCustomObject]@{
-                RaceId = $raceId
+            $entries += [PSCustomObject]@{
                 RaceDate = $raceDate
-                RaceName = Get-TextFromBytes $recordBytes 32 60
+                RaceId = $raceId
+                RaceName = $raceName
                 GradeCD = $gradeCode
-                Entries = $entries
+                Grade = Get-GradeLabel $gradeCode
+                JyoCD = Get-TextFromBytes $recordBytes 19 2
+                SyubetuCD = Get-TextFromBytes $recordBytes 615 2
+                KigoCD = Get-TextFromBytes $recordBytes 617 3
+                JyuryoCD = Get-TextFromBytes $recordBytes 620 1
+                DistanceMeters = Get-TextFromBytes $recordBytes 636 4
+                TrackCD = Get-TextFromBytes $recordBytes 640 2
+                HandiDate = Get-TextFromBytes $recordBytes 644 8
+                RegisteredCount = $registeredCount
+                KettoNum = $kettoNum
+                HorseName = $horseName
+                RegisteredWeightKg = $weightKg
+                SourceDataKubun = $dataKubun
             }
         }
+
+        $registeredRaces[$raceId] = [PSCustomObject]@{
+            RaceId = $raceId
+            RaceDate = $raceDate
+            RaceName = $raceName
+            GradeCD = $gradeCode
+            Entries = $entries
+        }
     }
+
+    [void]$jvLink.JVClose()
 
     if ($registeredRaces.Count -ne 3) {
         $found = @($registeredRaces.Values | Sort-Object RaceDate, RaceName | ForEach-Object {
             "$($_.RaceDate) $($_.RaceName)"
         }) -join "; "
         $tkExamples = @($tkRaceSummaries | Sort-Object -Unique | Select-Object -Last 20) -join "; "
-        throw ("Expected 3 graded races, but found {0}. TK files: {1}. Files searched: {2}. " +
-            "Matching races: {3}. Latest TK records: {4}" -f $registeredRaces.Count,
-            $tkFileCount, $registrationFileCount, $found, $tkExamples)
+        $failureMessage = ("Expected 3 graded races, but found {0}. TK records: {1}. " +
+            "Records read: {2}. Matching races: {3}. Latest TK records: {4}") -f
+            $registeredRaces.Count, $tkFileCount, $registrationFileCount, $found, $tkExamples
+        throw $failureMessage
     }
 
     $entryRows = @($registeredRaces.Values |
@@ -421,8 +453,8 @@ try {
 
     Write-Host ""
     Write-Host "RESULT: SUCCESS"
-    Write-Host ("Registration files searched: {0:N0}" -f $registrationFileCount)
-    Write-Host ("TK files read: {0:N0}" -f $tkFileCount)
+    Write-Host ("JV-Link records read: {0:N0}" -f $registrationFileCount)
+    Write-Host ("TK records read: {0:N0}" -f $tkFileCount)
     Write-Host ("Graded races: {0:N0}" -f $registeredRaces.Count)
     Write-Host ("Registration rows: {0:N0}" -f $entryRows.Count)
     Write-Host ("Unique registered horses: {0:N0}" -f $targetHorses.Count)

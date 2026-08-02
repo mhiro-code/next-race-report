@@ -1,0 +1,523 @@
+{
+  "generated_from": "TARGET + JV-Link TOKU",
+  "races": [
+    {
+      "race": "エルムステークス",
+      "venue": "札幌",
+      "grade": "GIII",
+      "distance": "ダート1700m",
+      "conditions": "3歳以上・別定",
+      "full_gate": 14,
+      "source_url": "https://www.jra.go.jp/keiba/calendar2026/2026/8/0808.html",
+      "race_date": "2026-08-08",
+      "registration_count": 14,
+      "one_year_start": "2025-08-08",
+      "two_year_start": "2024-08-08",
+      "calculation_note": "JRAの収得賞金算入額を用いた出走順位の目安。正式な出走順を保証するものではありません。",
+      "rows": [
+        {
+          "ketto_num": "2022103795",
+          "horse": "ナチュラルライズ",
+          "jockey": "",
+          "current_yen": 112200000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 112200000,
+          "weight_kg": 59
+        },
+        {
+          "ketto_num": "2020101874",
+          "horse": "ペリエール",
+          "jockey": "",
+          "current_yen": 72500000,
+          "one_year_yen": 19000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 91500000,
+          "weight_kg": 58
+        },
+        {
+          "ketto_num": "2020102904",
+          "horse": "オメガギネス",
+          "jockey": "",
+          "current_yen": 75500000,
+          "one_year_yen": 14000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 89500000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2020110024",
+          "horse": "ウェイワードアクト",
+          "jockey": "",
+          "current_yen": 65200000,
+          "one_year_yen": 24000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 89200000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2019102437",
+          "horse": "ヴァルツァーシャル",
+          "jockey": "",
+          "current_yen": 63000000,
+          "one_year_yen": 8000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 71000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2021102236",
+          "horse": "テーオーパスワード",
+          "jockey": "",
+          "current_yen": 47000000,
+          "one_year_yen": 24000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 71000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2022110083",
+          "horse": "ルクソールカフェ",
+          "jockey": "",
+          "current_yen": 51000000,
+          "one_year_yen": 20000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 71000000,
+          "weight_kg": 58
+        },
+        {
+          "ketto_num": "2020100116",
+          "horse": "アクションプラン",
+          "jockey": "",
+          "current_yen": 43500000,
+          "one_year_yen": 7500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 51000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2019101324",
+          "horse": "テーオードレフォン",
+          "jockey": "",
+          "current_yen": 50000000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 50000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2021100522",
+          "horse": "ジョーメッドヴィン",
+          "jockey": "",
+          "current_yen": 36000000,
+          "one_year_yen": 12000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 48000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2022102280",
+          "horse": "チュウワクリスエス",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 39000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2022103614",
+          "horse": "ヒルノハンブルク",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 39000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2021103717",
+          "horse": "レヴォントゥレット",
+          "jockey": "",
+          "current_yen": 31000000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 31000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023102455",
+          "horse": "オンザムービー",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 54
+        }
+      ]
+    },
+    {
+      "race": "CBC賞",
+      "venue": "中京",
+      "grade": "GIII",
+      "distance": "芝1200m",
+      "conditions": "3歳以上・ハンデ",
+      "full_gate": 18,
+      "source_url": "https://www.jra.go.jp/keiba/calendar2026/2026/8/0809.html",
+      "race_date": "2026-08-09",
+      "registration_count": 20,
+      "one_year_start": "2025-08-09",
+      "two_year_start": "2024-08-09",
+      "calculation_note": "JRAの収得賞金算入額を用いた出走順位の目安。正式な出走順を保証するものではありません。",
+      "rows": [
+        {
+          "ketto_num": "2021101924",
+          "horse": "フィオライア",
+          "jockey": "",
+          "current_yen": 56500000,
+          "one_year_yen": 32500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 89000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022103066",
+          "horse": "レイピア",
+          "jockey": "",
+          "current_yen": 52500000,
+          "one_year_yen": 28500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 81000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021110164",
+          "horse": "インビンシブルパパ",
+          "jockey": "",
+          "current_yen": 58500000,
+          "one_year_yen": 20500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 79000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022106394",
+          "horse": "クラスペディア",
+          "jockey": "",
+          "current_yen": 40000000,
+          "one_year_yen": 14000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 54000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2020105400",
+          "horse": "タマモブラックタイ",
+          "jockey": "",
+          "current_yen": 41000000,
+          "one_year_yen": 12000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 53000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2019103605",
+          "horse": "ペプチドヤマト",
+          "jockey": "",
+          "current_yen": 36000000,
+          "one_year_yen": 12000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 48000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021103932",
+          "horse": "ジェニファー",
+          "jockey": "",
+          "current_yen": 23000000,
+          "one_year_yen": 19000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 42000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2023103162",
+          "horse": "タマモイカロス",
+          "jockey": "",
+          "current_yen": 22000000,
+          "one_year_yen": 18000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 40000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021107063",
+          "horse": "イツモニコニコ",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 39000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022110026",
+          "horse": "コウセキ",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 39000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2023107020",
+          "horse": "サンアントワーヌ",
+          "jockey": "",
+          "current_yen": 19500000,
+          "one_year_yen": 15500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 35000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021101598",
+          "horse": "アンクルクロス",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022104933",
+          "horse": "ディアナザール",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021103092",
+          "horse": "ナムラローズマリー",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2020103325",
+          "horse": "プロトポロス",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2021105880",
+          "horse": "レッドエヴァンス",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022101623",
+          "horse": "アブキールベイ",
+          "jockey": "",
+          "current_yen": 29500000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 29500000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2020110133",
+          "horse": "フロムダスク",
+          "jockey": "",
+          "current_yen": 20500000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 29500000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2018102155",
+          "horse": "マイネルジェロディ",
+          "jockey": "",
+          "current_yen": 24000000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 24000000,
+          "weight_kg": null
+        },
+        {
+          "ketto_num": "2022110105",
+          "horse": "アメリカンステージ",
+          "jockey": "",
+          "current_yen": 20100000,
+          "one_year_yen": 0,
+          "two_year_g1_yen": 0,
+          "total_yen": 20100000,
+          "weight_kg": null
+        }
+      ]
+    },
+    {
+      "race": "レパードステークス",
+      "venue": "新潟",
+      "grade": "GIII",
+      "distance": "ダート1800m",
+      "conditions": "3歳・馬齢",
+      "full_gate": 15,
+      "source_url": "https://www.jra.go.jp/keiba/calendar2026/2026/8/0809.html",
+      "race_date": "2026-08-09",
+      "registration_count": 13,
+      "one_year_start": "2025-08-09",
+      "two_year_start": "2024-08-09",
+      "calculation_note": "JRAの収得賞金算入額を用いた出走順位の目安。正式な出走順を保証するものではありません。",
+      "rows": [
+        {
+          "ketto_num": "2023101134",
+          "horse": "パイロマンサー",
+          "jockey": "",
+          "current_yen": 30000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 39000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023101269",
+          "horse": "ドンエレクトス",
+          "jockey": "",
+          "current_yen": 19000000,
+          "one_year_yen": 19000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 38000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023105303",
+          "horse": "メルカントゥール",
+          "jockey": "",
+          "current_yen": 16500000,
+          "one_year_yen": 16500000,
+          "two_year_g1_yen": 0,
+          "total_yen": 33000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023107036",
+          "horse": "ショウナンバンライ",
+          "jockey": "",
+          "current_yen": 15000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 30000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023104733",
+          "horse": "タガノアバンドーネ",
+          "jockey": "",
+          "current_yen": 15000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 30000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023106821",
+          "horse": "マクリール",
+          "jockey": "",
+          "current_yen": 15000000,
+          "one_year_yen": 15000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 30000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023103919",
+          "horse": "オオツカ",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023102455",
+          "horse": "オンザムービー",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023104387",
+          "horse": "チェリヴェント",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023104927",
+          "horse": "テンカムテキ",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023104103",
+          "horse": "パラダイスフェイス",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023107091",
+          "horse": "ヒシアムルーズ",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        },
+        {
+          "ketto_num": "2023101154",
+          "horse": "ファイアマン",
+          "jockey": "",
+          "current_yen": 9000000,
+          "one_year_yen": 9000000,
+          "two_year_g1_yen": 0,
+          "total_yen": 18000000,
+          "weight_kg": 57
+        }
+      ]
+    }
+  ]
+}

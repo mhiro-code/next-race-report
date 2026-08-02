@@ -1,9 +1,117 @@
 [
   {
+    "KettoNum": "2016102370",
+    "HorseName": "ヘリオス",
+    "PrizeYen": 118700000,
+    "SourceFile": "UMFW2026050720260507183858.jvd"
+  },
+  {
+    "KettoNum": "2017100464",
+    "HorseName": "エヒト",
+    "PrizeYen": 79500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2017101423",
+    "HorseName": "ウイングレイテスト",
+    "PrizeYen": 100000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2017101429",
+    "HorseName": "ウインカーネリアン",
+    "PrizeYen": 217500000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
     "KettoNum": "2017101560",
     "HorseName": "ケイアイドリー",
     "PrizeYen": 81700000,
     "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2017104756",
+    "HorseName": "アラタ",
+    "PrizeYen": 69500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2017105194",
+    "HorseName": "ラインベック",
+    "PrizeYen": 39000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2018100664",
+    "HorseName": "ホールシバン",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2018102020",
+    "HorseName": "ヤマニンサンパ",
+    "PrizeYen": 32000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2018102576",
+    "HorseName": "ロードプレジール",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2018103205",
+    "HorseName": "クムシラコ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2018103515",
+    "HorseName": "カンティーユ",
+    "PrizeYen": 20700000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2018105454",
+    "HorseName": "グレイイングリーン",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2018106055",
+    "HorseName": "ヨシノイースター",
+    "PrizeYen": 66000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2018106571",
+    "HorseName": "メイショウフンジン",
+    "PrizeYen": 87800000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019100630",
+    "HorseName": "ハピ",
+    "PrizeYen": 48000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2019101198",
+    "HorseName": "マリオロード",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2019101324",
+    "HorseName": "テーオードレフォン",
+    "PrizeYen": 50000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2019101422",
+    "HorseName": "サンストックトン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
   },
   {
     "KettoNum": "2019101633",
@@ -18,10 +126,226 @@
     "SourceFile": "UMFW2026071320260713133747.jvd"
   },
   {
+    "KettoNum": "2019102383",
+    "HorseName": "ウィルソンテソーロ",
+    "PrizeYen": 378000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2019102437",
+    "HorseName": "ヴァルツァーシャル",
+    "PrizeYen": 63000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2019102632",
+    "HorseName": "セイウンハーデス",
+    "PrizeYen": 76500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2019102665",
+    "HorseName": "フタイテンロック",
+    "PrizeYen": 22400000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019103422",
+    "HorseName": "テイエムスパーダ",
+    "PrizeYen": 85000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2019103594",
+    "HorseName": "レッドアヴァンティ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
     "KettoNum": "2019103605",
     "HorseName": "ペプチドヤマト",
     "PrizeYen": 36000000,
     "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2019103817",
+    "HorseName": "テーオーソラネル",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2019103850",
+    "HorseName": "パトリックハンサム",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019103879",
+    "HorseName": "バトルクライ",
+    "PrizeYen": 72000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019103943",
+    "HorseName": "キングズソード",
+    "PrizeYen": 138000000,
+    "SourceFile": "UMFW2026011520260115183639.jvd"
+  },
+  {
+    "KettoNum": "2019104089",
+    "HorseName": "メイショウユズルハ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2019104108",
+    "HorseName": "エナジーグラン",
+    "PrizeYen": 25800000,
+    "SourceFile": "UMFW2026051420260514190248.jvd"
+  },
+  {
+    "KettoNum": "2019104658",
+    "HorseName": "ボーンディスウェイ",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2019104756",
+    "HorseName": "オニャンコポン",
+    "PrizeYen": 29000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2019104998",
+    "HorseName": "ショウナンマグマ",
+    "PrizeYen": 31000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2019105118",
+    "HorseName": "ジュンブロッサム",
+    "PrizeYen": 65500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2019105239",
+    "HorseName": "ショウナンアデイブ",
+    "PrizeYen": 32500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2019105302",
+    "HorseName": "グランディア",
+    "PrizeYen": 54000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2019105394",
+    "HorseName": "ママコチャ",
+    "PrizeYen": 202500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2019105459",
+    "HorseName": "ソウテン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026060820260608133723.jvd"
+  },
+  {
+    "KettoNum": "2019105496",
+    "HorseName": "レッドモンレーヴ",
+    "PrizeYen": 111500000,
+    "SourceFile": "UMFW2026040220260402184302.jvd"
+  },
+  {
+    "KettoNum": "2019105546",
+    "HorseName": "マテンロウスカイ",
+    "PrizeYen": 73000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019105552",
+    "HorseName": "ローシャムパーク",
+    "PrizeYen": 179000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2019105604",
+    "HorseName": "ブレイクフォース",
+    "PrizeYen": 50000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2019105741",
+    "HorseName": "イスラアネーロ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2019105746",
+    "HorseName": "ホウオウルーレット",
+    "PrizeYen": 75000000,
+    "SourceFile": "UMFW2026051120260511133754.jvd"
+  },
+  {
+    "KettoNum": "2019105806",
+    "HorseName": "ドロップオブライト",
+    "PrizeYen": 71500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019105859",
+    "HorseName": "エーティーマクフィ",
+    "PrizeYen": 64500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2019106748",
+    "HorseName": "リチュアル",
+    "PrizeYen": 21300000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2019110001",
+    "HorseName": "ショウナンハクラク",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2019110102",
+    "HorseName": "デュガ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2020100061",
+    "HorseName": "モックモック",
+    "PrizeYen": 31500000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2020100116",
+    "HorseName": "アクションプラン",
+    "PrizeYen": 43500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2020100145",
+    "HorseName": "ロードフォンス",
+    "PrizeYen": 119000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2020100162",
+    "HorseName": "ロードアウォード",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020100680",
+    "HorseName": "エルトンバローズ",
+    "PrizeYen": 119000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
   },
   {
     "KettoNum": "2020100896",
@@ -30,15 +354,369 @@
     "SourceFile": "UMFW2026071620260716182959.jvd"
   },
   {
+    "KettoNum": "2020100960",
+    "HorseName": "マーブルロック",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020101262",
+    "HorseName": "エコロレジーナ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020101419",
+    "HorseName": "ブーケファロス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2020101599",
+    "HorseName": "サンライズフレイム",
+    "PrizeYen": 75000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020101607",
+    "HorseName": "ココナッツブラウン",
+    "PrizeYen": 45500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2020101772",
+    "HorseName": "メタルスピード",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020101813",
+    "HorseName": "クルゼイロドスル",
+    "PrizeYen": 37000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2020101874",
+    "HorseName": "ペリエール",
+    "PrizeYen": 72500000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2020102625",
+    "HorseName": "アクートゥス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2020102750",
+    "HorseName": "タイトニット",
+    "PrizeYen": 42900000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020102843",
+    "HorseName": "アッチャゴーラ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020102853",
+    "HorseName": "シャドウフューリー",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2025122920251229133757.jvd"
+  },
+  {
+    "KettoNum": "2020102870",
+    "HorseName": "ブレイヴロッカー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020102904",
+    "HorseName": "オメガギネス",
+    "PrizeYen": 75500000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2020103060",
+    "HorseName": "ヴェルテンベルク",
+    "PrizeYen": 84000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2020103082",
+    "HorseName": "カネフラ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020103101",
+    "HorseName": "シェイクユアハート",
+    "PrizeYen": 87500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020103148",
+    "HorseName": "ショウナンライシン",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020103277",
+    "HorseName": "ダノンタッチダウン",
+    "PrizeYen": 25500000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2020103304",
+    "HorseName": "アンリーロード",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020103325",
+    "HorseName": "プロトポロス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020103356",
+    "HorseName": "クファシル",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2020103387",
+    "HorseName": "クールミラボー",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2020103428",
+    "HorseName": "スイープアワーズ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2020103464",
+    "HorseName": "ゴートゥファースト",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2020103482",
+    "HorseName": "スカイロケット",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026052820260528182912.jvd"
+  },
+  {
+    "KettoNum": "2020103517",
+    "HorseName": "レッドシュヴェルト",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2020103522",
+    "HorseName": "グランヴィノス",
+    "PrizeYen": 32500000,
+    "SourceFile": "UMFW2025121120251211182353.jvd"
+  },
+  {
+    "KettoNum": "2020103640",
+    "HorseName": "ミッキーゴージャス",
+    "PrizeYen": 57000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020103876",
+    "HorseName": "モンドプリューム",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020103941",
+    "HorseName": "ホウオウビスケッツ",
+    "PrizeYen": 94000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2020104136",
+    "HorseName": "サンデーファンデー",
+    "PrizeYen": 110500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020104228",
+    "HorseName": "ケイアイアニラ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020104474",
+    "HorseName": "ルクスフロンティア",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020104497",
+    "HorseName": "サイモンザナドゥ",
+    "PrizeYen": 39500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020104597",
+    "HorseName": "ショウナンアビアス",
+    "PrizeYen": 22400000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020104760",
+    "HorseName": "ゼットリアン",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2020105203",
+    "HorseName": "ウインアイオライト",
+    "PrizeYen": 21500000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2020105400",
+    "HorseName": "タマモブラックタイ",
+    "PrizeYen": 41000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2020105639",
+    "HorseName": "ハギノサステナブル",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2020105750",
+    "HorseName": "マイネルメモリー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2020106015",
+    "HorseName": "バグラダス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020106234",
+    "HorseName": "グランドカリナン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026052520260525133852.jvd"
+  },
+  {
     "KettoNum": "2020106557",
     "HorseName": "コンクイスタ",
     "PrizeYen": 44800000,
     "SourceFile": "UMFW2026072320260723194404.jvd"
   },
   {
+    "KettoNum": "2020106582",
+    "HorseName": "ファントムシーフ",
+    "PrizeYen": 30000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020106851",
+    "HorseName": "ルガル",
+    "PrizeYen": 202500000,
+    "SourceFile": "UMOW2026072420260724131157.jvd"
+  },
+  {
+    "KettoNum": "2020106909",
+    "HorseName": "ゴールデンスナップ",
+    "PrizeYen": 27000000,
+    "SourceFile": "UMFW2026051420260514190248.jvd"
+  },
+  {
+    "KettoNum": "2020106914",
+    "HorseName": "イコサン",
+    "PrizeYen": 29000000,
+    "SourceFile": "UMFW2026051120260511133754.jvd"
+  },
+  {
+    "KettoNum": "2020107001",
+    "HorseName": "キョウエイブリッサ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2020109102",
+    "HorseName": "サウザンサニー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2020110024",
+    "HorseName": "ウェイワードアクト",
+    "PrizeYen": 65200000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2020110060",
+    "HorseName": "ホールネス",
+    "PrizeYen": 29000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2020110090",
+    "HorseName": "ティニア",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2021100019",
+    "HorseName": "マサノカナリア",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
     "KettoNum": "2021100114",
     "HorseName": "ブレーザー",
     "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021100130",
+    "HorseName": "ロードフォアエース",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021100139",
+    "HorseName": "クランフォード",
+    "PrizeYen": 32000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021100161",
+    "HorseName": "ロードフロンティア",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021100494",
+    "HorseName": "ガロンヌ",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026052120260521190004.jvd"
+  },
+  {
+    "KettoNum": "2021100522",
+    "HorseName": "ジョーメッドヴィン",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2021100561",
+    "HorseName": "ハビレ",
+    "PrizeYen": 24000000,
     "SourceFile": "UMFW2026070620260706133708.jvd"
   },
   {
@@ -48,10 +726,424 @@
     "SourceFile": "UMFW2026072020260720133951.jvd"
   },
   {
+    "KettoNum": "2021100895",
+    "HorseName": "サフランヒーロー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021100913",
+    "HorseName": "ジューンテイク",
+    "PrizeYen": 78000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2021101134",
+    "HorseName": "ピースワンデュック",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2021101259",
+    "HorseName": "カズタンジャー",
+    "PrizeYen": 44200000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2021101436",
+    "HorseName": "エコロヴァルツ",
+    "PrizeYen": 60000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021101485",
+    "HorseName": "カテリーナ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021101598",
+    "HorseName": "アンクルクロス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021101705",
+    "HorseName": "ソーニーイシュー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2021102009",
+    "HorseName": "ラタフォレスト",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021102013",
+    "HorseName": "ソルトクィーン",
+    "PrizeYen": 31500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
     "KettoNum": "2021102153",
     "HorseName": "プレゼンティーア",
     "PrizeYen": 24000000,
     "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021102236",
+    "HorseName": "テーオーパスワード",
+    "PrizeYen": 47000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021102320",
+    "HorseName": "ペアポルックス",
+    "PrizeYen": 69500000,
+    "SourceFile": "UMFW2026040220260402184302.jvd"
+  },
+  {
+    "KettoNum": "2021102413",
+    "HorseName": "シークレットヴァウ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021103092",
+    "HorseName": "ナムラローズマリー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021103116",
+    "HorseName": "ヤブサメ",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021103272",
+    "HorseName": "メイショウタバル",
+    "PrizeYen": 416500000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2021103519",
+    "HorseName": "リラボニート",
+    "PrizeYen": 31500000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021103716",
+    "HorseName": "メイショウホウレン",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021103717",
+    "HorseName": "レヴォントゥレット",
+    "PrizeYen": 31000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021103932",
+    "HorseName": "ジェニファー",
+    "PrizeYen": 23000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021103975",
+    "HorseName": "セキトバイースト",
+    "PrizeYen": 75500000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2021103987",
+    "HorseName": "スナークラファエロ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021104094",
+    "HorseName": "シリウスコルト",
+    "PrizeYen": 53500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021104324",
+    "HorseName": "ディマイザキッド",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026061520260615134006.jvd"
+  },
+  {
+    "KettoNum": "2021104461",
+    "HorseName": "ガビーズシスター",
+    "PrizeYen": 43000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021104556",
+    "HorseName": "カルチャーデイ",
+    "PrizeYen": 32000000,
+    "SourceFile": "UMFW2026060420260604183122.jvd"
+  },
+  {
+    "KettoNum": "2021104824",
+    "HorseName": "アスクデビューモア",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021104825",
+    "HorseName": "ゴンバデカーブース",
+    "PrizeYen": 20000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021104854",
+    "HorseName": "ミナデオロ",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2021104873",
+    "HorseName": "ポッドロゴ",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021104893",
+    "HorseName": "ファーヴェント",
+    "PrizeYen": 32500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021104894",
+    "HorseName": "セントメモリーズ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105066",
+    "HorseName": "レッドテリオス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105112",
+    "HorseName": "ミッキークレスト",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105119",
+    "HorseName": "キープカルム",
+    "PrizeYen": 52500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105138",
+    "HorseName": "エセルフリーダ",
+    "PrizeYen": 43000000,
+    "SourceFile": "UMFW2026032320260323133819.jvd"
+  },
+  {
+    "KettoNum": "2021105143",
+    "HorseName": "ダノンデサイル",
+    "PrizeYen": 478700000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2021105195",
+    "HorseName": "ショウナンラプンタ",
+    "PrizeYen": 31500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105228",
+    "HorseName": "レディーヴァリュー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021105358",
+    "HorseName": "アスティスプマンテ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2021105369",
+    "HorseName": "アドマイヤテラ",
+    "PrizeYen": 89000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021105391",
+    "HorseName": "ラスカンブレス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105399",
+    "HorseName": "ヴェローチェエラ",
+    "PrizeYen": 45500000,
+    "SourceFile": "UMFW2025090820250908133728.jvd"
+  },
+  {
+    "KettoNum": "2021105433",
+    "HorseName": "アクアヴァーナル",
+    "PrizeYen": 40500000,
+    "SourceFile": "UMFW2026051120260511133754.jvd"
+  },
+  {
+    "KettoNum": "2021105442",
+    "HorseName": "エラトー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021105454",
+    "HorseName": "ブエナオンダ",
+    "PrizeYen": 45500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105541",
+    "HorseName": "サフィラ",
+    "PrizeYen": 43500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105559",
+    "HorseName": "ギャンブルルーム",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105564",
+    "HorseName": "カズミクラーシュ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105565",
+    "HorseName": "エコロブルーム",
+    "PrizeYen": 53000000,
+    "SourceFile": "UMFW2026060820260608133723.jvd"
+  },
+  {
+    "KettoNum": "2021105574",
+    "HorseName": "シンハナーダ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021105581",
+    "HorseName": "フレミングフープ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2021105599",
+    "HorseName": "シンバーシア",
+    "PrizeYen": 22000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021105615",
+    "HorseName": "ミッキーファイト",
+    "PrizeYen": 235200000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2021105643",
+    "HorseName": "チェルヴィニア",
+    "PrizeYen": 158000000,
+    "SourceFile": "UMFW2026052120260521190004.jvd"
+  },
+  {
+    "KettoNum": "2021105661",
+    "HorseName": "レガーロデルシエロ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105724",
+    "HorseName": "シックスペンス",
+    "PrizeYen": 207000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021105727",
+    "HorseName": "フォーエバーヤング",
+    "PrizeYen": 2294500000,
+    "SourceFile": "UMOW2026050120260501132205.jvd"
+  },
+  {
+    "KettoNum": "2021105738",
+    "HorseName": "アンゴラブラック",
+    "PrizeYen": 43500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2021105743",
+    "HorseName": "ステレンボッシュ",
+    "PrizeYen": 130500000,
+    "SourceFile": "UMFW2026061120260611182249.jvd"
+  },
+  {
+    "KettoNum": "2021105744",
+    "HorseName": "シュトラウス",
+    "PrizeYen": 84000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021105752",
+    "HorseName": "レディマリオン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105774",
+    "HorseName": "ダノンマッキンリー",
+    "PrizeYen": 59000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021105801",
+    "HorseName": "ミアネーロ",
+    "PrizeYen": 33500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021105808",
+    "HorseName": "ガイアメンテ",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021105829",
+    "HorseName": "スティンガーグラス",
+    "PrizeYen": 71000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2021105880",
+    "HorseName": "レッドエヴァンス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2021106171",
+    "HorseName": "ブルーサン",
+    "PrizeYen": 19000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021106554",
+    "HorseName": "タガノミスト",
+    "PrizeYen": 65000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
   },
   {
     "KettoNum": "2021106601",
@@ -60,10 +1152,208 @@
     "SourceFile": "UMFW2026072720260727133709.jvd"
   },
   {
+    "KettoNum": "2021106611",
+    "HorseName": "カゼノランナー",
+    "PrizeYen": 101000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2021106645",
+    "HorseName": "ウエストナウ",
+    "PrizeYen": 52000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2021106658",
+    "HorseName": "ストレングス",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2021106752",
+    "HorseName": "パレハ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021106782",
+    "HorseName": "コスモブッドレア",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2021106787",
+    "HorseName": "コスモキュランダ",
+    "PrizeYen": 182000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2021106823",
+    "HorseName": "コガネノソラ",
+    "PrizeYen": 60000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021106954",
+    "HorseName": "アスクナイスショー",
+    "PrizeYen": 45500000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2021106993",
+    "HorseName": "サクソンジェンヌ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2021107058",
+    "HorseName": "ピューロマジック",
+    "PrizeYen": 91000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2021107063",
+    "HorseName": "イツモニコニコ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021107179",
+    "HorseName": "ボンドガール",
+    "PrizeYen": 74000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2021110030",
+    "HorseName": "アンパドゥ",
+    "PrizeYen": 44500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021110031",
+    "HorseName": "オフトレイル",
+    "PrizeYen": 79000000,
+    "SourceFile": "UMFW2026061120260611182249.jvd"
+  },
+  {
+    "KettoNum": "2021110099",
+    "HorseName": "ジューンブレア",
+    "PrizeYen": 74000000,
+    "SourceFile": "UMFW2026040220260402184302.jvd"
+  },
+  {
+    "KettoNum": "2021110112",
+    "HorseName": "ウェットシーズン",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026022320260223133238.jvd"
+  },
+  {
+    "KettoNum": "2021110126",
+    "HorseName": "インユアパレス",
+    "PrizeYen": 57500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021110148",
+    "HorseName": "ノーブルロジャー",
+    "PrizeYen": 44500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2021110164",
+    "HorseName": "インビンシブルパパ",
+    "PrizeYen": 58500000,
+    "SourceFile": "UMFW2026061520260615134006.jvd"
+  },
+  {
     "KettoNum": "2022100098",
     "HorseName": "ベルギューン",
     "PrizeYen": 24000000,
     "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022100140",
+    "HorseName": "ハッピーマン",
+    "PrizeYen": 63300000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022100154",
+    "HorseName": "メイショウズイウン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022100159",
+    "HorseName": "クインズショコラ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2022100490",
+    "HorseName": "モズナナスター",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026061820260618182344.jvd"
+  },
+  {
+    "KettoNum": "2022100623",
+    "HorseName": "ダノンフィーゴ",
+    "PrizeYen": 56200000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022100699",
+    "HorseName": "イガッチ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022101192",
+    "HorseName": "エストゥペンダ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022101193",
+    "HorseName": "ジーティーアダマン",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022101250",
+    "HorseName": "クリノメイ",
+    "PrizeYen": 35000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2022101420",
+    "HorseName": "サトノシャイニング",
+    "PrizeYen": 32000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022101623",
+    "HorseName": "アブキールベイ",
+    "PrizeYen": 29500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022101648",
+    "HorseName": "センツブラッド",
+    "PrizeYen": 25500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022101732",
+    "HorseName": "パンジャタワー",
+    "PrizeYen": 109500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022102020",
+    "HorseName": "フリッカージャブ",
+    "PrizeYen": 56500000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
   },
   {
     "KettoNum": "2022102057",
@@ -72,10 +1362,292 @@
     "SourceFile": "UMFW2026070920260709184327.jvd"
   },
   {
+    "KettoNum": "2022102280",
+    "HorseName": "チュウワクリスエス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022102296",
+    "HorseName": "ケリフレッドアスク",
+    "PrizeYen": 38500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022102399",
+    "HorseName": "マーズオデッセイ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026060420260604183122.jvd"
+  },
+  {
+    "KettoNum": "2022102408",
+    "HorseName": "ムイ",
+    "PrizeYen": 21000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022102493",
+    "HorseName": "トリリオンボーイ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022102874",
+    "HorseName": "ハナウマビーチ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
+  },
+  {
+    "KettoNum": "2022102887",
+    "HorseName": "ナムラクララ",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022103051",
+    "HorseName": "ヤンキーバローズ",
+    "PrizeYen": 24500000,
+    "SourceFile": "UMFW2026052820260528182912.jvd"
+  },
+  {
+    "KettoNum": "2022103066",
+    "HorseName": "レイピア",
+    "PrizeYen": 52500000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022103146",
+    "HorseName": "カンシン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022103205",
+    "HorseName": "エリカエクスプレス",
+    "PrizeYen": 45000000,
+    "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2022103264",
+    "HorseName": "メイショウハチロー",
+    "PrizeYen": 31500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022103267",
+    "HorseName": "ギュルヴィ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022103274",
+    "HorseName": "メモリアカフェ",
+    "PrizeYen": 66700000,
+    "SourceFile": "UMFW2026052120260521190004.jvd"
+  },
+  {
+    "KettoNum": "2022103304",
+    "HorseName": "ダンツエラン",
+    "PrizeYen": 20000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2022103324",
+    "HorseName": "シュラフ",
+    "PrizeYen": 18000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2022103592",
+    "HorseName": "ルシード",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022103614",
+    "HorseName": "ヒルノハンブルク",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022103622",
+    "HorseName": "マテンロウコマンド",
+    "PrizeYen": 88200000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
     "KettoNum": "2022103684",
     "HorseName": "ゲイルライダー",
     "PrizeYen": 24000000,
     "SourceFile": "UMFW2026070920260709184327.jvd"
+  },
+  {
+    "KettoNum": "2022103686",
+    "HorseName": "テスティモーネ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022103795",
+    "HorseName": "ナチュラルライズ",
+    "PrizeYen": 112200000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022103875",
+    "HorseName": "アイサンサン",
+    "PrizeYen": 43000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022103995",
+    "HorseName": "ジョバンニ",
+    "PrizeYen": 58000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104094",
+    "HorseName": "サクラファレル",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022104401",
+    "HorseName": "ランスオブカオス",
+    "PrizeYen": 38500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022104416",
+    "HorseName": "レディネス",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2022104615",
+    "HorseName": "アマキヒ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022104617",
+    "HorseName": "ヴーレヴー",
+    "PrizeYen": 33000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104628",
+    "HorseName": "レイナデアルシーラ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022104645",
+    "HorseName": "ダノンシーマ",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026060420260604183122.jvd"
+  },
+  {
+    "KettoNum": "2022104714",
+    "HorseName": "ショウヘイ",
+    "PrizeYen": 73000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2022104750",
+    "HorseName": "レイニング",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104751",
+    "HorseName": "アルテヴェローチェ",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026060420260604183122.jvd"
+  },
+  {
+    "KettoNum": "2022104772",
+    "HorseName": "マジックサンズ",
+    "PrizeYen": 46000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104813",
+    "HorseName": "ジュタ",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022104814",
+    "HorseName": "ダノンセンチュリー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022104885",
+    "HorseName": "テレサ",
+    "PrizeYen": 25500000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2022104922",
+    "HorseName": "リラエンブレム",
+    "PrizeYen": 24500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104933",
+    "HorseName": "ディアナザール",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026071620260716182959.jvd"
+  },
+  {
+    "KettoNum": "2022104960",
+    "HorseName": "カルプスペルシュ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022104972",
+    "HorseName": "スリーピース",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022104994",
+    "HorseName": "ブラウンラチェット",
+    "PrizeYen": 20000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2022105071",
+    "HorseName": "ショウナンザナドゥ",
+    "PrizeYen": 30000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2022105109",
+    "HorseName": "ミラージュナイト",
+    "PrizeYen": 38000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022105157",
+    "HorseName": "ルージュソリテール",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026062220260622133241.jvd"
+  },
+  {
+    "KettoNum": "2022105175",
+    "HorseName": "フィーリウス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
+    "KettoNum": "2022105230",
+    "HorseName": "ミニトランザット",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062920260629133744.jvd"
   },
   {
     "KettoNum": "2022105244",
@@ -84,10 +1656,130 @@
     "SourceFile": "UMFW2026072320260723194404.jvd"
   },
   {
+    "KettoNum": "2022105262",
+    "HorseName": "カペルブリュッケ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022105291",
+    "HorseName": "ランフォーヴァウ",
+    "PrizeYen": 37000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022105346",
+    "HorseName": "レーゼドラマ",
+    "PrizeYen": 35000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022105369",
+    "HorseName": "ジョイフルニュース",
+    "PrizeYen": 32000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022105396",
+    "HorseName": "アドマイヤズーム",
+    "PrizeYen": 79500000,
+    "SourceFile": "UMFW2026060420260604183122.jvd"
+  },
+  {
+    "KettoNum": "2022105402",
+    "HorseName": "カムニャック",
+    "PrizeYen": 172000000,
+    "SourceFile": "UMFW2026051820260518133723.jvd"
+  },
+  {
+    "KettoNum": "2022105519",
+    "HorseName": "マスカレードボール",
+    "PrizeYen": 405900000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
+  },
+  {
+    "KettoNum": "2022105755",
+    "HorseName": "スリールミニョン",
+    "PrizeYen": 25000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2022105778",
+    "HorseName": "チェルビアット",
+    "PrizeYen": 23500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022105979",
+    "HorseName": "ピカピカサンダー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2022106306",
+    "HorseName": "ゼンダンハヤブサ",
+    "PrizeYen": 36500000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022106394",
+    "HorseName": "クラスペディア",
+    "PrizeYen": 40000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022106553",
+    "HorseName": "タガノバビロン",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
+    "KettoNum": "2022106562",
+    "HorseName": "タガノアビー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022106610",
+    "HorseName": "ヤマニンチェルキ",
+    "PrizeYen": 73500000,
+    "SourceFile": "UMFW2026070220260702184611.jvd"
+  },
+  {
+    "KettoNum": "2022106658",
+    "HorseName": "ベルジュロネット",
+    "PrizeYen": 36000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
     "KettoNum": "2022106689",
     "HorseName": "アンズアメ",
     "PrizeYen": 36000000,
     "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022106942",
+    "HorseName": "ドンインザムード",
+    "PrizeYen": 53500000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022107282",
+    "HorseName": "レクスノヴァス",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022110026",
+    "HorseName": "コウセキ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072020260720133951.jvd"
+  },
+  {
+    "KettoNum": "2022110083",
+    "HorseName": "ルクソールカフェ",
+    "PrizeYen": 51000000,
+    "SourceFile": "UMFW2026071320260713133747.jvd"
   },
   {
     "KettoNum": "2022110105",
@@ -96,14 +1788,38 @@
     "SourceFile": "UMFW2026072020260720133951.jvd"
   },
   {
+    "KettoNum": "2022110114",
+    "HorseName": "シンフォーエバー",
+    "PrizeYen": 35500000,
+    "SourceFile": "UMFW2026070620260706133708.jvd"
+  },
+  {
     "KettoNum": "2022110137",
     "HorseName": "ドラゴンウェルズ",
     "PrizeYen": 51000000,
     "SourceFile": "UMFW2026071620260716182959.jvd"
   },
   {
+    "KettoNum": "2022110138",
+    "HorseName": "ドラゴンテイラー",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072720260727133709.jvd"
+  },
+  {
+    "KettoNum": "2022110140",
+    "HorseName": "ポールセン",
+    "PrizeYen": 19000000,
+    "SourceFile": "UMFW2026062520260625182738.jvd"
+  },
+  {
     "KettoNum": "2022110142",
     "HorseName": "ファムエレガンテ",
+    "PrizeYen": 24000000,
+    "SourceFile": "UMFW2026072320260723194404.jvd"
+  },
+  {
+    "KettoNum": "2022110151",
+    "HorseName": "ゲッティヴィラ",
     "PrizeYen": 24000000,
     "SourceFile": "UMFW2026072320260723194404.jvd"
   }

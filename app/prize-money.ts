@@ -1,5 +1,5 @@
 import jraPrizeMoney from "./jra-prize-money.json";
-import { clusterCupPrizeMoney } from "./cluster-cup";
+import dataLabPrizeMoney from "./data-lab-prize-money.json";
 
 export type PrizeMoneyRecord = {
   yen: number;
@@ -10,10 +10,41 @@ export type PrizeMoneyRecord = {
   sourceFile?: string;
 };
 
-export const prizeMoneyByHorse = {
-  ...(jraPrizeMoney as Record<string, PrizeMoneyRecord>),
-  ...clusterCupPrizeMoney,
+type DataLabPrizeRecord = {
+  KettoNum: string;
+  HorseName: string;
+  PrizeYen: number;
+  SourceFile: string;
 };
+
+const dataLabPrizeMoneyByHorseId: Record<string, PrizeMoneyRecord> =
+  Object.fromEntries(
+    (dataLabPrizeMoney as DataLabPrizeRecord[]).map((record) => [
+      record.KettoNum,
+      {
+        yen: record.PrizeYen,
+        verifiedAt: "2026-07-27",
+        jraHorseId: record.KettoNum,
+        sourceLabel: "JRA-VAN Data Lab.",
+        sourceFile: record.SourceFile,
+      },
+    ]),
+  );
+
+const jraPrizeMoneyByHorse =
+  jraPrizeMoney as Record<string, PrizeMoneyRecord>;
+
+export function getHorseId(horseUrl: string) {
+  return horseUrl.match(/\/horse\/(\d{10})/)?.[1];
+}
+
+export function getPrizeMoney(horseUrl: string, horseName: string) {
+  const horseId = getHorseId(horseUrl);
+  return (
+    (horseId ? dataLabPrizeMoneyByHorseId[horseId] : undefined) ??
+    jraPrizeMoneyByHorse[horseName]
+  );
+}
 
 export function formatPrizeMoney(yen: number) {
   const manYen = yen / 10_000;

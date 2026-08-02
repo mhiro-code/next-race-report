@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import initialData from "./next-races.json";
-import { formatPrizeMoney, prizeMoneyByHorse } from "./prize-money";
+import { formatPrizeMoney, getPrizeMoney } from "./prize-money";
 import { applyClusterCupRows } from "./cluster-cup";
 
 type RaceRow = {
@@ -22,8 +22,8 @@ type RacePayload = {
 
 const pageSize = 50;
 
-function PrizeMoneyCell({ horse }: { horse: string }) {
-  const prize = prizeMoneyByHorse[horse];
+function PrizeMoneyCell({ row }: { row: RaceRow }) {
+  const prize = getPrizeMoney(row.horse_url, row.horse);
   if (!prize) return <span className="unverified">未取得</span>;
 
   const sourceLabel = prize.sourceLabel ?? "JRA公式";
@@ -88,8 +88,8 @@ export default function Home() {
       if (sort === "horse") return a.horse.localeCompare(b.horse, "ja");
       if (sort === "prize") {
         const difference =
-          (prizeMoneyByHorse[b.horse]?.yen ?? -1) -
-          (prizeMoneyByHorse[a.horse]?.yen ?? -1);
+          (getPrizeMoney(b.horse_url, b.horse)?.yen ?? -1) -
+          (getPrizeMoney(a.horse_url, a.horse)?.yen ?? -1);
         return difference || a.horse.localeCompare(b.horse, "ja");
       }
       return (
@@ -107,7 +107,9 @@ export default function Home() {
   );
   const newCount = data.rows.filter((row) => row.update === "NEW").length;
   const raceCount = new Set(data.rows.map((row) => row.next_race)).size;
-  const verifiedCount = data.rows.filter((row) => prizeMoneyByHorse[row.horse]).length;
+  const verifiedCount = data.rows.filter((row) =>
+    getPrizeMoney(row.horse_url, row.horse)
+  ).length;
 
   function resetPage() {
     setPage(1);
@@ -277,7 +279,7 @@ export default function Home() {
                     </a>
                   </td>
                   <td className="prizeCell">
-                    <PrizeMoneyCell horse={row.horse} />
+                    <PrizeMoneyCell row={row} />
                   </td>
                   <td>
                     {row.race_url ? (

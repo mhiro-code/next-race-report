@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert a JV-Link prize CSV into the Site's Data Lab JSON."""
+"""Import JV-Link prizes required by the Site's current horse list."""
 
 from __future__ import annotations
 
@@ -12,14 +12,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = ROOT / "app" / "data-lab-prize-money.json"
 REQUIRED_COLUMNS = {"KettoNum", "HorseName", "PrizeYen", "SourceFile"}
+NEXT_RACES_PATH = ROOT / "app" / "next-races.json"
+CLUSTER_CUP_PATH = ROOT / "app" / "cluster-cup-horses.json"
+
+
+def get_target_ids() -> set[str]:
+    next_races = json.loads(NEXT_RACES_PATH.read_text(encoding="utf-8"))
+    cluster_cup = json.loads(CLUSTER_CUP_PATH.read_text(encoding="utf-8"))
+    target_ids = {
+        row["horse_url"].split("/horse/", 1)[1].split("/", 1)[0]
+        for row in next_races["rows"]
+        if "/horse/" in row.get("horse_url", "")
+    }
+    target_ids.update(row["KettoNum"] for row in cluster_cup)
+    return target_ids
 
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("Usage: import-data-lab-prizes.py <cluster-cup-prize-money.csv>")
+        print("Usage: import-data-lab-prizes.py <all-horse-prize-money.csv>")
         return 2
 
     input_path = Path(sys.argv[1]).resolve()
+    target_ids = get_target_ids()
     with input_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         missing_columns = REQUIRED_COLUMNS.difference(reader.fieldnames or [])
@@ -44,6 +59,8 @@ def main() -> int:
                 raise ValueError(f"Invalid record: {row!r}")
 
             seen_ids.add(ketto_num)
+            if ketto_num not in target_ids:
+                continue
             records.append(
                 {
                     "KettoNum": ketto_num,
@@ -54,11 +71,22 @@ def main() -> int:
             )
 
     records.sort(key=lambda item: item["KettoNum"])
+    imported_ids = {record["KettoNum"] for record in records}
+    missing_ids = sorted(target_ids.difference(imported_ids))
+    if missing_ids:
+        raise ValueError(
+            f"Data Lab CSV is missing {len(missing_ids)} target horses: "
+            + ", ".join(missing_ids)
+        )
+
     OUTPUT_PATH.write_text(
         json.dumps(records, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    print(f"Imported {len(records)} records to {OUTPUT_PATH}")
+    print(
+        f"Imported {len(records)} current Site horses "
+        f"from {len(seen_ids)} Data Lab records"
+    )
     return 0
 
 

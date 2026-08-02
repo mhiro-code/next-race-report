@@ -119,17 +119,25 @@ try {
     }
 
     Write-Host "Locating special-race registration records (TK)..."
-    $registrationSearchRoots = @($targetRoot, $jvDataRoot) |
-        Where-Object { Test-Path -LiteralPath $_ -PathType Container } |
-        Select-Object -Unique
-    if (@($registrationSearchRoots).Count -eq 0) {
+    $registrationSearchRoots = @()
+    foreach ($candidateRoot in @($targetRoot, $jvDataRoot)) {
+        if ([string]::IsNullOrWhiteSpace($candidateRoot)) { continue }
+        if (Test-Path -LiteralPath $candidateRoot -PathType Container) {
+            $registrationSearchRoots += $candidateRoot
+        }
+    }
+    $registrationSearchRoots = @($registrationSearchRoots | Select-Object -Unique)
+    if ($registrationSearchRoots.Count -eq 0) {
         throw "No TARGET or JV-Data search folder was found."
     }
     Write-Host ("Search roots: {0}" -f ($registrationSearchRoots -join ", "))
 
-    $registrationFiles = @($registrationSearchRoots | ForEach-Object {
-        Get-ChildItem -LiteralPath $_ -File -Recurse -ErrorAction SilentlyContinue
-    } | Sort-Object FullName -Unique)
+    $registrationFiles = @()
+    foreach ($searchRoot in $registrationSearchRoots) {
+        if ([string]::IsNullOrWhiteSpace($searchRoot)) { continue }
+        $registrationFiles += Get-ChildItem -LiteralPath $searchRoot -File -Recurse -ErrorAction SilentlyContinue
+    }
+    $registrationFiles = @($registrationFiles | Sort-Object FullName -Unique)
 
     foreach ($file in $registrationFiles) {
         $registrationFileCount++

@@ -17,8 +17,8 @@ if ([IntPtr]::Size -eq 8) {
 
 $targetRaceDate = "20260816"
 $fromTime = "20240101000000" # Includes a buffer before the approximate 2-year window.
-$dataSpec = "DIFN"
-$dataOption = 1
+$dataSpec = "RACE"
+$dataOption = 3 # Setup data is required to retrieve historical RA/SE records.
 $bufferSize = 110000
 $encoding = [System.Text.Encoding]::GetEncoding(932)
 
@@ -43,7 +43,6 @@ $targetHorses = @{
 
 $raceRecords = @{}
 $horseRaceRecords = @{}
-$horseMasterRecords = @{}
 $jvLink = $null
 
 function Get-TextFromBytes {
@@ -196,23 +195,6 @@ try {
             continue
         }
 
-        if ($recordType -eq "UM" -and $recordBytes.Length -ge 1097) {
-            $kettoNum = Get-TextFromBytes $recordBytes 11 10
-            if (-not $targetHorses.ContainsKey($kettoNum)) { continue }
-
-            if ($dataKubun -eq "0") {
-                [void]$horseMasterRecords.Remove($kettoNum)
-                continue
-            }
-
-            $horseMasterRecords[$kettoNum] = [PSCustomObject]@{
-                KettoNum = $kettoNum
-                HorseName = Get-TextFromBytes $recordBytes 46 36
-                CurrentAcquisitionMoneyYen = Get-HundredYenValue (Get-TextFromBytes $recordBytes 1088 9)
-                SourceDataKubun = $dataKubun
-            }
-        }
-
         if (($recordCount % 50000) -eq 0) {
             Write-Host ("Progress: {0:N0} records" -f $recordCount)
         }
@@ -248,33 +230,17 @@ try {
         }
     }
 
-    $currentRows = foreach ($kettoNum in ($targetHorses.Keys | Sort-Object)) {
-        $master = $horseMasterRecords[$kettoNum]
-        [PSCustomObject]@{
-            KettoNum = $kettoNum
-            ExpectedHorseName = $targetHorses[$kettoNum]
-            JVHorseName = if ($null -eq $master) { "" } else { $master.HorseName }
-            CurrentAcquisitionMoneyYen = if ($null -eq $master) { "" } else { $master.CurrentAcquisitionMoneyYen }
-            Found = ($null -ne $master)
-        }
-    }
-
     $historyPath = Join-Path $PSScriptRoot "chukyo-kinen-race-history.csv"
-    $currentPath = Join-Path $PSScriptRoot "chukyo-kinen-current-prizes.csv"
 
     $historyRows |
         Sort-Object KettoNum, RaceDate, RaceId |
         Export-Csv -Path $historyPath -NoTypeInformation -Encoding UTF8
-    $currentRows |
-        Export-Csv -Path $currentPath -NoTypeInformation -Encoding UTF8
 
     Write-Host ""
     Write-Host "RESULT: SUCCESS"
     Write-Host ("Records read: {0:N0}" -f $recordCount)
     Write-Host ("Target horse race rows: {0:N0}" -f @($historyRows).Count)
-    Write-Host ("Current prize horses found: {0} / {1}" -f $horseMasterRecords.Count, $targetHorses.Count)
     Write-Host "History CSV: $historyPath"
-    Write-Host "Current CSV: $currentPath"
 }
 catch {
     Write-Host ""

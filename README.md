@@ -10,7 +10,7 @@ netkeiba「次走想定（古馬）」の一覧を、検索・レース名フィ
 - 予定レース、NEW 表示による絞り込み
 - 馬名、レース名、収得賞金順の並び替え
 - netkeiba の馬・レース詳細ページへのリンク
-- netkeiba 掲載データの再取得
+- GitHub Actionsによるnetkeiba掲載データの再取得
 - Data Lab の収得賞金データ取り込み
 
 ## 開発環境
@@ -28,6 +28,12 @@ npm run dev
 ```bash
 npm test
 ```
+
+## 次走予定データの更新
+
+GitHubで **Actions** → **Update next-race data** → **Run workflow** の順に開き、もう一度 **Run workflow** を押します。
+
+処理が成功すると、netkeibaから取得した内容が `app/next-races.json` へ自動コミットされ、GitHub Pagesにも反映されます。画面の再読み込みは、反映後のJSONを表示するだけです。
 
 ## Data Lab データの更新
 
@@ -58,8 +64,8 @@ CSV自体は個人の取得データとしてGitHubへ登録しません。更�
 
 - `main` を公開可能な安定版として扱います。
 - 変更は作業ブランチと Pull Request で確認してから `main` へ取り込みます。
-- 現在の ChatGPT Sites 版は、新しい公開先が動作確認できるまで退避用として残します。
-- 次の公開先は Cloudflare を予定しています。
+- 公開先はGitHub Pages（`https://mhiro-code.github.io/next-race-report/`）です。
+- 現在のChatGPT Sites版は退避用として残します。
 
 ## データについて
 

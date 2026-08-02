@@ -3,9 +3,11 @@ import { clusterCupPrizeMoney } from "./cluster-cup";
 
 export type PrizeMoneyRecord = {
   yen: number;
-  jraUrl: string;
+  jraUrl?: string;
   verifiedAt: string;
   jraHorseId: string;
+  sourceLabel?: string;
+  sourceFile?: string;
 };
 
 export const prizeMoneyByHorse = {

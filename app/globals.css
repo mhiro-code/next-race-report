@@ -207,6 +207,10 @@ td { padding: 15px 18px; border-top: 1px solid #edf0ee; font-size: 14px; }
 td:first-child { text-align: center; }
 .prizeCell { text-align: right; font-variant-numeric: tabular-nums; }
 .prizeCell a { color: #364f42; }
+.dataLabValue {
+  border-bottom: 1px dotted #8a978f;
+  cursor: help;
+}
 .unverified { color: #9aa59f; font-size: 12px; }
 tbody tr:hover { background: #fafcfb; }
 td a {

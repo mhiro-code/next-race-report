@@ -22,6 +22,36 @@ type RacePayload = {
 
 const pageSize = 50;
 
+function PrizeMoneyCell({ horse }: { horse: string }) {
+  const prize = prizeMoneyByHorse[horse];
+  if (!prize) return <span className="unverified">未取得</span>;
+
+  const sourceLabel = prize.sourceLabel ?? "JRA公式";
+  const title = `${sourceLabel}・${prize.verifiedAt}取得`;
+  if (prize.jraUrl) {
+    return (
+      <a
+        href={prize.jraUrl}
+        target="_blank"
+        rel="noreferrer"
+        title={title}
+      >
+        {formatPrizeMoney(prize.yen)}
+        <span aria-hidden="true">↗</span>
+      </a>
+    );
+  }
+
+  return (
+    <span
+      className="dataLabValue"
+      title={`${title}（${prize.sourceFile ?? "UMレコード"}）`}
+    >
+      {formatPrizeMoney(prize.yen)}
+    </span>
+  );
+}
+
 export default function Home() {
   const [data, setData] = useState<RacePayload>({
     ...initialData,
@@ -209,7 +239,7 @@ export default function Home() {
         <div className="resultBar">
           <p><strong>{filtered.length}</strong>頭を表示</p>
           <p className="verification">
-            JRA公式照合済み <strong>{verifiedCount}</strong> / {data.rows.length}頭
+            収得賞金取得済み <strong>{verifiedCount}</strong> / {data.rows.length}頭
           </p>
           {(query || race !== "すべて" || newOnly) && (
             <button
@@ -247,19 +277,7 @@ export default function Home() {
                     </a>
                   </td>
                   <td className="prizeCell">
-                    {prizeMoneyByHorse[row.horse] ? (
-                      <a
-                        href={prizeMoneyByHorse[row.horse].jraUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        title={`JRA公式・${prizeMoneyByHorse[row.horse].verifiedAt}確認`}
-                      >
-                        {formatPrizeMoney(prizeMoneyByHorse[row.horse].yen)}
-                        <span aria-hidden="true">↗</span>
-                      </a>
-                    ) : (
-                      <span className="unverified">未取得</span>
-                    )}
+                    <PrizeMoneyCell horse={row.horse} />
                   </td>
                   <td>
                     {row.race_url ? (

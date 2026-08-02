@@ -19,12 +19,15 @@ $targetHorses = @{
     "2019105239" = "Shonan Adive"
     "2020103428" = "Sweep Awards"
     "2022105778" = "Cherbiatto"
+    "2023106227" = "Namura Cosmos"
     "2020106582" = "Phantom Thief"
     "2021105454" = "Buena Onda"
     "2021104854" = "Mina de Oro"
     "2021107098" = "Lavanda"
     "2022104401" = "Lance of Chaos"
     "2022104922" = "Lila Emblem"
+    "2023105312" = "Lily Joie"
+    "2021105661" = "Regalo del Cielo"
 }
 
 $raceRecords = @{}

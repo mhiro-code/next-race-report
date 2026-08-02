@@ -40,3 +40,7 @@ next-env.d.ts
 /.sites-runtime/
 /outputs/
 /work/
+
+# locally exported JRA-VAN Data Lab files
+/all-horse-prize-money.csv
+/cluster-cup-prize-money.csv

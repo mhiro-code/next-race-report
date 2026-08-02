@@ -44,3 +44,4 @@ next-env.d.ts
 # locally exported JRA-VAN Data Lab files
 /all-horse-prize-money.csv
 /cluster-cup-prize-money.csv
+/tools/windows/all-horse-prize-money.csv

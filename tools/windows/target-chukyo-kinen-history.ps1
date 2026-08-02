@@ -4,6 +4,7 @@ $ErrorActionPreference = "Stop"
 # No JV-Link connection or network download is performed.
 
 $dataRoot = "D:\TFJV\SE_DATA"
+$horseDataRoot = "D:\TFJV\UM_DATA"
 $fromRaceDate = "20240801"
 $targetRaceDate = "20260816"
 $encoding = [System.Text.Encoding]::GetEncoding(932)
@@ -32,10 +33,13 @@ $targetHorses = @{
 
 $raceRecords = @{}
 $horseRaceRecords = @{}
+$horseMasterRecords = @{}
 $fileCount = 0
 $raCount = 0
 $seCount = 0
 $skippedFileCount = 0
+$umFileCount = 0
+$umRecordCount = 0
 
 function Get-TextFromBytes {
     param(
@@ -93,6 +97,9 @@ try {
 
     if (-not (Test-Path -LiteralPath $dataRoot -PathType Container)) {
         throw "TARGET SE_DATA folder was not found: $dataRoot"
+    }
+    if (-not (Test-Path -LiteralPath $horseDataRoot -PathType Container)) {
+        throw "TARGET UM_DATA folder was not found: $horseDataRoot"
     }
 
     $yearFolders = @("2024", "2025", "2026") | ForEach-Object {
@@ -198,6 +205,55 @@ try {
         }
     }
 
+    Write-Host "Reading current acquisition money from TARGET UM_DATA..."
+    $horseFiles = Get-ChildItem -LiteralPath $horseDataRoot -File -Recurse |
+        Sort-Object FullName
+
+    foreach ($file in $horseFiles) {
+        $fileBytes = [IO.File]::ReadAllBytes($file.FullName)
+        if ($fileBytes.Length -lt 2) { continue }
+        if ((Get-TextFromBytes $fileBytes 0 2) -ne "UM") { continue }
+
+        $umFileCount++
+        $recordSize = 1609
+        for ($offset = 0; ($offset + $recordSize) -le $fileBytes.Length; $offset += $recordSize) {
+            $recordBytes = Get-RecordBytes $fileBytes $offset $recordSize
+            if ((Get-TextFromBytes $recordBytes 0 2) -ne "UM") { continue }
+
+            $kettoNum = Get-TextFromBytes $recordBytes 11 10
+            if (-not $targetHorses.ContainsKey($kettoNum)) { continue }
+
+            $umRecordCount++
+            $dataKubun = Get-TextFromBytes $recordBytes 2 1
+            if ($dataKubun -eq "0") {
+                [void]$horseMasterRecords.Remove($kettoNum)
+                continue
+            }
+
+            $horseMasterRecords[$kettoNum] = [PSCustomObject]@{
+                KettoNum = $kettoNum
+                HorseName = Get-TextFromBytes $recordBytes 46 36
+                CurrentAcquisitionMoneyYen = Get-HundredYenValue (Get-TextFromBytes $recordBytes 1088 9)
+                SourceDataKubun = $dataKubun
+                SourceFile = $file.FullName
+            }
+        }
+    }
+
+    if ($horseMasterRecords.Count -ne $targetHorses.Count) {
+        $missingHorseIds = @($targetHorses.Keys | Where-Object {
+            -not $horseMasterRecords.ContainsKey($_)
+        } | Sort-Object)
+        throw ("Current acquisition money was found for {0} of {1} horses. Missing: {2}" -f `
+            $horseMasterRecords.Count, $targetHorses.Count, ($missingHorseIds -join ", "))
+    }
+
+    $currentPrizePath = Join-Path $PSScriptRoot "chukyo-kinen-current-prizes.csv"
+    $horseMasterRecords.Values |
+        Sort-Object KettoNum |
+        Select-Object KettoNum, HorseName, CurrentAcquisitionMoneyYen, SourceDataKubun |
+        Export-Csv -Path $currentPrizePath -NoTypeInformation -Encoding UTF8
+
     $historyRows = foreach ($horseRace in $horseRaceRecords.Values) {
         $race = $raceRecords[$horseRace.RaceId]
         if ($null -eq $race) { continue }
@@ -242,7 +298,10 @@ try {
     Write-Host ("Files skipped: {0:N0}" -f $skippedFileCount)
     Write-Host ("RA records in range: {0:N0}" -f $raCount)
     Write-Host ("Target SE records in range: {0:N0}" -f $seCount)
+    Write-Host ("UM files read: {0:N0}" -f $umFileCount)
+    Write-Host ("Target UM records read: {0:N0}" -f $umRecordCount)
     Write-Host ("Output rows: {0:N0}" -f @($historyRows).Count)
+    Write-Host "Current prize CSV: $currentPrizePath"
     Write-Host "History CSV: $historyPath"
 }
 catch {
@@ -253,5 +312,7 @@ catch {
     Write-Host ("Files skipped: {0:N0}" -f $skippedFileCount)
     Write-Host ("RA records in range: {0:N0}" -f $raCount)
     Write-Host ("Target SE records in range: {0:N0}" -f $seCount)
+    Write-Host ("UM files read: {0:N0}" -f $umFileCount)
+    Write-Host ("Target UM records read: {0:N0}" -f $umRecordCount)
     exit 1
 }

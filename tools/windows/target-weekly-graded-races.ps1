@@ -18,6 +18,8 @@ $raceRecords = @{}
 $horseRaceRecords = @{}
 $horseMasterRecords = @{}
 $tkFileCount = 0
+$registrationFileCount = 0
+$tkRaceSummaries = @()
 $historyFileCount = 0
 $raCount = 0
 $seCount = 0
@@ -72,6 +74,28 @@ function Get-RecordBytes {
     return ,$record
 }
 
+function Get-FileRecordSpec {
+    param([string]$Path)
+
+    $stream = $null
+    try {
+        $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+        $firstBytes = New-Object byte[] 2
+        if ($stream.Read($firstBytes, 0, 2) -ne 2) {
+            return ""
+        }
+        return $encoding.GetString($firstBytes, 0, 2)
+    }
+    catch {
+        return ""
+    }
+    finally {
+        if ($null -ne $stream) {
+            $stream.Dispose()
+        }
+    }
+}
+
 function Get-GradeLabel {
     param([string]$GradeCode)
     switch ($GradeCode) {
@@ -94,25 +118,39 @@ try {
         throw "TARGET UM_DATA folder was not found: $horseDataRoot"
     }
 
-    Write-Host "Reading special-race registration records (TK)..."
-    # TARGET keeps its current record set (including TK) directly in SE_DATA.
-    # Historical RA/SE records are read separately from the year folders below.
-    $allSeDataFiles = Get-ChildItem -LiteralPath $dataRoot -File |
-        Sort-Object FullName
+    Write-Host "Locating special-race registration records (TK)..."
+    $registrationSearchRoots = @($targetRoot, $jvDataRoot) |
+        Where-Object { Test-Path -LiteralPath $_ -PathType Container } |
+        Select-Object -Unique
+    if (@($registrationSearchRoots).Count -eq 0) {
+        throw "No TARGET or JV-Data search folder was found."
+    }
+    Write-Host ("Search roots: {0}" -f ($registrationSearchRoots -join ", "))
 
-    foreach ($file in $allSeDataFiles) {
-        $header = [IO.File]::ReadAllBytes($file.FullName)
-        if ($header.Length -lt 2) { continue }
-        if ((Get-TextFromBytes $header 0 2) -ne "TK") { continue }
+    $registrationFiles = @($registrationSearchRoots | ForEach-Object {
+        Get-ChildItem -LiteralPath $_ -File -Recurse -ErrorAction SilentlyContinue
+    } | Sort-Object FullName -Unique)
 
+    foreach ($file in $registrationFiles) {
+        $registrationFileCount++
+        if ((Get-FileRecordSpec $file.FullName) -ne "TK") {
+            if (($registrationFileCount % 1000) -eq 0) {
+                Write-Host ("Registration search: {0:N0} files" -f $registrationFileCount)
+            }
+            continue
+        }
+
+        $fileBytes = [IO.File]::ReadAllBytes($file.FullName)
         $tkFileCount++
         $recordSize = 21657
-        for ($offset = 0; ($offset + $recordSize) -le $header.Length; $offset += $recordSize) {
-            $recordBytes = Get-RecordBytes $header $offset $recordSize
+        for ($offset = 0; ($offset + $recordSize) -le $fileBytes.Length; $offset += $recordSize) {
+            $recordBytes = Get-RecordBytes $fileBytes $offset $recordSize
             if ((Get-TextFromBytes $recordBytes 0 2) -ne "TK") { continue }
 
             $raceDate = Get-RaceDate $recordBytes
             $gradeCode = Get-TextFromBytes $recordBytes 614 1
+            $raceName = Get-TextFromBytes $recordBytes 32 60
+            $tkRaceSummaries += "$raceDate $gradeCode $raceName"
             if ($targetRaceDates -notcontains $raceDate) { continue }
             if ($gradedRaceCodes -notcontains $gradeCode) { continue }
 
@@ -179,7 +217,10 @@ try {
         $found = @($registeredRaces.Values | Sort-Object RaceDate, RaceName | ForEach-Object {
             "$($_.RaceDate) $($_.RaceName)"
         }) -join "; "
-        throw "Expected 3 graded races, but found $($registeredRaces.Count). Found: $found"
+        $tkExamples = @($tkRaceSummaries | Sort-Object -Unique | Select-Object -Last 20) -join "; "
+        throw ("Expected 3 graded races, but found {0}. TK files: {1}. Files searched: {2}. " +
+            "Matching races: {3}. Latest TK records: {4}" -f $registeredRaces.Count,
+            $tkFileCount, $registrationFileCount, $found, $tkExamples)
     }
 
     $entryRows = @($registeredRaces.Values |
@@ -372,6 +413,7 @@ try {
 
     Write-Host ""
     Write-Host "RESULT: SUCCESS"
+    Write-Host ("Registration files searched: {0:N0}" -f $registrationFileCount)
     Write-Host ("TK files read: {0:N0}" -f $tkFileCount)
     Write-Host ("Graded races: {0:N0}" -f $registeredRaces.Count)
     Write-Host ("Registration rows: {0:N0}" -f $entryRows.Count)

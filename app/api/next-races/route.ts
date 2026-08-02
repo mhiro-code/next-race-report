@@ -1,3 +1,5 @@
+import { applyClusterCupRows } from "../../cluster-cup";
+
 const sourceUrl = "https://dir.netkeiba.com/keibamatome/detail.html?no=5557";
 
 function decodeEntities(value: string) {
@@ -59,7 +61,7 @@ export async function GET() {
       source_url: sourceUrl,
       page_updated: pageUpdated,
       retrieved_at: new Date().toISOString(),
-      rows,
+      rows: applyClusterCupRows(rows),
     });
   } catch {
     return Response.json({ error: "最新データを取得できませんでした" }, { status: 502 });

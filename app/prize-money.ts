@@ -1,4 +1,5 @@
 import jraPrizeMoney from "./jra-prize-money.json";
+import { clusterCupPrizeMoney } from "./cluster-cup";
 
 export type PrizeMoneyRecord = {
   yen: number;
@@ -7,8 +8,10 @@ export type PrizeMoneyRecord = {
   jraHorseId: string;
 };
 
-export const prizeMoneyByHorse =
-  jraPrizeMoney as Record<string, PrizeMoneyRecord>;
+export const prizeMoneyByHorse = {
+  ...(jraPrizeMoney as Record<string, PrizeMoneyRecord>),
+  ...clusterCupPrizeMoney,
+};
 
 export function formatPrizeMoney(yen: number) {
   const manYen = yen / 10_000;

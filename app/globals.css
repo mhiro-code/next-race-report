@@ -144,6 +144,8 @@ h1 {
   font-size: 11px;
   font-weight: 700;
 }
+.sortGuide > span { display:block; margin-bottom:8px; color:var(--muted); font-size:11px; font-weight:700; }
+.sortGuide > strong { height:44px; display:flex; align-items:center; padding:0 12px; border:1px solid #cfd8d2; border-radius:8px; background:#f5f7f5; color:#35443c; font-size:13px; }
 .inputWrap { position: relative; }
 .inputWrap > span { position: absolute; left: 14px; top: 10px; color: #7c8a82; font-size: 20px; }
 input[type="text"], .inputWrap input, select {
@@ -186,12 +188,20 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
 .clearButton { border: 0; background: none; color: var(--green); cursor: pointer; font-size: 12px; }
 
 .tableCard {
-  overflow: hidden;
+  overflow-x: auto;
   background: white;
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: 0 6px 22px rgba(30,49,38,.04);
 }
+.raceSummary { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-top:22px; padding:20px 24px; border:1px solid #bed6c8; border-radius:14px; background:var(--green-pale); }
+.raceSummary h2 { margin:5px 0 6px; font:700 27px/1.2 "Yu Mincho",serif; }
+.raceSummary h2 small { color:var(--green); font:800 12px/1 sans-serif; }
+.raceSummary p:last-child { margin:0; color:var(--muted); font-size:13px; }
+.cutoff { min-width:260px; padding-left:22px; border-left:1px solid #bed6c8; }
+.cutoff span,.cutoff strong { display:block; }
+.cutoff span { color:var(--muted); font-size:11px; }
+.cutoff strong { margin-top:6px; color:var(--green-dark); font-size:15px; }
 table { width: 100%; border-collapse: collapse; }
 th {
   padding: 14px 18px;
@@ -205,6 +215,16 @@ th:first-child { width: 90px; text-align: center; }
 .prizeHeader { width: 190px; text-align: right; }
 td { padding: 15px 18px; border-top: 1px solid #edf0ee; font-size: 14px; }
 td:first-child { text-align: center; }
+.numeric { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.rankingTable { min-width:1100px; }
+.rankingTable th:first-child { width:76px; }
+.rankBadge { display:inline-grid; place-items:center; min-width:30px; height:30px; border-radius:50%; background:#edf3ef; color:var(--green-dark); font-weight:900; }
+.totalHead,.totalCell { background:#eef6f1; }
+.totalCell { color:var(--green-dark); font-weight:900; }
+.plus { color:#58675f; }
+.estimate { display:block; margin-top:2px; color:#8b9790; font-size:9px; font-weight:400; }
+.cutoffRow { border-bottom:3px solid var(--orange); }
+.cutoffRow .rankBadge { background:var(--orange); color:#fff; }
 .prizeCell { text-align: right; font-variant-numeric: tabular-nums; }
 .prizeCell a { color: #364f42; }
 .dataLabValue {
@@ -259,6 +279,8 @@ td a:hover { text-decoration: underline; }
   .refreshPanel { max-width: 420px; }
   .filterCard { grid-template-columns: 1fr 1fr; }
   .searchField { grid-column: 1 / -1; }
+  .raceSummary { align-items:flex-start; flex-direction:column; }
+  .cutoff { width:100%; padding:14px 0 0; border-left:0; border-top:1px solid #bed6c8; }
 }
 
 @media (max-width: 560px) {

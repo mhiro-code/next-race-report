@@ -31,13 +31,28 @@ npm test
 
 ## Data Lab データの更新
 
-Windows PC の JV-Link から `all-horse-prize-money.csv` を生成し、次のコマンドでサイト用データへ変換します。
+### 1. JV-LinkからCSVを出力
 
-```bash
-python3 scripts/import-data-lab-prizes.py /path/to/all-horse-prize-money.csv
+JRA-VAN Data LabとJV-Linkを利用できるWindows PCで、リポジトリ直下から次を実行します。64-bit環境から起動した場合も、スクリプトが32-bit Windows PowerShellへ自動的に切り替えます。
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+& ".\tools\windows\jvlink-all-horse-prizes.ps1"
 ```
 
-生成結果は `app/data-lab-prize-money.json` に反映されます。CSV 自体は個人の取得データとして GitHub へ登録しません。
+処理が完了すると、`tools/windows/all-horse-prize-money.csv` が生成されます。
+
+### 2. サイト用JSONへ変換
+
+生成したCSVを次のコマンドでサイト用データへ変換します。
+
+```bash
+python3 scripts/import-data-lab-prizes.py tools/windows/all-horse-prize-money.csv
+```
+
+生成結果は `app/data-lab-prize-money.json` に反映されます。CSVには全取得馬のデータが含まれますが、JSONへ保存するのは現在の次走一覧に掲載されている馬だけです。
+
+CSV自体は個人の取得データとしてGitHubへ登録しません。更新時にコミットするのは、原則として生成された `app/data-lab-prize-money.json` です。
 
 ## 管理方針
 

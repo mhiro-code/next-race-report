@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const developmentPreviewMeta =
@@ -30,4 +31,22 @@ test("renders development preview metadata", async () => {
     /^text\/html\b/i,
   );
   assert.match(await response.text(), developmentPreviewMeta);
+});
+
+test("includes a self-contained GitHub Pages entry point", async () => {
+  const [html, script, nextRaces, dataLabPrizes] = await Promise.all([
+    readFile(new URL("../index.html", import.meta.url), "utf8"),
+    readFile(new URL("../pages.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/next-races.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/data-lab-prize-money.json", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(html, /<script src="\.\/pages\.js" defer><\/script>/);
+  assert.match(html, /<tbody id="race-rows">/);
+  assert.doesNotThrow(() => new Function(script));
+
+  const races = JSON.parse(nextRaces);
+  const prizes = JSON.parse(dataLabPrizes);
+  assert.ok(races.rows.length > 0);
+  assert.ok(prizes.length > 0);
 });

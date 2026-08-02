@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import initialData from "./next-races.json";
+import { formatPrizeMoney, prizeMoneyByHorse } from "./prize-money";
 
 type RaceRow = {
   update: string;
@@ -25,7 +26,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [race, setRace] = useState("すべて");
   const [newOnly, setNewOnly] = useState(false);
-  const [sort, setSort] = useState<"horse" | "race">("horse");
+  const [sort, setSort] = useState<"horse" | "race" | "prize">("horse");
   const [page, setPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState("");
@@ -49,12 +50,19 @@ export default function Home() {
       const matchesNew = !newOnly || row.update === "NEW";
       return matchesQuery && matchesRace && matchesNew;
     });
-    return rows.sort((a, b) =>
-      sort === "horse"
-        ? a.horse.localeCompare(b.horse, "ja")
-        : a.next_race.localeCompare(b.next_race, "ja") ||
-          a.horse.localeCompare(b.horse, "ja"),
-    );
+    return rows.sort((a, b) => {
+      if (sort === "horse") return a.horse.localeCompare(b.horse, "ja");
+      if (sort === "prize") {
+        const difference =
+          (prizeMoneyByHorse[b.horse]?.yen ?? -1) -
+          (prizeMoneyByHorse[a.horse]?.yen ?? -1);
+        return difference || a.horse.localeCompare(b.horse, "ja");
+      }
+      return (
+        a.next_race.localeCompare(b.next_race, "ja") ||
+        a.horse.localeCompare(b.horse, "ja")
+      );
+    });
   }, [data, newOnly, query, race, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -65,6 +73,7 @@ export default function Home() {
   );
   const newCount = data.rows.filter((row) => row.update === "NEW").length;
   const raceCount = new Set(data.rows.map((row) => row.next_race)).size;
+  const verifiedCount = data.rows.filter((row) => prizeMoneyByHorse[row.horse]).length;
 
   function resetPage() {
     setPage(1);
@@ -171,12 +180,13 @@ export default function Home() {
             <select
               value={sort}
               onChange={(event) => {
-                setSort(event.target.value as "horse" | "race");
+                setSort(event.target.value as "horse" | "race" | "prize");
                 resetPage();
               }}
             >
               <option value="horse">馬名順</option>
               <option value="race">レース名順</option>
+              <option value="prize">収得賞金の高い順</option>
             </select>
           </label>
           <label className="checkLabel">
@@ -194,6 +204,9 @@ export default function Home() {
 
         <div className="resultBar">
           <p><strong>{filtered.length}</strong>頭を表示</p>
+          <p className="verification">
+            JRA公式照合済み <strong>{verifiedCount}</strong> / {data.rows.length}頭
+          </p>
           {(query || race !== "すべて" || newOnly) && (
             <button
               type="button"
@@ -216,6 +229,7 @@ export default function Home() {
               <tr>
                 <th>更新</th>
                 <th>馬名</th>
+                <th className="prizeHeader">収得賞金（平地）</th>
                 <th>予定レース</th>
               </tr>
             </thead>
@@ -227,6 +241,21 @@ export default function Home() {
                     <a href={row.horse_url} target="_blank" rel="noreferrer">
                       {row.horse}<span aria-hidden="true">↗</span>
                     </a>
+                  </td>
+                  <td className="prizeCell">
+                    {prizeMoneyByHorse[row.horse] ? (
+                      <a
+                        href={prizeMoneyByHorse[row.horse].jraUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={`JRA公式・${prizeMoneyByHorse[row.horse].verifiedAt}確認`}
+                      >
+                        {formatPrizeMoney(prizeMoneyByHorse[row.horse].yen)}
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span className="unverified">未取得</span>
+                    )}
                   </td>
                   <td>
                     {row.race_url ? (
@@ -240,7 +269,7 @@ export default function Home() {
                 </tr>
               ))}
               {displayed.length === 0 && (
-                <tr><td className="empty" colSpan={3}>条件に一致する馬が見つかりません。</td></tr>
+                <tr><td className="empty" colSpan={4}>条件に一致する馬が見つかりません。</td></tr>
               )}
             </tbody>
           </table>

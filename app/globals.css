@@ -179,6 +179,8 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rg
   align-items: center;
   justify-content: space-between;
 }
+.verification { margin-left: auto !important; margin-right: 18px !important; }
+.verification strong { font-size: 14px !important; }
 .resultBar p { margin: 0; color: var(--muted); font-size: 13px; }
 .resultBar strong { color: var(--green); font-size: 17px; }
 .clearButton { border: 0; background: none; color: var(--green); cursor: pointer; font-size: 12px; }
@@ -200,8 +202,12 @@ th {
   text-align: left;
 }
 th:first-child { width: 90px; text-align: center; }
+.prizeHeader { width: 190px; text-align: right; }
 td { padding: 15px 18px; border-top: 1px solid #edf0ee; font-size: 14px; }
 td:first-child { text-align: center; }
+.prizeCell { text-align: right; font-variant-numeric: tabular-nums; }
+.prizeCell a { color: #364f42; }
+.unverified { color: #9aa59f; font-size: 12px; }
 tbody tr:hover { background: #fafcfb; }
 td a {
   color: #125e43;
@@ -265,6 +271,6 @@ td a:hover { text-decoration: underline; }
   .filterCard { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
   .searchField { grid-column: auto; }
   .tableCard { overflow-x: auto; }
-  table { min-width: 560px; }
+  table { min-width: 760px; }
   th, td { padding: 13px 12px; }
 }

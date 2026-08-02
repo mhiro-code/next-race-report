@@ -1,109 +1,14 @@
 <!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="netkeiba次走想定（古馬）の検索・絞り込み対応一覧" />
-    <title>古馬 次走予定</title>
-    <link rel="stylesheet" href="./app/globals.css" />
-    <script src="./pages.js" defer></script>
-  </head>
-  <body>
-    <main>
-      <header class="siteHeader">
-        <div class="headerInner">
-          <div class="brand">
-            <span class="brandMark">R</span>
-            <div>
-              <p class="eyebrow">RACE PLANNER</p>
-              <p class="brandName">古馬 次走予定</p>
-            </div>
-          </div>
-          <a class="sourceLink" id="source-link" target="_blank" rel="noreferrer">
-            掲載元を開く <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </header>
-
-      <section class="hero">
-        <div class="heroTop">
-          <div>
-            <p class="kicker">NEXT RACE DIRECTORY</p>
-            <h1>次の一戦を、<br />すぐ見つける。</h1>
-            <p class="lead">
-              netkeiba「次走想定（古馬）」を、検索・レース絞り込みに対応した一覧で確認できます。
-            </p>
-          </div>
-          <div class="refreshPanel">
-            <p>掲載ページ更新</p>
-            <strong id="page-updated">読み込み中…</strong>
-            <p class="message">データは管理者がGitHub Actionsから更新します。</p>
-          </div>
-        </div>
-        <div class="stats" aria-label="データ概要">
-          <div><strong id="horse-count">–</strong><span>登録馬</span></div>
-          <div><strong id="race-count">–</strong><span>予定レース</span></div>
-          <div><strong id="new-count">–</strong><span>NEW</span></div>
-        </div>
-      </section>
-
-      <section class="content">
-        <div class="filterCard">
-          <label class="searchField">
-            <span>馬名・レース名</span>
-            <div class="inputWrap">
-              <span aria-hidden="true">⌕</span>
-              <input id="query" type="text" placeholder="例：札幌記念、メイショウタバル" />
-            </div>
-          </label>
-          <label>
-            <span>予定レース</span>
-            <select id="race-filter"><option value="すべて">すべて</option></select>
-          </label>
-          <label>
-            <span>並び順</span>
-            <select id="sort-order">
-              <option value="horse">馬名順</option>
-              <option value="race">レース名順</option>
-              <option value="prize">収得賞金の高い順</option>
-            </select>
-          </label>
-          <label class="checkLabel">
-            <input id="new-only" type="checkbox" />
-            <span>NEWのみ</span>
-          </label>
-        </div>
-
-        <div class="resultBar">
-          <p><strong id="result-count">0</strong>頭を表示</p>
-          <p class="verification">収得賞金取得済み <strong id="verified-count">0</strong> / <span id="total-count">0</span>頭</p>
-          <button type="button" class="clearButton" id="clear-button" hidden>条件をクリア</button>
-        </div>
-
-        <div class="tableCard">
-          <table>
-            <thead>
-              <tr>
-                <th>更新</th>
-                <th>馬名</th>
-                <th class="prizeHeader">収得賞金（平地）</th>
-                <th>予定レース</th>
-              </tr>
-            </thead>
-            <tbody id="race-rows">
-              <tr><td class="empty" colspan="4">データを読み込んでいます。</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <nav class="pagination" aria-label="ページ送り" id="pagination" hidden>
-          <button type="button" id="previous-page">← 前へ</button>
-          <span id="page-number">1 / 1</span>
-          <button type="button" id="next-page">次へ →</button>
-        </nav>
-
-        <p class="notice">※掲載情報は出走予定の段階です。取材後・公開後に変更される場合があります。</p>
-      </section>
-    </main>
-  </body>
-</html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="次走予定と重賞出走順位の目安"><title>次走予定・出走順位目安</title><link rel="stylesheet" href="./app/globals.css"><script src="./pages.js" defer></script></head>
+<body><main>
+  <header class="siteHeader"><div class="headerInner"><div class="brand"><span class="brandMark">R</span><div><p class="eyebrow">RACE PLANNER</p><p class="brandName">次走予定・出走順位目安</p></div></div><a class="sourceLink" id="source-link" target="_blank" rel="noreferrer">掲載元を開く ↗</a></div></header>
+  <section class="hero"><div class="heroTop"><div><p class="kicker">NEXT RACE DIRECTORY</p><h1>次の一戦を、<br>順位の目安まで。</h1><p class="lead">次走予定を検索し、対象レースでは収得賞金の加算期間を含めた出走順位の目安を確認できます。</p></div><div class="refreshPanel"><p>掲載ページ更新</p><strong id="page-updated">読み込み中…</strong><p class="message">次走予定は掲載元、収得賞金はTARGETのローカルデータを使用しています。</p></div></div><div class="stats"><div><strong id="horse-count">–</strong><span>登録馬</span></div><div><strong id="race-count">–</strong><span>予定レース</span></div><div><strong id="third-stat">–</strong><span id="third-label">NEW</span></div></div></section>
+  <section class="content">
+    <div class="filterCard"><label class="searchField"><span>馬名・レース名</span><div class="inputWrap"><span>⌕</span><input id="query" type="text" placeholder="例：中京記念、ラヴァンダ"></div></label><label><span>予定レース</span><select id="race-filter"><option>すべて</option></select></label><div class="sortGuide"><span>並び順</span><strong id="sort-guide">馬名50音順</strong></div><label class="checkLabel"><input id="new-only" type="checkbox"><span>NEWのみ</span></label></div>
+    <aside class="raceSummary" id="race-summary" hidden><div><p class="eyebrow">RACE DETAIL</p><h2 id="race-title"></h2><p id="race-meta"></p></div><div class="cutoff"><span>16頭なら現時点の目安</span><strong id="cutoff-value"></strong></div></aside>
+    <div class="resultBar"><p><strong id="result-count">0</strong>頭を表示</p><button class="clearButton" id="clear-button" hidden>条件をクリア</button></div>
+    <div class="tableCard"><table id="results-table"><thead id="table-head"></thead><tbody id="race-rows"><tr><td class="empty">読み込み中…</td></tr></tbody></table></div>
+    <nav class="pagination" id="pagination" hidden><button id="previous-page">← 前へ</button><span id="page-number"></span><button id="next-page">次へ →</button></nav>
+    <p class="notice" id="notice">※掲載情報は出走予定の段階です。</p>
+  </section>
+</main></body></html>

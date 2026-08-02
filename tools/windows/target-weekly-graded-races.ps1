@@ -119,17 +119,17 @@ try {
     }
 
     Write-Host "Locating special-race registration records (TK)..."
-    $registrationSearchRoots = @()
-    foreach ($candidateRoot in @($targetRoot, $jvDataRoot)) {
-        if ([string]::IsNullOrWhiteSpace($candidateRoot)) { continue }
-        if (Test-Path -LiteralPath $candidateRoot -PathType Container) {
-            $registrationSearchRoots += $candidateRoot
-        }
+    # dataRoot was already verified above, so always search it recursively.
+    $registrationSearchRoots = @($dataRoot)
+    if ((-not [string]::IsNullOrWhiteSpace($targetRoot)) -and
+        (Test-Path -LiteralPath $targetRoot -PathType Container)) {
+        $registrationSearchRoots += $targetRoot
+    }
+    if ((-not [string]::IsNullOrWhiteSpace($jvDataRoot)) -and
+        (Test-Path -LiteralPath $jvDataRoot -PathType Container)) {
+        $registrationSearchRoots += $jvDataRoot
     }
     $registrationSearchRoots = @($registrationSearchRoots | Select-Object -Unique)
-    if ($registrationSearchRoots.Count -eq 0) {
-        throw "No TARGET or JV-Data search folder was found."
-    }
     Write-Host ("Search roots: {0}" -f ($registrationSearchRoots -join ", "))
 
     $registrationFiles = @()

@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import initialData from "./next-races.json";
 import { formatPrizeMoney, getPrizeMoney } from "./prize-money";
-import { applyClusterCupRows } from "./cluster-cup";
 
 type RaceRow = {
   update: string;
@@ -55,7 +54,7 @@ function PrizeMoneyCell({ row }: { row: RaceRow }) {
 export default function Home() {
   const [data, setData] = useState<RacePayload>({
     ...initialData,
-    rows: applyClusterCupRows(initialData.rows),
+    rows: initialData.rows,
   });
   const [query, setQuery] = useState("");
   const [race, setRace] = useState("すべて");
@@ -122,7 +121,7 @@ export default function Home() {
       const response = await fetch("/api/next-races", { cache: "no-store" });
       if (!response.ok) throw new Error("refresh failed");
       const next = (await response.json()) as RacePayload;
-      setData({ ...next, rows: applyClusterCupRows(next.rows) });
+      setData(next);
       setRace("すべて");
       setPage(1);
       setMessage(`${next.rows.length}頭の最新情報を取得しました`);

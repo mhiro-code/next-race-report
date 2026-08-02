@@ -13,19 +13,15 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = ROOT / "app" / "data-lab-prize-money.json"
 REQUIRED_COLUMNS = {"KettoNum", "HorseName", "PrizeYen", "SourceFile"}
 NEXT_RACES_PATH = ROOT / "app" / "next-races.json"
-CLUSTER_CUP_PATH = ROOT / "app" / "cluster-cup-horses.json"
 
 
 def get_target_ids() -> set[str]:
     next_races = json.loads(NEXT_RACES_PATH.read_text(encoding="utf-8"))
-    cluster_cup = json.loads(CLUSTER_CUP_PATH.read_text(encoding="utf-8"))
-    target_ids = {
+    return {
         row["horse_url"].split("/horse/", 1)[1].split("/", 1)[0]
         for row in next_races["rows"]
         if "/horse/" in row.get("horse_url", "")
     }
-    target_ids.update(row["KettoNum"] for row in cluster_cup)
-    return target_ids
 
 
 def main() -> int:

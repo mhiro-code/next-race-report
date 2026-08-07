@@ -3,7 +3,16 @@
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const sourceUrl = "https://dir.netkeiba.com/keibamatome/detail.html?no=5557";
+export const sourcePages = [
+  {
+    label: "古馬",
+    url: "https://dir.netkeiba.com/keibamatome/detail.html?no=5557",
+  },
+  {
+    label: "2・3歳",
+    url: "https://dir.netkeiba.com/keibamatome/detail.html?no=5556",
+  },
+];
 const outputUrl = new URL("../app/next-races.json", import.meta.url);
 
 function decodeEntities(value) {
@@ -49,6 +58,21 @@ export function parseRows(partsHtml) {
     .filter(Boolean);
 }
 
+export function combineRows(results) {
+  const byHorse = new Map();
+  for (const result of results) {
+    for (const row of result.rows) {
+      const key = row.horse_url || row.horse;
+      byHorse.set(key, {
+        ...row,
+        source_label: result.label,
+        source_page_url: result.url,
+      });
+    }
+  }
+  return [...byHorse.values()];
+}
+
 async function fetchText(url) {
   const response = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; NextRaceDirectory/1.0)" },
@@ -58,25 +82,49 @@ async function fetchText(url) {
   return response.text();
 }
 
-async function main() {
-  const mainHtml = await fetchText(sourceUrl);
+async function fetchSource(source) {
+  const mainHtml = await fetchText(source.url);
   const partsNumber = findPartsNumber(mainHtml);
-  if (!partsNumber) throw new Error("parts id unavailable");
+  if (!partsNumber) throw new Error(`${source.label}: parts id unavailable`);
 
   const partsHtml = await fetchText(
     `https://dir.netkeiba.com/keibamatome/ajax_parts_view.html?no=${partsNumber}`,
   );
   const rows = parseRows(partsHtml);
-  if (rows.length < 10) throw new Error(`unexpected source format: ${rows.length} rows`);
+  if (rows.length < 10) {
+    throw new Error(`${source.label}: unexpected source format: ${rows.length} rows`);
+  }
 
-  const payload = {
-    source_url: sourceUrl,
+  return {
+    ...source,
     page_updated: text(mainHtml.match(/<time[^>]*>([\s\S]*?)<\/time>/i)?.[1] || ""),
+    rows,
+  };
+}
+
+async function main() {
+  const results = await Promise.all(sourcePages.map(fetchSource));
+  const rows = combineRows(results);
+  const payload = {
+    source_url: sourcePages[0].url,
+    source_pages: results.map(({ label, url, page_updated, rows: sourceRows }) => ({
+      label,
+      url,
+      page_updated,
+      row_count: sourceRows.length,
+    })),
+    page_updated: results
+      .map((result) => `${result.label} ${result.page_updated}`)
+      .join("／"),
     retrieved_at: new Date().toISOString(),
     rows,
   };
   await writeFile(outputUrl, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-  console.log(`Updated ${fileURLToPath(outputUrl)} with ${rows.length} horses`);
+  console.log(
+    `Updated ${fileURLToPath(outputUrl)} with ${rows.length} horses (` +
+      results.map((result) => `${result.label}: ${result.rows.length}`).join(", ") +
+      ")",
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

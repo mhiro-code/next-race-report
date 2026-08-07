@@ -1,6 +1,6 @@
 # next-race-report
 
-netkeiba「次走想定（古馬）」の一覧を、検索・レース名フィルター・並び替えに対応させたブラウザ版レポートです。
+netkeiba「次走想定（古馬）」と「次走想定（2歳・3歳）」の一覧を統合し、検索・レース名フィルター・並び替えに対応させたブラウザ版レポートです。
 
 収得賞金は JRA-VAN Data Lab / JV-Link の UM レコードから取得した CSV を取り込み、競走馬コード（血統登録番号）で照合します。
 
@@ -33,7 +33,7 @@ npm test
 
 GitHubで **Actions** → **Update next-race data** → **Run workflow** の順に開き、もう一度 **Run workflow** を押します。
 
-処理が成功すると、netkeibaから取得した内容が `app/next-races.json` へ自動コミットされ、GitHub Pagesにも反映されます。画面の再読み込みは、反映後のJSONを表示するだけです。
+処理が成功すると、古馬と2・3歳の両ページから取得した内容が `app/next-races.json` へ自動コミットされ、GitHub Pagesにも反映されます。画面の再読み込みは、反映後のJSONを表示するだけです。
 
 ## Data Lab データの更新
 

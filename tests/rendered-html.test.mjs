@@ -61,7 +61,7 @@ test("GitHub Pages does not show a misleading refresh button", async () => {
 });
 
 test("next-race updater parses the netkeiba table format", async () => {
-  const { findPartsNumber, parseRows } = await import("../scripts/fetch-next-races.mjs");
+  const { combineRows, findPartsNumber, parseRows, sourcePages } = await import("../scripts/fetch-next-races.mjs");
   const mainHtml = `<div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>`;
   const tableHtml = `
     <table>
@@ -83,6 +83,23 @@ test("next-race updater parses the netkeiba table format", async () => {
       race_url: "https://race.netkeiba.com/special/index.html?id=1",
     },
   ]);
+
+  assert.deepEqual(
+    sourcePages.map(({ label, url }) => [label, url]),
+    [
+      ["古馬", "https://dir.netkeiba.com/keibamatome/detail.html?no=5557"],
+      ["2・3歳", "https://dir.netkeiba.com/keibamatome/detail.html?no=5556"],
+    ],
+  );
+
+  const duplicateUrl = "https://db.netkeiba.com/horse/2023100001/";
+  const combined = combineRows([
+    { label: "古馬", url: "older", rows: [{ horse: "テスト", horse_url: duplicateUrl, next_race: "A" }] },
+    { label: "2・3歳", url: "younger", rows: [{ horse: "テスト", horse_url: duplicateUrl, next_race: "B" }] },
+  ]);
+  assert.equal(combined.length, 1);
+  assert.equal(combined[0].next_race, "B");
+  assert.equal(combined[0].source_label, "2・3歳");
 });
 
 test("manual update workflow runs the updater", async () => {

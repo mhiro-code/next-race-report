@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import initialData from "./next-races.json";
-import chukyo from "./chukyo-kinen-2026.json";
 import weekly from "./weekly-graded-races-2026.json";
 import { formatPrizeMoney, getPrizeMoney } from "./prize-money";
 
@@ -43,10 +42,7 @@ type RankedRow = DetailRow & { rank: number };
 type RankedRace = RaceDetail & { rows: RankedRow[] };
 
 const pageSize = 50;
-const detailedRaces: RaceDetail[] = [
-  chukyo as RaceDetail,
-  ...(weekly.races as RaceDetail[]),
-];
+const detailedRaces = weekly.races as RaceDetail[];
 
 const rankedRaces: RankedRace[] = detailedRaces.map((detail) => {
   let previousTotal = -1;
@@ -356,9 +352,6 @@ export default function Home() {
                       ) : (
                         <>
                           {detail.weight_kg}kg
-                          {selectedRace.race === "中京記念" && (
-                            <small className="estimate">目安</small>
-                          )}
                         </>
                       )}
                     </td>
@@ -409,9 +402,7 @@ export default function Home() {
             ? selectedRace.calculation_note +
               (selectedRace.conditions.includes("ハンデ") && selectedRace.rows.some((row) => row.weight_kg === null)
                 ? " ハンデ未発表のため斤量による優先条件はまだ反映していません。"
-                : selectedRace.race === "中京記念"
-                  ? " 斤量は別定条件から算出した暫定値です。"
-                  : "")
+                : "")
             : "掲載情報は出走予定の段階です。取材後・公開後に変更される場合があります。"}
         </p>
       </section>

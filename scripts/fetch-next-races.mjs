@@ -33,12 +33,18 @@ function href(value) {
   return decodeEntities(match?.[1] || match?.[2] || match?.[3] || "");
 }
 
+export function findPartsNumbers(mainHtml) {
+  const numbers = [
+    ...mainHtml.matchAll(
+      /id=["']prev_parts-(\d+)["'][\s\S]{0,500}?['"]no['"]:\s*['"](\d+)['"]/gi,
+    ),
+  ].map((match) => match[2]);
+
+  return [...new Set(numbers)];
+}
+
 export function findPartsNumber(mainHtml) {
-  return (
-    mainHtml.match(/id=["']prev_parts-(\d+)["'][\s\S]{0,500}?['"]no['"]:\s*['"](\d+)['"]/i)?.[2] ||
-    mainHtml.match(/['"]no['"]:\s*['"](\d+)['"][\s\S]{0,300}?ajax_parts_view/i)?.[1] ||
-    ""
-  );
+  return findPartsNumbers(mainHtml)[0] || "";
 }
 
 export function parseRows(partsHtml) {
@@ -84,13 +90,15 @@ async function fetchText(url) {
 
 async function fetchSource(source) {
   const mainHtml = await fetchText(source.url);
-  const partsNumber = findPartsNumber(mainHtml);
-  if (!partsNumber) throw new Error(`${source.label}: parts id unavailable`);
+  const partsNumbers = findPartsNumbers(mainHtml);
+  if (partsNumbers.length === 0) throw new Error(`${source.label}: parts id unavailable`);
 
-  const partsHtml = await fetchText(
-    `https://dir.netkeiba.com/keibamatome/ajax_parts_view.html?no=${partsNumber}`,
+  const partsHtml = await Promise.all(
+    partsNumbers.map((partsNumber) =>
+      fetchText(`https://dir.netkeiba.com/keibamatome/ajax_parts_view.html?no=${partsNumber}`),
+    ),
   );
-  const rows = parseRows(partsHtml);
+  const rows = partsHtml.flatMap(parseRows);
   if (rows.length < 10) {
     throw new Error(`${source.label}: unexpected source format: ${rows.length} rows`);
   }

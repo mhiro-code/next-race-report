@@ -1,24 +1,24 @@
 {
   "source_url": "https://dir.netkeiba.com/keibamatome/detail.html?no=5557",
-  "page_updated": "2026/7/31 17:35",
-  "retrieved_at": "2026-08-02T07:07:37.117Z",
+  "page_updated": "2026/8/7 16:11",
+  "retrieved_at": "2026-08-07T14:15:23.529Z",
   "rows": [
     {
-      "update": "NEW",
+      "update": "",
       "horse": "アーバンシック",
       "next_race": "新潟記念",
       "horse_url": "https://db.netkeiba.com/horse/2021105436/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0089"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "アイサンサン",
-      "next_race": "中京記念",
+      "next_race": "スプリンターズS",
       "horse_url": "https://db.netkeiba.com/horse/2022103875/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0076"
+      "race_url": "https://race.netkeiba.com/special/?id=0099"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "アウトレンジ",
       "next_race": "白山大賞典",
       "horse_url": "https://db.netkeiba.com/horse/2020105621/?rf=kmatome",
@@ -69,9 +69,9 @@
     {
       "update": "NEW",
       "horse": "アドバンスファラオ",
-      "next_race": "エニフS",
+      "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2020110106/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%A8%A5%CB%A5%D5%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
     },
     {
       "update": "",
@@ -95,25 +95,18 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "NEW",
-      "horse": "アマキヒ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022104615/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
+      "update": "",
       "horse": "アムールドパリ",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2021105264/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "アメリカンステージ",
-      "next_race": "アイビスSD",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022110105/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
       "update": "",
@@ -123,7 +116,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "アルセナール",
       "next_race": "朱鷺S",
       "horse_url": "https://db.netkeiba.com/horse/2021105548/?rf=kmatome",
@@ -144,11 +137,11 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "アンゴラブラック",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021105738/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -156,13 +149,6 @@
       "next_race": "クラスターC",
       "horse_url": "https://db.netkeiba.com/horse/2022106689/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A3%C3"
-    },
-    {
-      "update": "NEW",
-      "horse": "アンパドゥ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021110030/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -186,7 +172,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0075"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "イスラアネーロ",
       "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2019105741/?rf=kmatome",
@@ -200,6 +186,13 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
+      "update": "NEW",
+      "horse": "イミグラントソング",
+      "next_race": "京成杯AH",
+      "horse_url": "https://db.netkeiba.com/horse/2022104697/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0091"
+    },
+    {
       "update": "",
       "horse": "インビンシブルパパ",
       "next_race": "CBC賞",
@@ -207,7 +200,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "インユアパレス",
       "next_race": "サマーチャンピオン",
       "horse_url": "https://db.netkeiba.com/horse/2021110126/?rf=kmatome",
@@ -242,18 +235,18 @@
       "race_url": "https://race.netkeiba.com/special/?id=0087"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ウイングレイテスト",
-      "next_race": "アイビスSD",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2017101423/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ヴーレヴー",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022104617/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -270,13 +263,6 @@
       "race_url": "https://race.netkeiba.com/special/?id=0102"
     },
     {
-      "update": "NEW",
-      "horse": "ヴェルテンベルク",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020103060/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "エーティーマクフィ",
       "next_race": "キーンランドC",
@@ -285,9 +271,9 @@
     },
     {
       "update": "NEW",
-      "horse": "エコロアゼル",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022110107/?rf=kmatome",
+      "horse": "エートラックス",
+      "next_race": "登録抹消",
+      "horse_url": "https://db.netkeiba.com/horse/2021104876/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -298,7 +284,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "エコロガイア",
       "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2021110056/?rf=kmatome",
@@ -312,14 +298,14 @@
       "race_url": "https://race.netkeiba.com/special/?id=0091"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "エコロレジーナ",
-      "next_race": "アイビスSD",
+      "next_race": "ルミエールオータムD",
       "horse_url": "https://db.netkeiba.com/horse/2020101262/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "エスカル",
       "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2021110069/?rf=kmatome",
@@ -340,21 +326,21 @@
       "race_url": "https://race.netkeiba.com/special/?id=0096"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "エラトー",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021105442/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
-    },
-    {
-      "update": "",
-      "horse": "エリカエクスプレス",
-      "next_race": "クイーンS",
-      "horse_url": "https://db.netkeiba.com/horse/2022103205/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "NEW",
+      "horse": "エリカエクスプレス",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2022103205/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "エルトンバローズ",
       "next_race": "毎日王冠",
       "horse_url": "https://db.netkeiba.com/horse/2020100680/?rf=kmatome",
@@ -362,15 +348,8 @@
     },
     {
       "update": "NEW",
-      "horse": "オウギノカナメ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020106873/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
       "horse": "オニャンコポン",
-      "next_race": "札幌記念 or 新潟記念 or BSN賞",
+      "next_race": "札幌記念",
       "horse_url": "https://db.netkeiba.com/horse/2019104756/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
@@ -411,24 +390,17 @@
     },
     {
       "update": "",
-      "horse": "カテリーナ",
-      "next_race": "クイーンS",
-      "horse_url": "https://db.netkeiba.com/horse/2021101485/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
-    },
-    {
-      "update": "NEW",
       "horse": "カネラフィーナ",
       "next_race": "中京記念",
       "horse_url": "https://db.netkeiba.com/horse/2022104839/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0076"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ガビーズシスター",
-      "next_race": "クラスターC",
+      "next_race": "地方移籍",
       "horse_url": "https://db.netkeiba.com/horse/2021104461/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A3%C3"
+      "race_url": ""
     },
     {
       "update": "",
@@ -475,9 +447,9 @@
     {
       "update": "NEW",
       "horse": "カンパニョーラ",
-      "next_race": "放牧から帰厩",
+      "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2019104385/?rf=kmatome",
-      "race_url": ""
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
     },
     {
       "update": "",
@@ -488,13 +460,20 @@
     },
     {
       "update": "NEW",
+      "horse": "キタノズエッジ",
+      "next_race": "南部杯",
+      "horse_url": "https://db.netkeiba.com/horse/2021100505/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "ギャンブルルーム",
       "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2021105559/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ギュルヴィ",
       "next_race": "白山大賞典 or シリウスS",
       "horse_url": "https://db.netkeiba.com/horse/2022103267/?rf=kmatome",
@@ -508,18 +487,11 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%D6%A5%EA%A1%BC%A5%C0%A1%BC%A5%BA%A5%B4%A1%BC%A5%EB%A5%C9"
     },
     {
-      "update": "",
-      "horse": "クールミラボー",
-      "next_race": "名鉄杯",
-      "horse_url": "https://db.netkeiba.com/horse/2020103387/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
-    },
-    {
       "update": "NEW",
-      "horse": "グッジョブ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020101182/?rf=kmatome",
-      "race_url": ""
+      "horse": "クールミラボー",
+      "next_race": "シリウスS or 白山大賞典",
+      "horse_url": "https://db.netkeiba.com/horse/2020103387/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0098"
     },
     {
       "update": "",
@@ -529,11 +501,11 @@
       "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "クムシラコ",
-      "next_race": "アイビスSD",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2018103205/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
       "update": "",
@@ -550,6 +522,13 @@
       "race_url": "https://race.netkeiba.com/special/?id=0126"
     },
     {
+      "update": "NEW",
+      "horse": "グランキングオー",
+      "next_race": "エニフS",
+      "horse_url": "https://db.netkeiba.com/horse/2022100664/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%A8%A5%CB%A5%D5%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
       "update": "",
       "horse": "グランディア",
       "next_race": "札幌記念",
@@ -557,25 +536,25 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "グランドカリナン",
-      "next_race": "新潟記念",
+      "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2020106234/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0089"
+      "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "クランフォード",
       "next_race": "中京記念",
       "horse_url": "https://db.netkeiba.com/horse/2021100139/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0076"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "クリノメイ",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022101250/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -600,17 +579,10 @@
     },
     {
       "update": "NEW",
-      "horse": "ケイアイドリー",
-      "next_race": "登録抹消",
-      "horse_url": "https://db.netkeiba.com/horse/2017101560/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "",
       "horse": "ケリフレッドアスク",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022102296/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -634,18 +606,18 @@
       "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "コガネノソラ",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021106823/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ココナッツブラウン",
-      "next_race": "クイーンS",
+      "next_race": "マイルCS",
       "horse_url": "https://db.netkeiba.com/horse/2020101607/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": "https://race.netkeiba.com/special/?id=0119"
     },
     {
       "update": "",
@@ -662,13 +634,6 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
-      "horse": "コトホドサヨウニ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021103306/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "コンクイスタ",
       "next_race": "NST賞",
@@ -683,11 +648,11 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "サイモンザナドゥ",
-      "next_race": "名鉄杯",
+      "next_race": "シリウスS",
       "horse_url": "https://db.netkeiba.com/horse/2020104497/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "race_url": "https://race.netkeiba.com/special/?id=0098"
     },
     {
       "update": "",
@@ -697,7 +662,7 @@
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "サウンドモリアーナ",
       "next_race": "キーンランドC",
       "horse_url": "https://db.netkeiba.com/horse/2022102057/?rf=kmatome",
@@ -781,13 +746,6 @@
       "race_url": "https://race.netkeiba.com/special/?id=0170"
     },
     {
-      "update": "NEW",
-      "horse": "ジャスパーゴールド",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2018110126/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "シャドウフューリー",
       "next_race": "朱鷺S",
@@ -797,9 +755,9 @@
     {
       "update": "NEW",
       "horse": "ジューンアヲニヨシ",
-      "next_race": "名古屋城S",
+      "next_race": "障害転向",
       "horse_url": "https://db.netkeiba.com/horse/2020100912/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+      "race_url": ""
     },
     {
       "update": "",
@@ -809,17 +767,10 @@
       "race_url": "https://race.netkeiba.com/special/?id=0096"
     },
     {
-      "update": "",
-      "horse": "ジューンブレア",
-      "next_race": "スプリンターズS",
-      "horse_url": "https://db.netkeiba.com/horse/2021110099/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0099"
-    },
-    {
       "update": "NEW",
-      "horse": "ジュタ",
+      "horse": "ジューンブレア",
       "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022104813/?rf=kmatome",
+      "horse_url": "https://db.netkeiba.com/horse/2021110099/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -830,17 +781,17 @@
       "race_url": "https://race.netkeiba.com/special/?id=0170"
     },
     {
-      "update": "",
-      "horse": "シュラフ",
-      "next_race": "アイビスSD",
-      "horse_url": "https://db.netkeiba.com/horse/2022103324/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "update": "NEW",
+      "horse": "シュトルーヴェ",
+      "next_race": "新潟記念",
+      "horse_url": "https://db.netkeiba.com/horse/2019104447/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0089"
     },
     {
       "update": "NEW",
-      "horse": "ジュンウィンダム",
-      "next_race": "登録抹消",
-      "horse_url": "https://db.netkeiba.com/horse/2020106062/?rf=kmatome",
+      "horse": "シュラフ",
+      "next_race": "ルミエールオータムD",
+      "horse_url": "https://db.netkeiba.com/horse/2022103324/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -872,13 +823,6 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%C2%A3%D3%A3%CE%BE%DE"
     },
     {
-      "update": "NEW",
-      "horse": "ショウナンラプンタ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021105195/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "ショウヘイ",
       "next_race": "札幌記念",
@@ -893,6 +837,13 @@
       "race_url": ""
     },
     {
+      "update": "NEW",
+      "horse": "ジョーローリット",
+      "next_race": "NST賞",
+      "horse_url": "https://db.netkeiba.com/horse/2021100768/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
+    },
+    {
       "update": "",
       "horse": "ジョバンニ",
       "next_race": "新潟記念",
@@ -901,9 +852,9 @@
     },
     {
       "update": "NEW",
-      "horse": "シリウスコルト",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021104094/?rf=kmatome",
+      "horse": "シンエンペラー",
+      "next_race": "ジョーハーシュターフC",
+      "horse_url": "https://db.netkeiba.com/horse/2021110048/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -919,13 +870,6 @@
       "next_race": "関越S",
       "horse_url": "https://db.netkeiba.com/horse/2021105574/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
-    },
-    {
-      "update": "NEW",
-      "horse": "シンフォーエバー",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022110114/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -949,7 +893,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0157"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ステークホルダー",
       "next_race": "UHB賞",
       "horse_url": "https://db.netkeiba.com/horse/2020103962/?rf=kmatome",
@@ -975,6 +919,13 @@
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2021103987/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
+      "update": "NEW",
+      "horse": "スナッピードレッサ",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2022110007/?rf=kmatome",
+      "race_url": ""
     },
     {
       "update": "",
@@ -1005,18 +956,18 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%A2%A5%A4%A5%EB%A5%E9%A5%F3%A5%C9%A3%D4"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ゼットリアン",
-      "next_race": "名鉄杯",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2020104760/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "race_url": ""
     },
     {
       "update": "NEW",
       "horse": "セフィロ",
-      "next_race": "放牧から帰厩",
+      "next_race": "朱鷺S",
       "horse_url": "https://db.netkeiba.com/horse/2020102836/?rf=kmatome",
-      "race_url": ""
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%BC%EB%BA%ED%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
       "update": "",
@@ -1026,6 +977,13 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
+      "update": "NEW",
+      "horse": "センツブラッド",
+      "next_race": "チャレンジC",
+      "horse_url": "https://db.netkeiba.com/horse/2022101648/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0126"
+    },
+    {
       "update": "",
       "horse": "セントメモリーズ",
       "next_race": "関越S",
@@ -1033,39 +991,39 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "",
-      "horse": "ソウテン",
-      "next_race": "朱鷺S",
-      "horse_url": "https://db.netkeiba.com/horse/2019105459/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%BC%EB%BA%ED%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
-    },
-    {
-      "update": "",
+      "update": "NEW",
       "horse": "ソーニーイシュー",
-      "next_race": "名鉄杯",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021101705/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
-    },
-    {
-      "update": "",
-      "horse": "ソルトクィーン",
-      "next_race": "CBC賞",
-      "horse_url": "https://db.netkeiba.com/horse/2021102013/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0070"
+      "race_url": ""
     },
     {
       "update": "NEW",
+      "horse": "ソルトクィーン",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2021102013/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "ゾンニッヒ",
       "next_race": "キーンランドC",
       "horse_url": "https://db.netkeiba.com/horse/2018101343/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0087"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "タイトニット",
-      "next_race": "名鉄杯",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2020102750/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "race_url": ""
+    },
+    {
+      "update": "NEW",
+      "horse": "タガノデュード",
+      "next_race": "チャレンジC",
+      "horse_url": "https://db.netkeiba.com/horse/2021106548/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0126"
     },
     {
       "update": "",
@@ -1089,31 +1047,17 @@
       "race_url": "https://race.netkeiba.com/special/?id=0089"
     },
     {
-      "update": "NEW",
-      "horse": "ダノンセンチュリー",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022104814/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
+      "update": "",
       "horse": "ダノンタッチダウン",
       "next_race": "NST賞",
       "horse_url": "https://db.netkeiba.com/horse/2020103277/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
     },
     {
-      "update": "",
-      "horse": "ダノンデサイル",
-      "next_race": "コックスプレート",
-      "horse_url": "https://db.netkeiba.com/horse/2021105143/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0180"
-    },
-    {
       "update": "NEW",
-      "horse": "ダノンフィーゴ",
+      "horse": "ダノンデサイル",
       "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022100623/?rf=kmatome",
+      "horse_url": "https://db.netkeiba.com/horse/2021105143/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1154,9 +1098,9 @@
     {
       "update": "NEW",
       "horse": "チュウワクリスエス",
-      "next_race": "エルムS",
+      "next_race": "未定",
       "horse_url": "https://db.netkeiba.com/horse/2022102280/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0085"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1166,11 +1110,11 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "テイエムスパーダ",
-      "next_race": "アイビスSD",
+      "next_race": "登録抹消",
       "horse_url": "https://db.netkeiba.com/horse/2019103422/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1187,6 +1131,20 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
+      "update": "NEW",
+      "horse": "テーオーエルビス",
+      "next_race": "BCスプリント",
+      "horse_url": "https://db.netkeiba.com/horse/2022110081/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "NEW",
+      "horse": "テーオーダヴィンチ",
+      "next_race": "オ パールS",
+      "horse_url": "https://db.netkeiba.com/horse/2018104633/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%D1%A1%BC%A5%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
       "update": "",
       "horse": "テーオードレフォン",
       "next_race": "エルムS",
@@ -1201,11 +1159,18 @@
       "race_url": "https://race.netkeiba.com/special/?id=0085"
     },
     {
-      "update": "",
+      "update": "NEW",
+      "horse": "テスティモーネ",
+      "next_race": "みやこS",
+      "horse_url": "https://db.netkeiba.com/horse/2022103686/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0112"
+    },
+    {
+      "update": "NEW",
       "horse": "デュガ",
-      "next_race": "アイビスSD",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2019110102/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1216,17 +1181,17 @@
     },
     {
       "update": "NEW",
+      "horse": "テンカジョウ",
+      "next_race": "レディスプレリュード",
+      "horse_url": "https://db.netkeiba.com/horse/2021102729/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "ドゥレッツァ",
       "next_race": "新潟記念",
       "horse_url": "https://db.netkeiba.com/horse/2020103650/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0089"
-    },
-    {
-      "update": "NEW",
-      "horse": "トータルクラリティ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022104971/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -1236,21 +1201,14 @@
       "race_url": ""
     },
     {
-      "update": "NEW",
-      "horse": "ドラゴンテイラー",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022110138/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
+      "update": "",
       "horse": "ドラゴンブースト",
       "next_race": "毎日王冠",
       "horse_url": "https://db.netkeiba.com/horse/2022105891/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0101"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "トリポリタニア",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2022104928/?rf=kmatome",
@@ -1258,16 +1216,9 @@
     },
     {
       "update": "NEW",
-      "horse": "トリリオンボーイ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022102493/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
-      "horse": "ドロップオブライト",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2019105806/?rf=kmatome",
+      "horse": "ドンインザムード",
+      "next_race": "グリーンチャンネルC",
+      "horse_url": "https://db.netkeiba.com/horse/2022106942/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1276,13 +1227,6 @@
       "next_race": "エルムS",
       "horse_url": "https://db.netkeiba.com/horse/2022103795/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0085"
-    },
-    {
-      "update": "NEW",
-      "horse": "ナムラエイハブ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021102895/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -1299,13 +1243,6 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "NEW",
-      "horse": "ノーブルロジャー",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021110148/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "ハギノサステナブル",
       "next_race": "名古屋城S",
@@ -1314,34 +1251,27 @@
     },
     {
       "update": "NEW",
-      "horse": "ハグ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022106925/?rf=kmatome",
+      "horse": "バグラダス",
+      "next_race": "ラジオ日本賞",
+      "horse_url": "https://db.netkeiba.com/horse/2020106015/?rf=kmatome",
       "race_url": ""
     },
     {
       "update": "",
-      "horse": "バグラダス",
-      "next_race": "アイビスSD",
-      "horse_url": "https://db.netkeiba.com/horse/2020106015/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
-    },
-    {
-      "update": "NEW",
       "horse": "バスタードサフラン",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2021106610/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ハセドン",
       "next_race": "放牧から帰厩",
       "horse_url": "https://db.netkeiba.com/horse/2019103593/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ハッピーマン",
       "next_race": "サマーチャンピオン",
       "horse_url": "https://db.netkeiba.com/horse/2022100140/?rf=kmatome",
@@ -1349,10 +1279,10 @@
     },
     {
       "update": "NEW",
-      "horse": "バトルクライ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2019103879/?rf=kmatome",
-      "race_url": ""
+      "horse": "パトリックハンサム",
+      "next_race": "札幌記念",
+      "horse_url": "https://db.netkeiba.com/horse/2019103850/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
       "update": "",
@@ -1369,25 +1299,25 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "",
-      "horse": "ハビレ",
-      "next_race": "名鉄杯",
-      "horse_url": "https://db.netkeiba.com/horse/2021100561/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "update": "NEW",
+      "horse": "バルナバ",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2022106633/?rf=kmatome",
+      "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "バレエマスター",
       "next_race": "新潟記念",
       "horse_url": "https://db.netkeiba.com/horse/2019104850/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0089"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "パレハ",
-      "next_race": "クイーンS",
+      "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2021106752/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1411,7 +1341,7 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%C2%A3%D3%A3%CE%BE%DE"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ピコローズ",
       "next_race": "京成杯AH",
       "horse_url": "https://db.netkeiba.com/horse/2022101765/?rf=kmatome",
@@ -1420,16 +1350,16 @@
     {
       "update": "NEW",
       "horse": "ビッグシーザー",
-      "next_race": "アイビスSD",
+      "next_race": "セントウルS",
       "horse_url": "https://db.netkeiba.com/horse/2020100896/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": "https://race.netkeiba.com/special/?id=0092"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ピューロマジック",
-      "next_race": "アイビスSD",
+      "next_race": "セントウルS",
       "horse_url": "https://db.netkeiba.com/horse/2021107058/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": "https://race.netkeiba.com/special/?id=0092"
     },
     {
       "update": "",
@@ -1440,10 +1370,10 @@
     },
     {
       "update": "NEW",
-      "horse": "ファーヴェント",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021104893/?rf=kmatome",
-      "race_url": ""
+      "horse": "ファミリータイム",
+      "next_race": "オールカマー or 京都大賞典",
+      "horse_url": "https://db.netkeiba.com/horse/2021100651/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0096"
     },
     {
       "update": "",
@@ -1467,21 +1397,21 @@
       "race_url": "https://race.netkeiba.com/special/?id=0089"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "フィオライア",
       "next_race": "CBC賞",
       "horse_url": "https://db.netkeiba.com/horse/2021101924/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ブーケファロス",
-      "next_race": "アイビスSD",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2020101419/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
+      "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ブエナオンダ",
       "next_race": "中京記念",
       "horse_url": "https://db.netkeiba.com/horse/2021105454/?rf=kmatome",
@@ -1495,11 +1425,11 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%B8%A5%E7%A5%C3%A5%AD%A1%BC%A5%AF%A5%E9%A5%D6GC"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "フタイテンロック",
-      "next_race": "名鉄杯",
+      "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2019102665/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
       "update": "",
@@ -1516,7 +1446,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0092"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ブルーサン",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2021106171/?rf=kmatome",
@@ -1525,30 +1455,30 @@
     {
       "update": "NEW",
       "horse": "ブレイヴロッカー",
-      "next_race": "放牧",
+      "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2020102870/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "",
-      "horse": "ブレイクフォース",
-      "next_race": "名鉄杯",
-      "horse_url": "https://db.netkeiba.com/horse/2019105604/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "update": "NEW",
+      "horse": "ブレーザー",
+      "next_race": "ラジオ日本賞",
+      "horse_url": "https://db.netkeiba.com/horse/2021100114/?rf=kmatome",
+      "race_url": ""
     },
     {
       "update": "NEW",
-      "horse": "ブレーザー",
-      "next_race": "クラスターC or NST賞",
-      "horse_url": "https://db.netkeiba.com/horse/2021100114/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A3%C3"
+      "horse": "プレゼンティーア",
+      "next_race": "ラジオ日本賞",
+      "horse_url": "https://db.netkeiba.com/horse/2021102153/?rf=kmatome",
+      "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "フレミングフープ",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021105581/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1558,18 +1488,32 @@
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "フロムダスク",
       "next_race": "CBC賞",
       "horse_url": "https://db.netkeiba.com/horse/2020110133/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0070"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ペアポルックス",
-      "next_race": "キーンランドC",
+      "next_race": "スプリンターズS",
       "horse_url": "https://db.netkeiba.com/horse/2021102320/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0087"
+      "race_url": "https://race.netkeiba.com/special/?id=0099"
+    },
+    {
+      "update": "NEW",
+      "horse": "ペイシャケイプ",
+      "next_race": "エニフS",
+      "horse_url": "https://db.netkeiba.com/horse/2022104219/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%A8%A5%CB%A5%D5%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
+      "update": "NEW",
+      "horse": "ヘニーガイスト",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2022104865/?rf=kmatome",
+      "race_url": ""
     },
     {
       "update": "",
@@ -1593,17 +1537,10 @@
       "race_url": ""
     },
     {
-      "update": "",
-      "horse": "ベルギューン",
-      "next_race": "アイビスSD",
-      "horse_url": "https://db.netkeiba.com/horse/2022100098/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0075"
-    },
-    {
       "update": "NEW",
-      "horse": "ベルジュロネット",
+      "horse": "ベルギューン",
       "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022106658/?rf=kmatome",
+      "horse_url": "https://db.netkeiba.com/horse/2022100098/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1621,7 +1558,7 @@
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ホーエリート",
       "next_race": "オールカマー",
       "horse_url": "https://db.netkeiba.com/horse/2021104855/?rf=kmatome",
@@ -1635,7 +1572,7 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ホールネス",
       "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2020110060/?rf=kmatome",
@@ -1651,26 +1588,26 @@
     {
       "update": "NEW",
       "horse": "ポッドベイダー",
-      "next_race": "放牧から帰厩",
+      "next_race": "クラスターC",
       "horse_url": "https://db.netkeiba.com/horse/2022105244/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%AF%A5%E9%A5%B9%A5%BF%A1%BC%A3%C3"
+    },
+    {
+      "update": "NEW",
+      "horse": "ポッドロゴ",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2021104873/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "NEW",
+      "horse": "ボンドガール",
+      "next_race": "放牧",
+      "horse_url": "https://db.netkeiba.com/horse/2021107179/?rf=kmatome",
       "race_url": ""
     },
     {
       "update": "",
-      "horse": "ポッドロゴ",
-      "next_race": "名鉄杯",
-      "horse_url": "https://db.netkeiba.com/horse/2021104873/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
-    },
-    {
-      "update": "",
-      "horse": "ボンドガール",
-      "next_race": "クイーンS",
-      "horse_url": "https://db.netkeiba.com/horse/2021107179/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
-    },
-    {
-      "update": "NEW",
       "horse": "マーズオデッセイ",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2022102399/?rf=kmatome",
@@ -1678,13 +1615,20 @@
     },
     {
       "update": "NEW",
+      "horse": "マイネルカンパーナ",
+      "next_race": "丹頂S",
+      "horse_url": "https://db.netkeiba.com/horse/2020105798/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "マイネルケレリウス",
       "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2020105781/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "マイネルジェロディ",
       "next_race": "UHB賞",
       "horse_url": "https://db.netkeiba.com/horse/2018102155/?rf=kmatome",
@@ -1692,6 +1636,13 @@
     },
     {
       "update": "NEW",
+      "horse": "マイネルメモリー",
+      "next_race": "丹頂S",
+      "horse_url": "https://db.netkeiba.com/horse/2020105750/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "",
       "horse": "マイネルモーント",
       "next_race": "札幌記念",
       "horse_url": "https://db.netkeiba.com/horse/2020105749/?rf=kmatome",
@@ -1712,31 +1663,10 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
-      "update": "NEW",
-      "horse": "マスカレードボール",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2022105519/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
+      "update": "",
       "horse": "マテンロウコマンド",
       "next_race": "サマーチャンピオン",
       "horse_url": "https://db.netkeiba.com/horse/2022103622/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
-      "horse": "マテンロウスカイ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2019105546/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
-      "horse": "マニバドラ",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020110105/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1747,14 +1677,21 @@
       "race_url": "https://race.netkeiba.com/special/?id=0092"
     },
     {
-      "update": "",
-      "horse": "マリオロード",
-      "next_race": "名鉄杯",
-      "horse_url": "https://db.netkeiba.com/horse/2019101198/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "update": "NEW",
+      "horse": "マリアイリダータ",
+      "next_race": "チャレンジC",
+      "horse_url": "https://db.netkeiba.com/horse/2022105064/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0126"
     },
     {
       "update": "NEW",
+      "horse": "マリオロード",
+      "next_race": "名古屋城S",
+      "horse_url": "https://db.netkeiba.com/horse/2019101198/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
+      "update": "",
       "horse": "マンマリアーレ",
       "next_race": "放牧から帰厩",
       "horse_url": "https://db.netkeiba.com/horse/2020100761/?rf=kmatome",
@@ -1773,13 +1710,6 @@
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2021105112/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
-    },
-    {
-      "update": "NEW",
-      "horse": "ミッキーゴージャス",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020103640/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -1803,6 +1733,13 @@
       "race_url": ""
     },
     {
+      "update": "NEW",
+      "horse": "ミラージュナイト",
+      "next_race": "オールカマー",
+      "horse_url": "https://db.netkeiba.com/horse/2022105109/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0096"
+    },
+    {
       "update": "",
       "horse": "ムイ",
       "next_race": "朱鷺S",
@@ -1811,17 +1748,10 @@
     },
     {
       "update": "NEW",
-      "horse": "ムルソー",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021103020/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "",
       "horse": "メイショウズイウン",
-      "next_race": "阿蘇S",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022100154/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B0%A4%C1%C9%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+      "race_url": ""
     },
     {
       "update": "",
@@ -1833,15 +1763,8 @@
     {
       "update": "NEW",
       "horse": "メイショウハチロー",
-      "next_race": "放牧",
+      "next_race": "オーバルスプリント",
       "horse_url": "https://db.netkeiba.com/horse/2022103264/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
-      "horse": "メイショウフンジン",
-      "next_race": "登録抹消",
-      "horse_url": "https://db.netkeiba.com/horse/2018106571/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1850,13 +1773,6 @@
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2019104089/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
-    },
-    {
-      "update": "NEW",
-      "horse": "メタルスピード",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020101772/?rf=kmatome",
-      "race_url": ""
     },
     {
       "update": "",
@@ -1873,24 +1789,17 @@
       "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "モックモック",
-      "next_race": "シリウスS or 白山大賞典",
+      "next_race": "太秦S",
       "horse_url": "https://db.netkeiba.com/horse/2020100061/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0098"
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%C2%C0%BF%C1%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "モリノドリーム",
       "next_race": "UHB賞",
       "horse_url": "https://db.netkeiba.com/horse/2019102273/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
-      "horse": "モンドプリューム",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020103876/?rf=kmatome",
       "race_url": ""
     },
     {
@@ -1929,18 +1838,18 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%BC%EB%BA%ED%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
-      "horse": "ユキマル",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2020101174/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "ヨシノイースター",
       "next_race": "セントウルS",
       "horse_url": "https://db.netkeiba.com/horse/2018106055/?rf=kmatome",
       "race_url": "https://race.netkeiba.com/special/?id=0092"
+    },
+    {
+      "update": "NEW",
+      "horse": "ヨヒーン",
+      "next_race": "丹頂S",
+      "horse_url": "https://db.netkeiba.com/horse/2022105166/?rf=kmatome",
+      "race_url": ""
     },
     {
       "update": "",
@@ -1950,7 +1859,7 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ラヴァンダ",
       "next_race": "中京記念",
       "horse_url": "https://db.netkeiba.com/horse/2021107098/?rf=kmatome",
@@ -1958,20 +1867,20 @@
     },
     {
       "update": "NEW",
-      "horse": "ラスカンブレス",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021105391/?rf=kmatome",
-      "race_url": ""
+      "horse": "ラケマーダ",
+      "next_race": "京成杯AH",
+      "horse_url": "https://db.netkeiba.com/horse/2020101784/?rf=kmatome",
+      "race_url": "https://race.netkeiba.com/special/?id=0091"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ラムジェット",
       "next_race": "コリアC",
       "horse_url": "https://db.netkeiba.com/horse/2021106640/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ララマセラシオン",
       "next_race": "朱鷺S",
       "horse_url": "https://db.netkeiba.com/horse/2021100935/?rf=kmatome",
@@ -1980,9 +1889,9 @@
     {
       "update": "NEW",
       "horse": "ランスオブカオス",
-      "next_race": "中京記念",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022104401/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0076"
+      "race_url": ""
     },
     {
       "update": "",
@@ -2006,18 +1915,25 @@
       "race_url": "https://race.netkeiba.com/special/?id=0076"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "リラボニート",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2021103519/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
+      "horse": "ルージュスタニング",
+      "next_race": "レディスプレリュード",
+      "horse_url": "https://db.netkeiba.com/horse/2021105775/?rf=kmatome",
+      "race_url": ""
+    },
+    {
+      "update": "NEW",
       "horse": "ルージュソリテール",
-      "next_race": "クイーンS",
+      "next_race": "放牧",
       "horse_url": "https://db.netkeiba.com/horse/2022105157/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0078"
+      "race_url": ""
     },
     {
       "update": "",
@@ -2027,11 +1943,11 @@
       "race_url": "https://race.netkeiba.com/special/?id=0099"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "ルクスフロンティア",
-      "next_race": "名鉄杯",
+      "next_race": "登録抹消",
       "horse_url": "https://db.netkeiba.com/horse/2020104474/?rf=kmatome",
-      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%C5%B4%C7%D5"
+      "race_url": ""
     },
     {
       "update": "",
@@ -2048,18 +1964,18 @@
       "race_url": ""
     },
     {
-      "update": "NEW",
-      "horse": "ルディック",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021110008/?rf=kmatome",
-      "race_url": ""
-    },
-    {
       "update": "",
       "horse": "レイニング",
       "next_race": "関越S",
       "horse_url": "https://db.netkeiba.com/horse/2022104750/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
+    },
+    {
+      "update": "NEW",
+      "horse": "レイバックスピン",
+      "next_race": "ブリーダーズGC",
+      "horse_url": "https://db.netkeiba.com/horse/2022104432/?rf=kmatome",
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A5%D6%A5%EA%A1%BC%A5%C0%A1%BC%A5%BA%A5%B4%A1%BC%A5%EB%A5%C9"
     },
     {
       "update": "",
@@ -2076,7 +1992,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0085"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "レーゼドラマ",
       "next_race": "チャレンジC",
       "horse_url": "https://db.netkeiba.com/horse/2022105346/?rf=kmatome",
@@ -2085,23 +2001,23 @@
     {
       "update": "NEW",
       "horse": "レガーロデルシエロ",
-      "next_race": "中京記念 or 関越S",
+      "next_race": "関越S",
       "horse_url": "https://db.netkeiba.com/horse/2021105661/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0076"
+      "race_url": "https://db.netkeiba.com/?pid=race_list&word=%B4%D8%B1%DB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "レクスノヴァス",
       "next_race": "丹頂S",
       "horse_url": "https://db.netkeiba.com/horse/2022107282/?rf=kmatome",
       "race_url": ""
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "レッドアヴァンティ",
-      "next_race": "UHB賞",
+      "next_race": "キーンランドC",
       "horse_url": "https://db.netkeiba.com/horse/2019103594/?rf=kmatome",
-      "race_url": ""
+      "race_url": "https://race.netkeiba.com/special/?id=0087"
     },
     {
       "update": "",
@@ -2118,25 +2034,18 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%BC%EB%BA%ED%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "NEW",
-      "horse": "レッドテリオス",
-      "next_race": "放牧",
-      "horse_url": "https://db.netkeiba.com/horse/2021105066/?rf=kmatome",
-      "race_url": ""
-    },
-    {
-      "update": "NEW",
+      "update": "",
       "horse": "レッドプロフェシー",
       "next_race": "名古屋城S",
       "horse_url": "https://db.netkeiba.com/horse/2020101579/?rf=kmatome",
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%CC%BE%B8%C5%B2%B0%BE%EB%A5%B9%A5%C6%A1%BC%A5%AF%A5%B9"
     },
     {
-      "update": "",
+      "update": "NEW",
       "horse": "レッドモンレーヴ",
-      "next_race": "スプリンターズS",
+      "next_race": "セントウルS or スプリンターズS",
       "horse_url": "https://db.netkeiba.com/horse/2019105496/?rf=kmatome",
-      "race_url": "https://race.netkeiba.com/special/?id=0099"
+      "race_url": "https://race.netkeiba.com/special/?id=0092"
     },
     {
       "update": "",
@@ -2146,7 +2055,7 @@
       "race_url": "https://race.netkeiba.com/special/?id=0084"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "レディマリオン",
       "next_race": "朱鷺S",
       "horse_url": "https://db.netkeiba.com/horse/2021105752/?rf=kmatome",
@@ -2188,7 +2097,7 @@
       "race_url": "https://db.netkeiba.com/?pid=race_list&word=%A3%CE%A3%D3%A3%D4%BE%DE"
     },
     {
-      "update": "NEW",
+      "update": "",
       "horse": "ワイワイレジェンド",
       "next_race": "BSN賞",
       "horse_url": "https://db.netkeiba.com/horse/2021103812/?rf=kmatome",

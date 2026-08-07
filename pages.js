@@ -217,10 +217,7 @@ function render() {
         const weight =
           detail.weight_kg === null
             ? '<span class="unverified">未発表</span>'
-            : `${detail.weight_kg}kg` +
-              (special.race === "中京記念"
-                ? '<small class="estimate">目安</small>'
-                : "");
+            : `${detail.weight_kg}kg`;
 
         return (
           `<tr class="${cutoffClass}"><td><span class="rankBadge">${detail.rank}</span></td>` +
@@ -240,9 +237,7 @@ function render() {
       special.conditions.includes("ハンデ") &&
       special.rows.some((row) => row.weight_kg === null)
         ? " ハンデ未発表のため斤量による優先条件はまだ反映していません。"
-        : special.race === "中京記念"
-          ? " 斤量は別定条件から算出した暫定値です。"
-          : "";
+        : "";
     e.notice.textContent = `※${special.calculation_note}${weightNote}`;
   } else {
     e.head.innerHTML =
@@ -274,16 +269,14 @@ function render() {
 async function load() {
   try {
     const version = `?v=${Date.now()}`;
-    const [race, chukyo, weekly, lab, jra] = await Promise.all([
+    const [race, weekly, lab, jra] = await Promise.all([
       fetch(`./app/next-races.json${version}`),
-      fetch(`./app/chukyo-kinen-2026.json${version}`),
       fetch(`./app/weekly-graded-races-2026.json${version}`),
       fetch(`./app/data-lab-prize-money.json${version}`),
       fetch(`./app/jra-prize-money.json${version}`),
     ]);
     if (
       !race.ok ||
-      !chukyo.ok ||
       !weekly.ok ||
       !lab.ok ||
       !jra.ok
@@ -293,7 +286,7 @@ async function load() {
 
     state.data = await race.json();
     const weeklyData = await weekly.json();
-    state.specials = [await chukyo.json(), ...weeklyData.races];
+    state.specials = weeklyData.races;
     state.jra = await jra.json();
     state.dataLab = new Map(
       (await lab.json()).map((item) => [

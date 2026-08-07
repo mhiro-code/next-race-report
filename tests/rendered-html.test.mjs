@@ -141,8 +141,11 @@ test("weekly graded-race data contains the three registered races", async () => 
 
 test("GitHub Pages loads weekly rankings and preserves unpublished handicaps", async () => {
   const script = await readFile(new URL("../pages.js", import.meta.url), "utf8");
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
   assert.match(script, /weekly-graded-races-2026\.json/);
+  assert.doesNotMatch(script, /chukyo-kinen-2026/);
+  assert.doesNotMatch(page, /chukyo-kinen-2026/);
   assert.match(script, /未発表/);
   assert.match(script, /ハンデ未発表のため斤量による優先条件はまだ反映していません/);
 });

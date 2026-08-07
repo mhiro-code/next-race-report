@@ -60,9 +60,12 @@ test("GitHub Pages does not show a misleading refresh button", async () => {
   assert.match(html, /GitHub Actionsから更新します/);
 });
 
-test("next-race updater parses the netkeiba table format", async () => {
-  const { combineRows, findPartsNumber, parseRows, sourcePages } = await import("../scripts/fetch-next-races.mjs");
-  const mainHtml = `<div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>`;
+test("next-race updater parses every netkeiba table on a page", async () => {
+  const { combineRows, findPartsNumber, findPartsNumbers, parseRows, sourcePages } = await import("../scripts/fetch-next-races.mjs");
+  const mainHtml = `
+    <div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>
+    <div id="prev_parts-1000"><script>const params = { 'no': '67890' };</script></div>
+  `;
   const tableHtml = `
     <table>
       <tr><th>更新</th><th>馬名</th><th>予定レース</th></tr>
@@ -74,6 +77,7 @@ test("next-race updater parses the netkeiba table format", async () => {
     </table>`;
 
   assert.equal(findPartsNumber(mainHtml), "12345");
+  assert.deepEqual(findPartsNumbers(mainHtml), ["12345", "67890"]);
   assert.deepEqual(parseRows(tableHtml), [
     {
       update: "NEW",

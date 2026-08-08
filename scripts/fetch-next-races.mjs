@@ -88,8 +88,8 @@ export function combineRows(results) {
   return [...byHorse.values()];
 }
 
-async function fetchText(url) {
-  const response = await fetch(url, {
+async function fetchText(url, fetchImpl = fetch) {
+  const response = await fetchImpl(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; NextRaceDirectory/1.0)" },
     signal: AbortSignal.timeout(30000),
   });
@@ -97,8 +97,8 @@ async function fetchText(url) {
   return response.text();
 }
 
-async function fetchSource(source) {
-  const mainHtml = await fetchText(source.url);
+export async function fetchSource(source, { fetchImpl = fetch } = {}) {
+  const mainHtml = await fetchText(source.url, fetchImpl);
   const partsNumbers = findPartsNumbers(mainHtml);
   if (!partsNumbers.length) throw new Error(source.label + ": parts id unavailable");
 
@@ -106,6 +106,7 @@ async function fetchSource(source) {
     partsNumbers.map(async (partsNumber) => {
       const partsHtml = await fetchText(
         "https://dir.netkeiba.com/keibamatome/ajax_parts_view.html?no=" + partsNumber,
+        fetchImpl,
       );
       return parseRows(partsHtml);
     }),
@@ -122,10 +123,10 @@ async function fetchSource(source) {
   };
 }
 
-async function main() {
-  const results = await Promise.all(sourcePages.map(fetchSource));
+export async function fetchNextRaces({ fetchImpl = fetch } = {}) {
+  const results = await Promise.all(sourcePages.map((source) => fetchSource(source, { fetchImpl })));
   const rows = combineRows(results);
-  const payload = {
+  return {
     source_url: sourcePages[0].url,
     source_pages: results.map(({ label, url, page_updated, rows: sourceRows }) => ({
       label,
@@ -139,10 +140,14 @@ async function main() {
     retrieved_at: new Date().toISOString(),
     rows,
   };
+}
+
+async function main() {
+  const payload = await fetchNextRaces();
   await writeFile(outputUrl, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   console.log(
-    `Updated ${fileURLToPath(outputUrl)} with ${rows.length} horses (` +
-      results.map((result) => `${result.label}: ${result.rows.length}`).join(", ") +
+    `Updated ${fileURLToPath(outputUrl)} with ${payload.rows.length} horses (` +
+      payload.source_pages.map((result) => `${result.label}: ${result.row_count}`).join(", ") +
       ")",
   );
 }

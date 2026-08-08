@@ -4,13 +4,38 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  buildConfirmedPayload,
   calculateRanking,
   DEFAULT_TARGET_ROOT,
+  findTargetHorseByName,
+  readTargetHorseByName,
+  readTargetConfirmedSnapshot,
   readTargetSnapshot,
   saveRankingJson,
 } from "../../scripts/target-local-ranking.mjs";
+import { fetchJraProgram } from "../../scripts/jra-race-program.mjs";
+import { fetchOfficialHorseEnrichment } from "../../scripts/official-horse-enrichment.mjs";
+import {
+  findManualCandidates,
+  removeManualCandidatesForRace,
+  readFreshCandidateEnrichment,
+  readFreshJraCache,
+  removeNextRacesCacheForRace,
+  saveJraCache,
+  saveCandidateEnrichment,
+  saveManualCandidate,
+} from "../../scripts/local-admin-data.mjs";
+import { buildProvisionalRanking, mergeManualCandidates, nextRaceCatalog } from "../../scripts/provisional-race-ranking.mjs";
+import { isManagedTargetRace, racesMatch } from "../../scripts/race-stage.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+function normalizeRaceName(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .replace(/[\s\u3000]+/g, "")
+    .trim();
+}
 
 function parseArgs(argv) {
   const args = {};
@@ -64,48 +89,110 @@ function html() {
   <p>D:\\TFJVの保存済みデータだけを読み取ります。JRA-VANへの通信、データダウンロード、JV-Linkは使用しません。</p>
   <section class="card">
     <div class="controls">
+      <label>開催日（JRA公式）<input id="program-date" type="date"></label>
+      <button id="program" class="secondary" type="button">JRA公式番組を取得</button>
       <label>対象レース<select id="race"></select></label>
       <button id="preview" type="button" disabled>TARGETローカルデータから更新</button>
+      <button id="manual" class="secondary" type="button" disabled>管理者確認候補を追加</button>
+      <button id="enrich" class="secondary" type="button" disabled>賞金・成績を再取得</button>
       <button id="save" class="secondary" type="button" disabled>保存して公開データへ反映</button>
     </div>
-    <p id="status" class="status">登録レースを読み込んでいます。</p>
+    <div id="manual-form" hidden>
+      <div class="controls">
+        <label>馬名<input id="manual-horse" type="text" maxlength="40" placeholder="例：地方所属馬"></label>
+        <button id="manual-save" type="button">候補を保存</button>
+        <button id="manual-cancel" class="secondary" type="button">閉じる</button>
+      </div>
+      <p class="muted">馬名だけ入力します。NAR公式情報を自動照合し、確認できない場合は管理者確認として残します。</p>
+    </div>
+    <p id="status" class="status">TARGET登録レースを読み込んでいます。</p>
     <p id="target-updated" class="muted"></p>
+    <p class="muted">操作手順：次走予定を選択 → 開催日を指定 → JRA公式番組を取得 → 対象レースを選択 → TARGETローカルデータから更新。TARGET特別登録後は、対象の重賞・オープン特別を同じ更新単位で処理します。</p>
   </section>
   <section id="result" class="card" hidden>
     <h2 id="title"></h2>
     <p id="meta"></p>
     <div id="summary" class="summary"></div>
     <ul id="notices" class="notices"></ul>
-    <div class="table-wrap"><table><thead><tr><th>順位目安</th><th>馬名</th><th class="numeric">現在</th><th class="numeric">1年加算</th><th class="numeric">2年GI加算</th><th class="numeric">合計</th><th>状態</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="table-wrap"><table><thead id="table-head"></thead><tbody id="rows"></tbody></table></div>
   </section>
   <script>
-    const state = { raceId: "", payload: null };
+    const state = { raceId: "", payload: null, races: [] };
     const raceSelect = document.getElementById("race");
+    const programDate = document.getElementById("program-date");
+    const programButton = document.getElementById("program");
     const previewButton = document.getElementById("preview");
+    const manualButton = document.getElementById("manual");
+    const enrichButton = document.getElementById("enrich");
     const saveButton = document.getElementById("save");
+    const manualForm = document.getElementById("manual-form");
+    const manualHorse = document.getElementById("manual-horse");
+    const manualSave = document.getElementById("manual-save");
+    const manualCancel = document.getElementById("manual-cancel");
     const status = document.getElementById("status");
     const result = document.getElementById("result");
     const targetUpdated = document.getElementById("target-updated");
     const yen = (value) => value === null || value === undefined ? "未取得" : Math.round(value / 10000).toLocaleString("ja-JP") + "万円";
     const text = (value) => String(value ?? "");
     const htmlText = (value) => text(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
-    const setBusy = (busy) => { previewButton.disabled = busy || !state.raceId; saveButton.disabled = busy || !state.payload; };
+    const selectedRace = () => state.races.find((race) => race.race_id === state.raceId);
+    const raceNameKey = (race) => text(race?.name).normalize("NFKC").replace(/[\s\u3000]+/g, "").trim();
+    const setBusy = (busy) => {
+      const selected = selectedRace();
+      const resolved = Boolean(selected?.race_date);
+      previewButton.disabled = busy || !state.raceId || !resolved;
+      manualButton.disabled = busy || !state.raceId || !resolved;
+      enrichButton.disabled = busy || !state.raceId || !resolved;
+      saveButton.disabled = busy || !state.payload;
+      programButton.disabled = busy;
+      manualSave.disabled = busy;
+    };
     const showError = (error) => { status.textContent = error; status.className = "status warning"; };
 
     function render(payload) {
       const race = payload.race;
-      document.getElementById("title").textContent = text(race.name) + " " + text(race.grade);
-      document.getElementById("meta").textContent = text(race.race_date).replaceAll("-", "/") + "・" + text(race.venue) + "・フルゲート " + (race.full_gate ?? "未取得") + "・TARGET更新 " + (payload.target_data_updated_at ?? "未取得") + "・計算 " + payload.generated_at;
-      const missing = payload.rows.filter((row) => row.current_yen === null || row.period1_yen === null || row.period2_g1_yen === null).length;
-      document.getElementById("summary").innerHTML = [
-        ["登録頭数", payload.race.registration_count],
-        ["賞金取得済み", payload.rows.length - missing],
-        ["賞金未取得", missing],
-        ["警告", payload.warnings.length],
-      ].map(([label, value]) => "<div><span>" + htmlText(label) + "</span><strong>" + htmlText(value) + "</strong></div>").join("");
-      document.getElementById("notices").innerHTML = (payload.warnings.length ? payload.warnings : ["警告はありません。"]).map((warning) => "<li class=\"" + (payload.warnings.length ? "warning" : "muted") + "\">" + htmlText(warning) + "</li>").join("");
-      document.getElementById("rows").innerHTML = payload.rows.map((row) => "<tr><td>" + htmlText(row.rank ?? "—") + "</td><td>" + htmlText(row.horse) + "</td><td class=\"numeric\">" + htmlText(yen(row.current_yen)) + "</td><td class=\"numeric\">" + htmlText(yen(row.period1_yen)) + "</td><td class=\"numeric\">" + htmlText(yen(row.period2_g1_yen)) + "</td><td class=\"numeric\">" + htmlText(yen(row.decision_yen)) + "</td><td class=\"" + (row.ranking_status === "calculated" ? "" : "warning") + "\">" + htmlText(row.ranking_status) + "</td></tr>").join("");
+      const confirmed = payload.stage === "confirmed";
+      document.getElementById("title").textContent = text(race.name) + " " + text(race.grade) + "［" + (confirmed ? "確定" : payload.stage === "special" ? "特別登録" : "次走予定") + "］";
+      const countLabel = race.registration_count_status === "candidate_count" ? "候補頭数" : "表示頭数";
+      const targetCount = race.target_registration_count === null || race.target_registration_count === undefined ? "" : "・TARGET登録 " + race.target_registration_count + "頭";
+      document.getElementById("meta").textContent = text(race.race_date).replaceAll("-", "/") + "・" + text(race.venue) + "・" + countLabel + " " + (race.registration_count ?? "未取得") + "・フルゲート " + (race.full_gate ?? "未取得") + targetCount + "・TARGET更新 " + (payload.target_data_updated_at ?? "未取得") + "・計算 " + payload.generated_at;
+      const missing = confirmed ? 0 : payload.rows.filter((row) => row.current_yen === null || row.period1_yen === null || row.period2_g1_yen === null).length;
+      const notices = Array.isArray(payload.notices) ? payload.notices : [];
+      const warnings = Array.isArray(payload.warnings) ? payload.warnings : [];
+      document.getElementById("summary").innerHTML = (confirmed
+        ? [["確定頭数", payload.rows.length], ["所属表示", "JRA"], ["賞金計算", "対象外"], ["警告", warnings.length]]
+        : [["登録頭数", payload.race.registration_count], ["賞金取得済み", payload.rows.length - missing], ["賞金未取得", missing], ["警告", warnings.length]])
+        .map(([label, value]) => "<div><span>" + htmlText(label) + "</span><strong>" + htmlText(value) + "</strong></div>").join("");
+      const noticeItems = [
+        ...notices.map((notice) => ({ text: notice, className: "muted" })),
+        ...warnings.map((warning) => ({ text: warning, className: "warning" })),
+      ];
+      if (!noticeItems.length) noticeItems.push({ text: "警告はありません。", className: "muted" });
+      document.getElementById("notices").innerHTML = noticeItems
+        .map((item) => '<li class="' + item.className + '">' + htmlText(item.text) + "</li>")
+        .join("");
+      document.getElementById("table-head").innerHTML = confirmed
+        ? '<tr><th>馬名</th><th>所属</th><th>状態</th></tr>'
+        : '<tr><th>順位目安</th><th>馬名</th><th>所属</th><th class="numeric">現在</th><th class="numeric">1年加算</th><th class="numeric">2年GⅠ加算</th><th class="numeric">合計</th><th>状態</th></tr>';
+      document.getElementById("rows").innerHTML = confirmed
+        ? payload.rows.map((row) => "<tr><td>" + htmlText(row.horse) + "</td><td>" + htmlText(row.affiliation || "JRA") + "</td><td>" + htmlText(row.status_label || "確定") + "</td></tr>").join("")
+        : payload.rows.map((row) => '<tr><td>' + htmlText(row.rank ?? "—") + "</td><td>" + htmlText(row.horse) + "</td><td>" + htmlText(row.affiliation || "JRA") + '</td><td class="numeric">' + htmlText(yen(row.current_yen)) + '</td><td class="numeric">' + htmlText(yen(row.period1_yen)) + '</td><td class="numeric">' + htmlText(yen(row.period2_g1_yen)) + '</td><td class="numeric">' + htmlText(yen(row.decision_yen)) + '</td><td class="' + (row.ranking_status === "calculated" ? "" : "warning") + '">' + htmlText(row.status_label || row.ranking_status) + "</td></tr>").join("");
       result.hidden = false;
+    }
+
+    function raceKey(race) { return [race.race_date, race.venue, race.name].join("\\0"); }
+    function renderRaceOptions(races) {
+      state.races = races;
+      raceSelect.innerHTML = races.map((race) => {
+        const date = race.race_date || "開催日未確定";
+        const venue = race.venue || "競馬場未確定";
+        const status = race.status === "next"
+          ? " [次走予定・JRA公式番組取得前]"
+          : race.status === "program_only" ? " [JRA未登録]" : "";
+        return '<option value="' + htmlText(race.race_id) + '">' + htmlText(date) + "・" + htmlText(venue) + "・" + htmlText(race.name) + " [" + htmlText(race.grade || "") + "]" + status + "</option>";
+      }).join("");
+      state.raceId = raceSelect.value || "";
+      setBusy(false);
     }
 
     async function loadRaces() {
@@ -113,18 +200,81 @@ function html() {
         const response = await fetch("/api/races");
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "TARGETデータを確認できませんでした。");
-        raceSelect.innerHTML = data.races.map((race) => "<option value=\"" + htmlText(race.race_id) + "\">" + htmlText(race.race_date) + "・" + htmlText(race.venue) + "・" + htmlText(race.name) + " [" + htmlText(race.grade) + "]</option>").join("");
-        state.raceId = raceSelect.value || "";
-        targetUpdated.textContent = "TARGETデータ更新日時: " + (data.target_data_updated_at || "未取得") + "／登録レース: " + data.races.length + "件";
-        previewButton.disabled = !state.raceId;
-        status.textContent = "レースを選択して更新結果を確認してください。";
+        renderRaceOptions(data.races);
+        targetUpdated.textContent = "TARGET更新日時: " + (data.target_data_updated_at || "未取得") + "／TARGET登録: " + (data.target_race_count || 0) + "件／次走予定: " + (data.next_race_count || 0) + "件";
+        status.textContent = data.races.length ? "レースを選択してください。開催日未確定の次走予定は、開催日を指定してJRA公式番組を取得してください。" : "対象レースがありません。開催日を指定してJRA公式番組を取得してください。";
       } catch (error) { showError(error.message || String(error)); }
     }
 
-    raceSelect.addEventListener("change", () => { state.raceId = raceSelect.value; state.payload = null; result.hidden = true; setBusy(false); });
+    programButton.addEventListener("click", async () => {
+      const date = programDate.value;
+      if (!date) { showError("JRA公式番組を取得する開催日を指定してください。"); return; }
+      const selectedName = raceNameKey(selectedRace());
+      setBusy(true); status.className = "status"; status.textContent = "JRA公式番組を1ページ取得しています。";
+      try {
+        const response = await fetch("/api/jra/program?date=" + encodeURIComponent(date));
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "JRA公式番組を取得できませんでした。");
+        const nextByName = new Map(state.races.filter((race) => race.status === "next").map((race) => [raceNameKey(race), race]));
+        const programs = data.races.map((race) => {
+          const next = nextByName.get(raceNameKey(race));
+          return {
+            ...race,
+            status: "program_only",
+            next_race_url: race.next_race_url || next?.next_race_url || "",
+          };
+        });
+        const resolvedNextNames = new Set(programs.map(raceNameKey));
+        const targetKeys = new Set(state.races.filter((race) => race.status === "target_registration").map(raceKey));
+        const retained = state.races.filter((race) =>
+          race.status !== "program_only" && !(race.status === "next" && resolvedNextNames.has(raceNameKey(race))),
+        );
+        renderRaceOptions([...retained, ...programs.filter((race) => !targetKeys.has(raceKey(race)))]);
+        const resolved = state.races.find((race) => race.status === "program_only" && raceNameKey(race) === selectedName);
+        if (resolved) {
+          raceSelect.value = resolved.race_id;
+          state.raceId = resolved.race_id;
+          setBusy(false);
+        }
+        targetUpdated.textContent = "JRA公式番組: " + data.date + "・" + (data.cached ? "24時間以内のキャッシュ" : "今回取得") + "／対象レース: " + programs.length + "件";
+        status.textContent = "JRA公式番組を反映しました。レースを選択して候補を確認してください。";
+      } catch (error) { showError(error.message || String(error)); } finally { setBusy(false); }
+    });
+
+    raceSelect.addEventListener("change", () => { state.raceId = raceSelect.value; state.payload = null; result.hidden = true; manualForm.hidden = true; setBusy(false); });
     previewButton.addEventListener("click", async () => {
       setBusy(true); status.className = "status"; status.textContent = "レース検索・登録馬読取・賞金集計・順位計算中…";
-      try { const response = await fetch("/api/target/preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ race_id: state.raceId }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "計算できませんでした。"); state.payload = data.payload; render(state.payload); status.textContent = "計算結果を確認してください。確認後に保存できます。"; } catch (error) { state.payload = null; showError(error.message || String(error)); } finally { setBusy(false); }
+      try { const response = await fetch("/api/target/preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ race_id: state.raceId }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "計算できませんでした。"); state.payload = data.payload; render(state.payload); status.textContent = "計算結果を確認してください。確認後に保存できます。" + (data.errors?.length ? " 同一TARGET更新の一部に管理者確認があります。" : ""); } catch (error) { state.payload = null; showError(error.message || String(error)); } finally { setBusy(false); }
+    });
+    manualButton.addEventListener("click", () => { manualForm.hidden = !manualForm.hidden; if (!manualForm.hidden) manualHorse.focus(); });
+    manualCancel.addEventListener("click", () => { manualForm.hidden = true; });
+    manualSave.addEventListener("click", async () => {
+      if (!state.raceId) return;
+      setBusy(true); status.className = "status"; status.textContent = "管理者確認候補を保存しています。";
+      try {
+        const response = await fetch("/api/manual-candidates", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ race_id: state.raceId, horse: manualHorse.value }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "候補を保存できませんでした。");
+        manualForm.hidden = true; manualHorse.value = "";
+        state.payload = null; result.hidden = true;
+        status.textContent = data.enrichment_error
+          ? "管理者確認候補を保存しました。NAR照合失敗: " + data.enrichment_error
+          : "管理者確認候補を保存しました。NAR照合結果を含め、更新結果を再確認してください。";
+      } catch (error) { showError(error.message || String(error)); } finally { setBusy(false); }
+    });
+    enrichButton.addEventListener("click", async () => {
+      if (!state.raceId) return;
+      setBusy(true); status.className = "status"; status.textContent = "登録済み公式情報を1件ずつ確認しています。";
+      try {
+        const response = await fetch("/api/manual-candidates/enrich", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ race_id: state.raceId }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "公式情報を再取得できませんでした。");
+        state.payload = null; result.hidden = true;
+        const failed = data.results?.find((item) => item.status === "error");
+        status.textContent = failed
+          ? "賞金・成績の再取得でNAR照合失敗: " + (failed.warning || "原因不明")
+          : "賞金・成績の再取得結果を保存しました。更新結果を再確認してください。" + (data.results?.length ? " 対象 " + data.results.length + "件。" : "");
+      } catch (error) { showError(error.message || String(error)); } finally { setBusy(false); }
     });
     saveButton.addEventListener("click", async () => {
       if (!state.payload) return;
@@ -151,15 +301,119 @@ async function readJson(request) {
   return body ? JSON.parse(body) : {};
 }
 
-export function createAdminServer({ targetRoot = process.env.TARGET_DATA_ROOT || DEFAULT_TARGET_ROOT, port = Number(process.env.TARGET_ADMIN_PORT || 3210) } = {}) {
+export function createAdminServer({
+  targetRoot = process.env.TARGET_DATA_ROOT || DEFAULT_TARGET_ROOT,
+  port = Number(process.env.TARGET_ADMIN_PORT || 3210),
+  repositoryRoot = repoRoot,
+} = {}) {
+  const localRepoRoot = path.resolve(repositoryRoot);
   const snapshots = new Map();
   const previews = new Map();
+  const jraPrograms = new Map();
   const getSnapshot = (raceDate = "list") => {
     if (!snapshots.has(raceDate)) snapshots.set(raceDate, readTargetSnapshot({ targetRoot, raceDate: raceDate === "list" ? null : raceDate }));
     return snapshots.get(raceDate);
   };
-  const readFreshSnapshot = (raceDate = null) =>
-    readTargetSnapshot({ targetRoot, raceDate });
+  const readFreshSnapshot = ({ raceDate = null, raceId = null, horseIds = null } = {}) =>
+    readTargetSnapshot({ targetRoot, raceDate, raceId, horseIds });
+  const getNextRaceCatalog = () => nextRaceCatalog({ repoRoot: localRepoRoot });
+  const decorateProgramRace = (race) => {
+    const next = getNextRaceCatalog().find((candidate) =>
+      normalizeRaceName(candidate.name) === normalizeRaceName(race?.name),
+    );
+    return next ? { ...race, next_race_url: next.next_race_url } : race;
+  };
+  const rememberJraProgram = (program) => {
+    for (const race of program?.races ?? []) {
+      jraPrograms.set(race.race_id, decorateProgramRace(race));
+    }
+    return program;
+  };
+  const cachedJraRace = (raceId) => {
+    const date = String(raceId).match(/^jra-(\d{4}-\d{2}-\d{2})-/)?.[1];
+    if (!date) return null;
+    const cached = readFreshJraCache({ repoRoot: localRepoRoot, date });
+    if (!cached) return null;
+    rememberJraProgram(cached);
+    return jraPrograms.get(raceId) ?? null;
+  };
+  const findSelectedRace = (raceId) => {
+    const snapshot = readFreshSnapshot();
+    const targetRace = snapshot.races.find((race) => race.race_id === raceId);
+    if (targetRace) {
+      if (!isManagedTargetRace(targetRace)) throw new Error("対象レースは重賞またはオープン特別ではありません。");
+      return { race: { ...targetRace, status: "target_registration" }, kind: "target" };
+    }
+    const programRace = jraPrograms.get(raceId) ?? cachedJraRace(raceId);
+    if (programRace) return { race: programRace, kind: "program" };
+    const nextRace = getNextRaceCatalog().find((race) => race.race_id === raceId);
+    if (nextRace) return { race: nextRace, kind: "next" };
+    throw new Error(`対象レースが見つかりません: ${raceId}`);
+  };
+  const buildTargetBatch = ({ raceId, selected }) => {
+    const registrationSnapshot = readFreshSnapshot();
+    const targetRaces = registrationSnapshot.races.filter(isManagedTargetRace);
+    const confirmedSnapshot = readTargetConfirmedSnapshot({
+      targetRoot,
+      raceIds: targetRaces.map((race) => race.race_id),
+    });
+    const confirmedByRace = targetRaces.map((race) => ({
+      race,
+      confirmed: confirmedSnapshot.races.find((candidate) => racesMatch(candidate, race)) ?? null,
+    }));
+    const detailSnapshots = new Map();
+    for (const races of Map.groupBy(targetRaces, (race) => race.race_date).values()) {
+      const horseIds = races.flatMap((race) => race.entries.map((entry) => entry.ketto_num).filter(Boolean));
+      detailSnapshots.set(races[0].race_date, readFreshSnapshot({
+        raceDate: races[0].race_date,
+        horseIds,
+      }));
+    }
+    const payloads = [];
+    const errors = [];
+    for (const item of confirmedByRace) {
+      try {
+        let payload = item.confirmed
+          ? buildConfirmedPayload({
+              race: item.race,
+              confirmedRace: item.confirmed,
+              targetDataUpdatedAt: confirmedSnapshot.target_data_updated_at ?? registrationSnapshot.target_data_updated_at,
+            })
+          : calculateRanking({ snapshot: detailSnapshots.get(item.race.race_date), raceId: item.race.race_id });
+        if (!item.confirmed) {
+          payload = mergeManualCandidates({
+            payload,
+            manualCandidates: findManualCandidates({ repoRoot: localRepoRoot, race: item.race }),
+            repoRoot: localRepoRoot,
+          });
+        }
+        payloads.push(payload);
+      } catch (error) {
+        errors.push({
+          race_id: item.race.race_id,
+          race: item.race.name,
+          status: "管理者確認",
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    const payload = payloads.find((item) => item.race.race_id === raceId);
+    if (!payload) {
+      const failure = errors.find((item) => item.race_id === raceId);
+      throw new Error(failure?.error ?? `対象レースを処理できません: ${selected.race.name}`);
+    }
+    return { payload, payloads, errors };
+  };
+  const buildPayload = async ({ raceId, selected }) => {
+    if (selected.kind === "target") return buildTargetBatch({ raceId, selected });
+    if (!selected.race.race_date) throw new Error("開催日未確定の次走予定です。開催日を指定してJRA公式番組を取得してください。");
+    const manualCandidates = findManualCandidates({ repoRoot: localRepoRoot, race: selected.race });
+    return {
+      payload: buildProvisionalRanking({ repoRoot: localRepoRoot, targetRoot, race: selected.race, manualCandidates }),
+      payloads: [],
+      errors: [],
+    };
+  };
 
   const server = createServer(async (request, response) => {
     try {
@@ -171,10 +425,19 @@ export function createAdminServer({ targetRoot = process.env.TARGET_DATA_ROOT ||
       }
       if (request.method === "GET" && url.pathname === "/api/races") {
         const snapshot = getSnapshot();
+        const targetRaces = snapshot.races.filter(isManagedTargetRace).map((race) => ({
+          ...race,
+          status: "target_registration",
+        }));
+        const targetNames = new Set(targetRaces.map((race) => normalizeRaceName(race.name)));
+        const nextRaces = getNextRaceCatalog().filter((race) => !targetNames.has(normalizeRaceName(race.name)));
         sendJson(response, 200, {
           target_data_updated_at: snapshot.target_data_updated_at,
-          races: snapshot.races.map((race) => {
+          target_race_count: targetRaces.length,
+          next_race_count: nextRaces.length,
+          races: [...targetRaces, ...nextRaces].map((race) => {
             const publicRace = { ...race };
+            if (race.status !== "next") publicRace.status = "target_registration";
             delete publicRace.source_file;
             return publicRace;
           }),
@@ -183,24 +446,179 @@ export function createAdminServer({ targetRoot = process.env.TARGET_DATA_ROOT ||
         });
         return;
       }
+      if (request.method === "GET" && url.pathname === "/api/jra/program") {
+        const date = url.searchParams.get("date") || "";
+        const cached = readFreshJraCache({ repoRoot: localRepoRoot, date });
+        const program = cached ?? saveJraCache({ repoRoot: localRepoRoot, date, payload: await fetchJraProgram({ date }) });
+        rememberJraProgram(program);
+        const races = program.races.map(decorateProgramRace);
+        sendJson(response, 200, {
+          date: program.date,
+          source: program.source,
+          source_url: program.source_url,
+          fetched_at: program.fetched_at,
+          cached: Boolean(cached),
+          races,
+        });
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/api/manual-candidates") {
+        const body = await readJson(request);
+        const raceId = String(body.race_id || "");
+        if (!raceId) throw new Error("race_id is required");
+        const selected = findSelectedRace(raceId);
+        if (!["program", "target"].includes(selected.kind)) {
+          throw new Error("開催日未確定の次走予定には候補を追加できません。先にJRA公式番組を取得してください。");
+        }
+        const saved = saveManualCandidate({
+          repoRoot: localRepoRoot,
+          race: selected.race,
+          horse: body.horse,
+          sourceNote: body.source_note,
+          sourceUrl: body.source_url,
+        });
+        let enrichment = null;
+        let enrichmentError = null;
+        let targetHorse = null;
+        try {
+          targetHorse = readTargetHorseByName({ targetRoot, horseName: saved.candidate.horse });
+        } catch {
+          targetHorse = null;
+        }
+        if (targetHorse?.current_acquisition_money_yen !== null && targetHorse?.current_acquisition_money_yen !== undefined) {
+          enrichment = {
+            status: "target",
+            current_yen: targetHorse.current_acquisition_money_yen,
+            current_metric: "TARGET UM収得賞金",
+            warning: null,
+          };
+        } else {
+          try {
+            const cached = readFreshCandidateEnrichment({ repoRoot: localRepoRoot, candidate: saved.candidate });
+            enrichment = cached ?? await fetchOfficialHorseEnrichment({ candidate: saved.candidate });
+            if (!cached) saveCandidateEnrichment({ repoRoot: localRepoRoot, enrichment });
+          } catch (error) {
+            enrichmentError = error instanceof Error ? error.message : String(error);
+          }
+        }
+        previews.clear();
+        sendJson(response, 200, {
+          candidate: {
+            candidate_id: saved.candidate.candidate_id,
+            horse: saved.candidate.horse,
+            affiliation: saved.candidate.affiliation,
+            status: saved.candidate.status,
+            race: saved.candidate.race,
+          },
+          enrichment: enrichment ? {
+            status: enrichment.status,
+            current_yen: enrichment.current_yen,
+            current_metric: enrichment.current_metric,
+            warning: enrichment.warning,
+          } : null,
+          enrichment_error: enrichmentError,
+        });
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/api/manual-candidates/enrich") {
+        const body = await readJson(request);
+        const raceId = String(body.race_id || "");
+        if (!raceId) throw new Error("race_id is required");
+        const selected = findSelectedRace(raceId);
+        if (!["program", "target"].includes(selected.kind)) {
+          throw new Error("開催日未確定の次走予定には候補を追加できません。先にJRA公式番組を取得してください。");
+        }
+        const candidates = findManualCandidates({ repoRoot: localRepoRoot, race: selected.race });
+        const results = [];
+        let stopped = false;
+        for (const candidate of candidates) {
+          let targetHorse = null;
+          try {
+            targetHorse = readTargetHorseByName({ targetRoot, horseName: candidate.horse });
+          } catch {
+            targetHorse = null;
+          }
+          if (targetHorse?.current_acquisition_money_yen !== null && targetHorse?.current_acquisition_money_yen !== undefined) {
+            results.push({
+              horse: candidate.horse,
+              status: "target",
+              current_yen: targetHorse.current_acquisition_money_yen,
+              current_metric: "TARGET UM収得賞金",
+              warning: null,
+            });
+            continue;
+          }
+          const cached = readFreshCandidateEnrichment({ repoRoot: localRepoRoot, candidate });
+          if (cached) {
+            results.push({
+              horse: candidate.horse,
+              status: cached.status,
+              current_yen: cached.current_yen,
+              current_metric: cached.current_metric,
+              warning: cached.warning,
+              cached: true,
+            });
+            continue;
+          }
+          try {
+            const enrichment = await fetchOfficialHorseEnrichment({ candidate });
+            saveCandidateEnrichment({ repoRoot: localRepoRoot, enrichment });
+            results.push({
+              horse: candidate.horse,
+              status: enrichment.status,
+              current_yen: enrichment.current_yen,
+              current_metric: enrichment.current_metric,
+              warning: enrichment.warning,
+            });
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            results.push({ horse: candidate.horse, status: "error", current_yen: null, warning: message });
+            if (/アクセス制限|403|429|503/.test(message)) {
+              stopped = true;
+              break;
+            }
+          }
+        }
+        previews.clear();
+        sendJson(response, 200, { results, stopped });
+        return;
+      }
       if (request.method === "POST" && (url.pathname === "/api/target/preview" || url.pathname === "/api/target/save")) {
         const body = await readJson(request);
         const raceId = String(body.race_id || "");
         if (!raceId) throw new Error("race_id is required");
-        let payload = previews.get(raceId);
-        if (!payload || url.pathname.endsWith("/preview")) {
-          const listSnapshot = readFreshSnapshot();
-          const selected = listSnapshot.races.find((race) => race.race_id === raceId);
-          if (!selected) throw new Error(`TARGET特別登録レースが見つかりません: ${raceId}`);
-          payload = calculateRanking({ snapshot: readFreshSnapshot(selected.race_date), raceId });
-          previews.set(raceId, payload);
+        let bundle = previews.get(raceId);
+        const isPreview = url.pathname.endsWith("/preview");
+        if (!isPreview && !bundle) throw new Error("先に計算結果を表示して確認してください。");
+        if (isPreview) {
+          const selected = findSelectedRace(raceId);
+          bundle = await buildPayload({ raceId, selected });
+          previews.set(raceId, bundle);
         }
-        if (url.pathname.endsWith("/preview")) {
-          sendJson(response, 200, { payload });
+        if (isPreview) {
+          sendJson(response, 200, { payload: bundle.payload, errors: bundle.errors });
           return;
         }
-        const saved = saveRankingJson({ payload, repoRoot });
-        sendJson(response, 200, { saved: { file: path.relative(repoRoot, saved.filePath), index: path.relative(repoRoot, saved.indexPath) } });
+        const payloads = bundle.payloads.length ? bundle.payloads : [bundle.payload];
+        const saved = [];
+        const saveErrors = [...bundle.errors];
+        for (const payload of payloads) {
+          try {
+            const result = saveRankingJson({ payload, repoRoot: localRepoRoot });
+            saved.push({ file: path.relative(localRepoRoot, result.filePath), index: path.relative(localRepoRoot, result.indexPath), race_id: payload.race.race_id });
+            if (payload.stage === "special" || payload.stage === "confirmed") {
+              removeNextRacesCacheForRace({ repoRoot: localRepoRoot, race: payload.race });
+            }
+            if (payload.stage === "confirmed") {
+              removeManualCandidatesForRace({ repoRoot: localRepoRoot, race: payload.race });
+            }
+          } catch (error) {
+            saveErrors.push({ race_id: payload.race.race_id, race: payload.race.name, status: "管理者確認", error: error instanceof Error ? error.message : String(error) });
+          }
+        }
+        if (!saved.some((item) => item.race_id === raceId)) throw new Error("選択したレースを保存できませんでした。");
+        previews.delete(raceId);
+        sendJson(response, 200, { saved, errors: saveErrors });
         return;
       }
       sendJson(response, 404, { error: "not found" });

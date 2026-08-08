@@ -83,7 +83,12 @@ function normalizePublishedRanking(value) {
     conditions: race.conditions || "",
     full_gate: race.full_gate ?? null,
     registration_count: race.registration_count,
+    registration_count_status: race.registration_count_status,
+    target_registration_count: race.target_registration_count ?? null,
     source_url: value.source_url || "",
+    stage: value.stage || "special",
+    generated_at: value.generated_at || null,
+    target_data_updated_at: value.target_data_updated_at || null,
     calculation_note:
       value.calculation_note || "TARGETローカルデータから計算した順位目安です。",
     rows: (value.rows || []).map((row) => ({
@@ -111,6 +116,11 @@ function normalizePublishedRanking(value) {
             : null,
       weight_kg: typeof row.weight_kg === "number" ? row.weight_kg : null,
       rank: typeof row.rank === "number" ? row.rank : null,
+      ranking_status: typeof row.ranking_status === "string" ? row.ranking_status : "",
+      status_label: typeof row.status_label === "string" ? row.status_label : "",
+      source_kind: typeof row.source_kind === "string" ? row.source_kind : "",
+      affiliation: typeof row.affiliation === "string" ? row.affiliation : "JRA",
+      status: typeof row.status === "string" ? row.status : "",
     })),
   };
 }
@@ -157,7 +167,7 @@ function composeRows() {
         update: original.get(row.horse)?.update || "",
         horse: row.horse,
         next_race: special.race,
-        horse_url: `https://db.netkeiba.com/horse/${row.ketto_num}/`,
+        horse_url: row.ketto_num ? `https://db.netkeiba.com/horse/${row.ketto_num}/` : "",
         race_url: special.source_url,
       })),
     ),
@@ -188,6 +198,14 @@ function filtered() {
       const ar = ranking.get(a.horse);
       const br = ranking.get(b.horse);
       if (ar && br) {
+        if (special.stage === "confirmed") {
+          return a.horse.localeCompare(b.horse, "ja");
+        }
+        if (ar.rank === null && br.rank !== null) return 1;
+        if (ar.rank !== null && br.rank === null) return -1;
+        if (ar.rank !== null && br.rank !== null && ar.rank !== br.rank) {
+          return ar.rank - br.rank;
+        }
         if (ar.total_yen === null && br.total_yen !== null) return 1;
         if (ar.total_yen !== null && br.total_yen === null) return -1;
         return (
@@ -206,6 +224,7 @@ function filtered() {
 function render() {
   const special = selectedRace();
   const detailed = Boolean(special);
+  const confirmed = special?.stage === "confirmed";
   const ranking = special ? rankRace(special) : new Map();
   const rows = filtered();
   const pages = Math.max(1, Math.ceil(rows.length / pageSize));
@@ -218,7 +237,7 @@ function render() {
   e.count.textContent = rows.length;
   e.clear.hidden = !(state.query || state.race !== "すべて" || state.newOnly);
   e.sort.textContent =
-    state.race === "すべて" ? "馬名50音順" : "出走順位の目安順";
+    state.race === "すべて" ? "馬名50音順" : confirmed ? "確定出走馬順" : "出走順位の目安順";
   e.summary.hidden = !detailed;
   e.table.className = detailed ? "rankingTable" : "";
   e.third.textContent = detailed
@@ -230,7 +249,7 @@ function render() {
   if (special) {
     const registrationCount =
       special.registration_count ?? special.rows.length;
-    const hasExclusions = special.full_gate !== null && registrationCount > special.full_gate;
+    const hasExclusions = !confirmed && special.full_gate !== null && registrationCount > special.full_gate;
     const cutoff = hasExclusions
       ? special.rows[(special.full_gate ?? 1) - 1]
       : null;
@@ -240,22 +259,28 @@ function render() {
     e.raceMeta.textContent =
       `${special.race_date.replaceAll("-", "/")}・${special.venue}・` +
       `${special.distance}・${special.conditions}`;
-    if (cutoff) {
+    e.raceMeta.textContent +=
+      `・TARGET更新 ${special.target_data_updated_at || "未取得"}・順位計算 ${special.generated_at || "未取得"}`;
+    if (confirmed) {
+      e.cutoffLabel.textContent = "最終版";
+      e.cutoff.textContent = `確定出走馬 ${registrationCount}頭`;
+    } else if (cutoff) {
       e.cutoffLabel.textContent =
         `${special.full_gate}頭目の現時点の目安`;
       e.cutoff.textContent = `${cutoff.horse}・${format(cutoff.total_yen)}`;
     } else {
       e.cutoffLabel.textContent = "登録状況";
       e.cutoff.textContent =
-        `登録${registrationCount}頭／フルゲート${special.full_gate ?? "未取得"}頭` +
+        `${special.registration_count_status === "candidate_count" ? "候補" : "登録"}${registrationCount}頭／フルゲート${special.full_gate ?? "未取得"}頭` +
         (special.full_gate !== null && registrationCount < special.full_gate ? "（全頭出走可能）" : "");
     }
 
-    e.head.innerHTML =
-      '<tr><th>順位目安</th><th>馬名</th><th>想定騎手</th>' +
-      '<th class="numeric">現在</th><th class="numeric">1年加算</th>' +
-      '<th class="numeric">2年GI加算</th><th class="numeric totalHead">合計</th>' +
-      '<th class="numeric">斤量</th><th>次走</th></tr>';
+    e.head.innerHTML = confirmed
+      ? '<tr><th>馬名</th><th>所属</th><th>状態</th></tr>'
+      : '<tr><th>順位目安</th><th>馬名</th><th>所属</th><th>想定騎手</th>' +
+        '<th class="numeric">現在</th><th class="numeric">1年加算</th>' +
+        '<th class="numeric">2年GⅠ加算</th><th class="numeric totalHead">合計</th>' +
+        '<th class="numeric">斤量</th><th>次走</th><th>状態</th></tr>';
 
     e.body.innerHTML = shown
       .map((row) => {
@@ -269,21 +294,26 @@ function render() {
             ? '<span class="unverified">未発表</span>'
             : `${detail.weight_kg}kg`;
 
+        if (confirmed) {
+          return `<tr class="${cutoffClass}"><td>${link(row.horse_url, row.horse)}</td><td>${esc(detail.affiliation || "JRA")}</td><td>${esc(detail.status_label || "確定")}</td></tr>`;
+        }
         return (
-          `<tr class="${cutoffClass}"><td><span class="rankBadge">${detail.rank}</span></td>` +
+          `<tr class="${cutoffClass}"><td><span class="rankBadge">${detail.rank ?? "—"}</span></td>` +
           `<td>${link(row.horse_url, row.horse)}</td>` +
+          `<td>${esc(detail.affiliation || "JRA")}</td>` +
           `<td>${detail.jockey ? esc(detail.jockey) : '<span class="unverified">未定</span>'}</td>` +
           `<td class="numeric">${format(detail.current_yen)}</td>` +
           `<td class="numeric plus">${detail.one_year_yen === null ? "未取得" : `+${format(detail.one_year_yen)}`}</td>` +
           `<td class="numeric plus">${detail.two_year_g1_yen === null ? "未取得" : `+${format(detail.two_year_g1_yen)}`}</td>` +
           `<td class="numeric totalCell">${format(detail.total_yen)}</td>` +
           `<td class="numeric">${weight}</td>` +
-          `<td>${link(special.source_url, special.race)}</td></tr>`
+          `<td>${link(special.source_url, special.race)}</td>` +
+          `<td>${esc(detail.status_label || (detail.ranking_status === "calculated" ? "計算済み" : "順位未計算"))}</td></tr>`
         );
       })
       .join("");
 
-    const weightNote =
+    const weightNote = confirmed ? "" :
       special.conditions.includes("ハンデ") &&
       special.rows.some((row) => row.weight_kg === null)
         ? " ハンデ未発表のため斤量による優先条件はまだ反映していません。"
@@ -307,7 +337,7 @@ function render() {
 
   if (!shown.length) {
     e.body.innerHTML =
-      `<tr><td class="empty" colspan="${detailed ? 9 : 4}">条件に一致する馬が見つかりません。</td></tr>`;
+      `<tr><td class="empty" colspan="${detailed ? confirmed ? 3 : 11 : 4}">条件に一致する馬が見つかりません。</td></tr>`;
   }
 
   e.pagination.hidden = pages <= 1;
@@ -319,17 +349,15 @@ function render() {
 async function load() {
   try {
     const version = `?v=${Date.now()}`;
-    const [race, rankings, weekly, lab, jra] = await Promise.all([
+    const [race, rankings, lab, jra] = await Promise.all([
       fetch(`./app/next-races.json${version}`),
       fetch(`./app/race-rankings/index.json${version}`),
-      fetch(`./app/weekly-graded-races-2026.json${version}`),
       fetch(`./app/data-lab-prize-money.json${version}`),
       fetch(`./app/jra-prize-money.json${version}`),
     ]);
     if (
       !race.ok ||
       !rankings.ok ||
-      !weekly.ok ||
       !lab.ok ||
       !jra.ok
     ) {
@@ -338,10 +366,7 @@ async function load() {
 
     state.data = await race.json();
     const rankingData = await rankings.json();
-    const weeklyData = await weekly.json();
-    state.specials = rankingData.races?.length
-      ? rankingData.races.map(normalizePublishedRanking)
-      : weeklyData.races;
+    state.specials = (rankingData.races || []).map(normalizePublishedRanking);
     state.jra = await jra.json();
     state.dataLab = new Map(
       (await lab.json()).map((item) => [

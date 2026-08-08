@@ -3,13 +3,11 @@
 import {
   existsSync,
   mkdirSync,
-  openSync,
   readFileSync,
-  readSync,
   readdirSync,
   renameSync,
   statSync,
-  closeSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -19,6 +17,7 @@ const sjis = new TextDecoder("shift_jis");
 
 export const DEFAULT_TARGET_ROOT = "D:\\TFJV";
 export const RECORD_SIZES = Object.freeze({ RA: 1272, SE: 555, UM: 1609 });
+export const COMPACT_RECORD_SIZES = Object.freeze({ DR: 892, DU: 159 });
 
 const VENUES = Object.freeze({
   "01": "札幌",
@@ -57,6 +56,13 @@ function parseInteger(value) {
   const normalized = String(value ?? "").trim();
   if (!/^\d+$/.test(normalized)) return null;
   return Number(normalized);
+}
+
+function normalizeHorseName(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .replace(/[\s\u3000]+/g, "")
+    .trim();
 }
 
 function parseHundredYen(value) {
@@ -104,25 +110,15 @@ function addUniqueWarning(list, value) {
   if (value && !list.includes(value)) list.push(value);
 }
 
-function filePrefix(filePath) {
-  const fd = openSync(filePath, "r");
-  try {
-    const bytes = Buffer.alloc(2);
-    const count = readSync(fd, bytes, 0, 2, 0);
-    return count === 2 ? bytes.toString("ascii") : "";
-  } finally {
-    closeSync(fd);
-  }
-}
-
-function walkFiles(root) {
+function listFiles(root, predicate = () => true) {
   const files = [];
+  if (!existsSync(root) || !statSync(root).isDirectory()) return files;
   const visit = (directory) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         visit(fullPath);
-      } else if (entry.isFile()) {
+      } else if (entry.isFile() && predicate(fullPath, entry.name)) {
         files.push(fullPath);
       }
     }
@@ -131,30 +127,69 @@ function walkFiles(root) {
   return files.sort((a, b) => a.localeCompare(b, "en"));
 }
 
-function yearParts(filePath) {
-  return [...filePath.matchAll(/(?:^|[\\/])(\d{4})(?:[\\/]|$)/g)].map((match) => match[1]);
-}
-
-function fileMayContainDate(filePath, startDate, endDateExclusive) {
-  if (!startDate || !endDateExclusive) return true;
-  const years = yearParts(filePath);
-  if (!years.length) return true;
+function yearsBetween(startDate, endDateExclusive) {
   const firstYear = Number(startDate.slice(0, 4));
   const lastYear = Number(endDateExclusive.slice(0, 4));
-  return years.some((year) => Number(year) >= firstYear && Number(year) <= lastYear);
+  return Array.from({ length: lastYear - firstYear + 1 }, (_, index) => String(firstYear + index));
 }
 
-function discoverRecordFiles(root, startDate, endDateExclusive) {
-  const files = { TK: [], RA: [], SE: [], UM: [] };
-  if (!existsSync(root)) return files;
-  for (const filePath of walkFiles(root)) {
-    const type = filePrefix(filePath);
-    if (!(type in files)) continue;
-    if ((type === "RA" || type === "SE") && !fileMayContainDate(filePath, startDate, endDateExclusive)) {
-      continue;
-    }
-    files[type].push(filePath);
+function latestRegistrationFiles(directory) {
+  if (!directory) return [];
+  const files = listFiles(directory, (_, name) => /^TK\d{8}\.DAT$/i.test(name))
+    .map((filePath) => ({ filePath, date: path.basename(filePath).slice(2, 10) }))
+    .filter((item) => validDateString(`${item.date.slice(0, 4)}-${item.date.slice(4, 6)}-${item.date.slice(6, 8)}`));
+  if (!files.length) return [];
+  const latestDate = files.reduce((latest, item) => (item.date > latest ? item.date : latest), "");
+  return files.filter((item) => item.date === latestDate).map((item) => item.filePath);
+}
+
+function historyFiles(directory, type, startDate, endDateExclusive) {
+  const pattern = type === "RA" ? /^SR\d{6}\.DAT$/i : /^SU\d{6}\.DAT$/i;
+  if (!directory) return [];
+  return yearsBetween(startDate, endDateExclusive).flatMap((year) =>
+    listFiles(path.join(directory, year), (_, name) => pattern.test(name)),
+  );
+}
+
+function localHistoryFiles(directory, type, startDate, endDateExclusive) {
+  const pattern = type === "RA" ? /^LR\d{8}\.DAT$/i : /^LU\d{8}\.DAT$/i;
+  if (!directory) return [];
+  return yearsBetween(startDate, endDateExclusive).flatMap((year) =>
+    listFiles(path.join(directory, year), (_, name) => pattern.test(name)),
+  );
+}
+
+function horseMasterFiles(directory, horseIds, horseNames = new Set()) {
+  if (!directory || (!horseIds.size && !horseNames.size)) return [];
+  if (horseNames.size) {
+    return listFiles(directory, (_, name) => /^UM.*\.DAT$/i.test(name));
   }
+  const years = new Set(
+    [...horseIds]
+      .map((kettoNum) => String(kettoNum).slice(0, 4))
+      .filter((year) => /^\d{4}$/.test(year)),
+  );
+  return [...years].flatMap((year) =>
+    listFiles(path.join(directory, year), (_, name) => /^UM.*\.DAT$/i.test(name)),
+  );
+}
+
+function discoverRecordFiles({ recordFolders, raceDate = null, horseIds = new Set(), horseNames = new Set() } = {}) {
+  const files = {
+    TK: latestRegistrationFiles(recordFolders.registration),
+    RA: [],
+    SE: [],
+    ES_RA: [],
+    ES_SE: [],
+    UM: [],
+  };
+  if (!raceDate) return files;
+  const startDate = subtractCalendarYears(raceDate, 2);
+  files.RA = historyFiles(recordFolders.history, "RA", startDate, raceDate);
+  files.SE = historyFiles(recordFolders.history, "SE", startDate, raceDate);
+  files.ES_RA = localHistoryFiles(recordFolders.localHistory, "RA", startDate, raceDate);
+  files.ES_SE = localHistoryFiles(recordFolders.localHistory, "SE", startDate, raceDate);
+  files.UM = horseMasterFiles(recordFolders.horses, horseIds, horseNames);
   return files;
 }
 
@@ -322,12 +357,45 @@ export function parseUmRecord(record) {
   };
 }
 
-function parseRecordsFromFiles(files, type) {
+export function parseDuRecord(record) {
+  if (record.length < COMPACT_RECORD_SIZES.DU || record.toString("ascii", 0, 2) !== "SE") {
+    throw new Error("DU compact SE record is invalid");
+  }
+  return {
+    race_id: raceId(record),
+    race_date: normalizeDate(raceDate(record)),
+    ketto_num: decode(record, 30, 10),
+    horse: decode(record, 40, 36),
+    affiliation: "JRA",
+    status: "confirmed",
+    data_created_at: dataDate(record),
+  };
+}
+
+function parseDrRecord(record) {
+  if (record.length < COMPACT_RECORD_SIZES.DR || record.toString("ascii", 0, 2) !== "RA") {
+    throw new Error("DR compact RA record is invalid");
+  }
+  return {
+    race_id: raceId(record),
+    race_date: normalizeDate(raceDate(record)),
+    data_created_at: dataDate(record),
+  };
+}
+
+function parseRecordsFromFiles(files, type, { startDate = null, endDateExclusive = null, kettoNums = null, raceIds = null } = {}) {
   const records = [];
   const size = RECORD_SIZES[type];
+  const parse = type === "RA" ? parseRaRecord : type === "SE" ? parseSeRecord : parseUmRecord;
   for (const filePath of files) {
     const parsed = parseFixedRecords(filePath, type, size);
-    for (const record of parsed) records.push({ record, filePath });
+    for (const record of parsed) {
+      const value = parse(record);
+      if (startDate && (!value.race_date || value.race_date < startDate || value.race_date >= endDateExclusive)) continue;
+      if (kettoNums && type === "SE" && !kettoNums.has(value.ketto_num)) continue;
+      if (raceIds && type === "RA" && !raceIds.has(value.race_id)) continue;
+      records.push({ record, filePath });
+    }
   }
   return records;
 }
@@ -336,6 +404,25 @@ function parseTkFromFiles(files) {
   const records = [];
   for (const filePath of files) {
     for (const record of parseTkRecords(filePath)) records.push({ record, filePath });
+  }
+  return records;
+}
+
+function compactRecordFiles(directory, type) {
+  const pattern = type === "DR" ? /^DR\d{8}\.DAT$/i : /^DU\d{8}\.DAT$/i;
+  if (!directory) return [];
+  return listFiles(directory, (_, name) => pattern.test(name));
+}
+
+function parseCompactRecordsFromFiles(files, recordType, recordSize, parse) {
+  const records = [];
+  for (const filePath of files) {
+    const bytes = readFileSync(filePath);
+    for (let offset = 0; offset + recordSize <= bytes.length; offset += recordSize) {
+      const record = bytes.subarray(offset, offset + recordSize);
+      if (record.toString("ascii", 0, 2) !== recordType) continue;
+      records.push({ parsed: parse(record), record: Buffer.from(record), filePath });
+    }
   }
   return records;
 }
@@ -431,6 +518,44 @@ function formatConditions(race) {
     .join("・");
 }
 
+function hasRecordFiles(directory, fileNamePattern, recordTypes) {
+  if (!directory) return false;
+  const candidates = listFiles(directory, (_, name) => /\.DAT$/i.test(name));
+  if (candidates.some((filePath) => fileNamePattern.test(path.basename(filePath)))) return true;
+  return candidates.slice(0, 100).some((filePath) => {
+    try {
+      return recordTypes.has(readFileSync(filePath).toString("ascii", 0, 2));
+    } catch {
+      return false;
+    }
+  });
+}
+
+function hasNamedRecordFiles(directory, fileNamePattern) {
+  if (!directory) return false;
+  return listFiles(directory, (_, name) => /\.DAT$/i.test(name))
+    .some((filePath) => fileNamePattern.test(path.basename(filePath)));
+}
+
+function chooseDataFolder(root, dataFolderNames, preferredNames, fileNamePattern, recordTypes) {
+  const byName = new Map(dataFolderNames.map((name) => [name.toUpperCase(), name]));
+  for (const preferred of preferredNames) {
+    const name = byName.get(preferred.toUpperCase());
+    if (name && hasRecordFiles(path.join(root, name), fileNamePattern, recordTypes)) {
+      return path.join(root, name);
+    }
+  }
+  for (const name of dataFolderNames) {
+    const directory = path.join(root, name);
+    if (hasNamedRecordFiles(directory, fileNamePattern)) return directory;
+  }
+  for (const name of dataFolderNames) {
+    const directory = path.join(root, name);
+    if (hasRecordFiles(directory, fileNamePattern, recordTypes)) return directory;
+  }
+  return null;
+}
+
 export function resolveTargetRoot(value = process.env.TARGET_DATA_ROOT || DEFAULT_TARGET_ROOT) {
   const root = path.resolve(value);
   if (!existsSync(root) || !statSync(root).isDirectory()) {
@@ -442,22 +567,43 @@ export function resolveTargetRoot(value = process.env.TARGET_DATA_ROOT || DEFAUL
   if (!dataFolders.length) {
     throw new Error(`TARGETの *_DATA フォルダが見つかりません: ${root}`);
   }
-  return { root, dataFolders };
+  return {
+    root,
+    dataFolders,
+    recordFolders: {
+      registration: chooseDataFolder(root, dataFolders, ["DE_DATA"], /^TK\d{8}\.DAT$/i, new Set(["TK"])),
+      history: chooseDataFolder(root, dataFolders, ["SE_DATA"], /^(SR|SU)\d{6}\.DAT$/i, new Set(["RA", "SE"])),
+      localHistory: chooseDataFolder(root, dataFolders, ["ES_DATA"], /^(LR|LU)\d{8}\.DAT$/i, new Set(["RA", "SE"])),
+      horses: chooseDataFolder(root, dataFolders, ["UM_DATA"], /^UM.*\.DAT$/i, new Set(["UM"])),
+      confirmed: chooseDataFolder(root, dataFolders, ["DE_DATA"], /^(DR|DU)\d{8}\.DAT$/i, new Set(["RA", "SE"])),
+    },
+  };
 }
 
-export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null } = {}) {
+export function findTargetHorseByName(snapshot, horseName) {
+  const targetName = normalizeHorseName(horseName);
+  if (!targetName) return null;
+  const matches = [...(snapshot?.horses?.values?.() ?? [])].filter(
+    (horse) => normalizeHorseName(horse?.horse) === targetName,
+  );
+  return matches.length === 1 ? matches[0] : null;
+}
+
+export function readTargetHorseByName({ targetRoot = DEFAULT_TARGET_ROOT, horseName } = {}) {
+  const resolved = resolveTargetRoot(targetRoot);
+  const files = horseMasterFiles(resolved.recordFolders.horses, new Set(), new Set([normalizeHorseName(horseName)]));
+  const horses = chooseLatestHorses(parseRecordsFromFiles(files, "UM"));
+  return findTargetHorseByName({ horses }, horseName);
+}
+
+export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null, raceId = null, horseIds = null, horseNames = null } = {}) {
   const resolved = resolveTargetRoot(targetRoot);
   const date = raceDate ? normalizeDate(raceDate) : null;
   const historyStart = date ? subtractCalendarYears(date, 2) : null;
   const historyEnd = date;
-  const discoveredFiles = discoverRecordFiles(resolved.root, historyStart, historyEnd);
-  const tkFiles = discoveredFiles.TK;
-  const umFiles = discoveredFiles.UM;
-  const raFiles = discoveredFiles.RA;
-  const seFiles = discoveredFiles.SE;
-  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles];
-
-  const allRaces = chooseLatestTk(parseTkFromFiles(tkFiles));
+  const registrationFiles = discoverRecordFiles({ recordFolders: resolved.recordFolders });
+  const registrationTkFiles = registrationFiles.TK;
+  const allRaces = chooseLatestTk(parseTkFromFiles(registrationTkFiles));
   const latestRegistrationDate = allRaces.reduce(
     (latest, race) => (race.data_created_at > latest ? race.data_created_at : latest),
     "",
@@ -465,9 +611,61 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
   const races = latestRegistrationDate
     ? allRaces.filter((race) => race.data_created_at === latestRegistrationDate)
     : allRaces;
+  const selectedRace = raceId ? races.find((race) => race.race_id === raceId) : null;
+  const targetHorseIds = new Set(
+    horseIds ?? selectedRace?.entries.map((entry) => entry.ketto_num).filter(Boolean) ?? [],
+  );
+  const targetHorseNames = new Set(
+    (Array.isArray(horseNames) ? horseNames : horseNames ? [horseNames] : [])
+      .map(normalizeHorseName)
+      .filter(Boolean),
+  );
+  const discoveredFiles = date
+    ? discoverRecordFiles({
+        recordFolders: resolved.recordFolders,
+        raceDate: date,
+        horseIds: targetHorseIds,
+        horseNames: targetHorseNames,
+      })
+    : registrationFiles;
+  const tkFiles = discoveredFiles.TK;
+  const umFiles = discoveredFiles.UM;
+  const raFiles = discoveredFiles.RA;
+  const seFiles = discoveredFiles.SE;
+  const esRaFiles = discoveredFiles.ES_RA ?? [];
+  const esSeFiles = discoveredFiles.ES_SE ?? [];
+  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles, ...esRaFiles, ...esSeFiles];
+
   const horses = chooseLatestHorses(parseRecordsFromFiles(umFiles, "UM"));
-  const raceRecords = chooseLatestRaces(parseRecordsFromFiles(raFiles, "RA"));
-  const resultRecords = chooseLatestResults(parseRecordsFromFiles(seFiles, "SE"));
+  for (const horse of horses.values()) {
+    if (targetHorseNames.has(normalizeHorseName(horse.horse))) targetHorseIds.add(horse.ketto_num);
+  }
+  const resultItems = [
+    ...parseRecordsFromFiles(seFiles, "SE", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      kettoNums: targetHorseIds,
+    }),
+    ...parseRecordsFromFiles(esSeFiles, "SE", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      kettoNums: targetHorseIds,
+    }),
+  ];
+  const resultRecords = chooseLatestResults(resultItems);
+  const historyRaceIds = new Set([...resultRecords.values()].map((result) => result.race_id));
+  const raceRecords = chooseLatestRaces([
+    ...parseRecordsFromFiles(raFiles, "RA", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      raceIds: historyRaceIds,
+    }),
+    ...parseRecordsFromFiles(esRaFiles, "RA", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      raceIds: historyRaceIds,
+    }),
+  ]);
   const history = [];
   for (const [key, result] of resultRecords) {
     const race = raceRecords.get(result.race_id);
@@ -476,11 +674,13 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
     history.push({ race, result, key });
   }
 
+  const hasRaFiles = raFiles.length > 0 || esRaFiles.length > 0;
+  const hasSeFiles = seFiles.length > 0 || esSeFiles.length > 0;
   const warnings = [];
   if (!tkFiles.length) addUniqueWarning(warnings, "TK特別登録レコードが見つかりません。");
-  if (date && !raFiles.length) addUniqueWarning(warnings, "対象期間のRAレースレコードが見つかりません。");
-  if (date && !seFiles.length) addUniqueWarning(warnings, "対象期間のSE馬毎レースレコードが見つかりません。");
-  if (!umFiles.length) addUniqueWarning(warnings, "UM競走馬マスタレコードが見つかりません。");
+  if (date && !hasRaFiles) addUniqueWarning(warnings, "対象期間のRAレースレコードが見つかりません。");
+  if (date && !hasSeFiles) addUniqueWarning(warnings, "対象期間のSE馬毎レースレコードが見つかりません。");
+  if (date && !umFiles.length) addUniqueWarning(warnings, "UM競走馬マスタレコードが見つかりません。");
 
   return {
     target_root: resolved.root,
@@ -495,9 +695,91 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
       um_file_count: umFiles.length,
       ra_file_count: raFiles.length,
       se_file_count: seFiles.length,
+      es_ra_file_count: esRaFiles.length,
+      es_se_file_count: esSeFiles.length,
       registration_race_count: races.length,
       horse_master_count: horses.size,
       history_result_count: history.length,
+    },
+    warnings,
+  };
+}
+
+export function readTargetConfirmedSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceIds = null } = {}) {
+  const resolved = resolveTargetRoot(targetRoot);
+  const drFiles = compactRecordFiles(resolved.recordFolders.confirmed, "DR");
+  const duFiles = compactRecordFiles(resolved.recordFolders.confirmed, "DU");
+  const allowedRaceIds = raceIds ? new Set(raceIds) : null;
+  const raceMetadata = new Map();
+
+  for (const item of parseCompactRecordsFromFiles(drFiles, "RA", COMPACT_RECORD_SIZES.DR, parseDrRecord)) {
+    const parsed = item.parsed;
+    if (!parsed.race_id || (allowedRaceIds && !allowedRaceIds.has(parsed.race_id))) continue;
+    const previous = raceMetadata.get(parsed.race_id);
+    if (!previous || parsed.data_created_at >= previous.data_created_at) {
+      raceMetadata.set(parsed.race_id, { ...parsed, source_file: item.filePath });
+    }
+  }
+
+  const entryGroups = new Map();
+  for (const item of parseCompactRecordsFromFiles(duFiles, "SE", COMPACT_RECORD_SIZES.DU, parseDuRecord)) {
+    const parsed = item.parsed;
+    if (!parsed.race_id || !parsed.ketto_num) continue;
+    if (allowedRaceIds && !allowedRaceIds.has(parsed.race_id)) continue;
+    if (decode(item.record, 2, 1) === "0") {
+      const previous = entryGroups.get(parsed.race_id);
+      if (!previous || parsed.data_created_at >= previous.data_created_at) entryGroups.delete(parsed.race_id);
+      continue;
+    }
+    const previous = entryGroups.get(parsed.race_id);
+    if (!previous || parsed.data_created_at > previous.data_created_at) {
+      entryGroups.set(parsed.race_id, {
+        data_created_at: parsed.data_created_at,
+        entries: [{ sequence: 1, ...parsed }],
+      });
+    } else if (parsed.data_created_at === previous.data_created_at) {
+      previous.entries.push({ sequence: previous.entries.length + 1, ...parsed });
+    }
+  }
+
+  const races = [...entryGroups.entries()]
+    .map(([id, group]) => {
+      const firstEntry = group.entries[0];
+      const metadata = raceMetadata.get(id);
+      const venueCode = id.slice(8, 10);
+      return {
+        race_id: id,
+        race_date: firstEntry.race_date,
+        venue_code: venueCode,
+        venue: VENUES[venueCode] ?? venueCode,
+        meeting_number: id.slice(10, 12),
+        meeting_day: id.slice(12, 14),
+        race_number: id.slice(14, 16),
+        name: metadata?.name ?? "",
+        grade_code: metadata?.grade_code ?? "",
+        grade: metadata?.grade ?? "",
+        entries: group.entries,
+        registration_count: group.entries.length,
+        status: "confirmed",
+        data_created_at: group.data_created_at,
+      };
+    })
+    .sort((a, b) => `${a.race_date ?? ""}${a.race_id}`.localeCompare(`${b.race_date ?? ""}${b.race_id}`, "ja"));
+
+  const confirmedEntryCount = races.reduce((total, race) => total + race.entries.length, 0);
+  const warnings = [];
+  if (!duFiles.length) addUniqueWarning(warnings, "DU確定レコードが見つかりません。");
+
+  return {
+    target_root: resolved.root,
+    data_folders: resolved.dataFolders,
+    races,
+    target_data_updated_at: maxFileMtime([...drFiles, ...duFiles]),
+    diagnostics: {
+      dr_file_count: drFiles.length,
+      du_file_count: duFiles.length,
+      confirmed_race_count: races.length,
+      confirmed_entry_count: confirmedEntryCount,
     },
     warnings,
   };
@@ -624,6 +906,13 @@ function resultForHorse(history, kettoNum) {
   return history.filter((item) => item.result.ketto_num === kettoNum);
 }
 
+function historyFilesAvailable(snapshot) {
+  const diagnostics = snapshot?.diagnostics ?? {};
+  const raCount = (diagnostics.ra_file_count ?? 0) + (diagnostics.es_ra_file_count ?? 0);
+  const seCount = (diagnostics.se_file_count ?? 0) + (diagnostics.es_se_file_count ?? 0);
+  return raCount > 0 && seCount > 0;
+}
+
 function calculateHorseAmounts({ horse, performances, periods, historyAvailable }) {
   let period1Yen = 0;
   let period2G1Yen = 0;
@@ -672,7 +961,7 @@ function calculateRaceRow({ entry, snapshot, periods }) {
     horse,
     performances,
     periods,
-    historyAvailable: snapshot.diagnostics.ra_file_count > 0 && snapshot.diagnostics.se_file_count > 0,
+    historyAvailable: historyFilesAvailable(snapshot),
   });
   const warnings = [...amounts.warnings];
   const currentYen = horse?.current_acquisition_money_yen ?? null;
@@ -684,6 +973,7 @@ function calculateRaceRow({ entry, snapshot, periods }) {
   return {
     ketto_num: entry.ketto_num,
     horse: entry.horse ?? horse?.horse ?? "",
+    affiliation: "JRA",
     horse_class: performances.length
       ? classLabelForRace(performances[0].race, performances[0].result.age)
       : null,
@@ -694,14 +984,40 @@ function calculateRaceRow({ entry, snapshot, periods }) {
     decision_yen: decisionYen,
     rank: null,
     ranking_status: decisionYen === null ? "unavailable" : "calculated",
+    status_label: decisionYen === null ? "賞金未取得・順位未計算" : "計算済み",
+    priority_entry: entry.priority_entry === true,
+    upper_condition: entry.upper_condition === true,
+    priority_group: Number.isInteger(entry.priority_group) ? entry.priority_group : null,
     weight_kg: entry.weight_kg,
     warnings,
     calculation_methods: amounts.methods,
   };
 }
 
-function applyRanking(rows) {
+function handicapRace(race) {
+  return race?.weight_type_code === "1" || formatConditions(race).includes("ハンデ");
+}
+
+function rankingGroup(row, handicapTop) {
+  if (Number.isInteger(row.priority_group)) return row.priority_group;
+  if (row.priority_entry) return 0;
+  if (row.upper_condition) return 1;
+  if (handicapTop.has(row)) return 2;
+  return 3;
+}
+
+function applyRanking(rows, race) {
+  const handicapTop = new Set();
+  if (handicapRace(race)) {
+    [...rows]
+      .filter((row) => typeof row.weight_kg === "number")
+      .sort((a, b) => b.weight_kg - a.weight_kg)
+      .slice(0, 3)
+      .forEach((row) => handicapTop.add(row));
+  }
   const sorted = [...rows].sort((a, b) => {
+    const groupDifference = rankingGroup(a, handicapTop) - rankingGroup(b, handicapTop);
+    if (groupDifference) return groupDifference;
     if (a.decision_yen === null && b.decision_yen !== null) return 1;
     if (a.decision_yen !== null && b.decision_yen === null) return -1;
     if (a.decision_yen !== null && b.decision_yen !== null && a.decision_yen !== b.decision_yen) {
@@ -710,22 +1026,25 @@ function applyRanking(rows) {
     return (a.horse ?? "").localeCompare(b.horse ?? "", "ja");
   });
   let previous = null;
+  let previousGroup = null;
   let rank = 0;
   for (let index = 0; index < sorted.length; index += 1) {
     const row = sorted[index];
+    const group = rankingGroup(row, handicapTop);
     if (row.decision_yen === null) {
       row.rank = null;
       continue;
     }
-    if (row.decision_yen !== previous) rank = index + 1;
+    if (row.decision_yen !== previous || group !== previousGroup) rank = index + 1;
     row.rank = rank;
     previous = row.decision_yen;
+    previousGroup = group;
   }
   return sorted;
 }
 
-export function calculateRanking({ snapshot, raceId, generatedAt = new Date().toISOString() }) {
-  const race = snapshot.races.find((item) => item.race_id === raceId);
+export function calculateRanking({ snapshot, raceId, raceOverride = null, generatedAt = new Date().toISOString() }) {
+  const race = snapshot.races.find((item) => item.race_id === raceId) ?? raceOverride;
   if (!race) throw new Error(`TARGET特別登録レースが見つかりません: ${raceId}`);
   if (!race.race_date) throw new Error(`TARGET特別登録レースの開催日が未取得です: ${raceId}`);
   if (!race.entries.length) throw new Error(`TARGET特別登録馬が0頭です: ${race.name}`);
@@ -734,6 +1053,7 @@ export function calculateRanking({ snapshot, raceId, generatedAt = new Date().to
   const rankingRace = snapshot.race_records.get(race.race_id) ?? race;
   const rows = applyRanking(
     race.entries.map((entry) => calculateRaceRow({ entry, snapshot, periods })),
+    rankingRace,
   );
   const warnings = [...snapshot.warnings];
   if (rows.some((row) => row.current_yen === null)) addUniqueWarning(warnings, "現在の収得賞金を取得できない登録馬があります。");
@@ -743,11 +1063,18 @@ export function calculateRanking({ snapshot, raceId, generatedAt = new Date().to
   if (rankingRace.full_gate === null || rankingRace.full_gate === undefined) {
     addUniqueWarning(warnings, "フルゲート数をTARGETローカルレコードから取得できないため未取得です。");
   }
+  if (handicapRace(rankingRace) && rows.every((row) => row.weight_kg === null)) {
+    addUniqueWarning(warnings, "ハンデ未発表のため斤量による優先条件はまだ反映していません。");
+  }
+  if (rows.every((row) => !row.priority_entry && !row.upper_condition)) {
+    addUniqueWarning(warnings, "優先出走権・上位競走条件を取得できないため、賞金順の目安です。");
+  }
 
   const fullGate = Number.isInteger(rankingRace.full_gate) ? rankingRace.full_gate : null;
   return {
     schema_version: 1,
     generated_at: generatedAt,
+    stage: "special",
     source: "TARGET local data",
     period_basis: "approximate",
     target_data_updated_at: snapshot.target_data_updated_at,
@@ -767,6 +1094,48 @@ export function calculateRanking({ snapshot, raceId, generatedAt = new Date().to
     warnings,
     calculation_note: "TARGETのUM平地収得賞金累計とRA/SE履歴を使用し、期間は開催日からの暦年概算です。SEの獲得本賞金を収得賞金として直接加算していません。",
     diagnostics: snapshot.diagnostics,
+  };
+}
+
+export function buildConfirmedPayload({ race, confirmedRace, targetDataUpdatedAt = null, generatedAt = new Date().toISOString() }) {
+  const entries = Array.isArray(confirmedRace?.entries) ? confirmedRace.entries : [];
+  if (!entries.length) throw new Error(`TARGET確定出走馬が見つかりません: ${race?.name ?? confirmedRace?.race_id ?? ""}`);
+  const effectiveRace = race ?? confirmedRace;
+  const rows = entries.map((entry, index) => ({
+    sequence: entry.sequence ?? index + 1,
+    ketto_num: entry.ketto_num ?? null,
+    horse: entry.horse ?? "",
+    affiliation: entry.affiliation ?? "JRA",
+    status: "confirmed",
+    status_label: "確定",
+  }));
+  return {
+    schema_version: 1,
+    generated_at: generatedAt,
+    stage: "confirmed",
+    source: "TARGET local confirmed data",
+    period_basis: "not_applicable",
+    target_data_updated_at: targetDataUpdatedAt,
+    race: {
+      race_id: confirmedRace.race_id ?? effectiveRace.race_id,
+      name: effectiveRace.name ?? confirmedRace.name ?? "",
+      race_date: confirmedRace.race_date ?? effectiveRace.race_date,
+      venue: effectiveRace.venue ?? confirmedRace.venue ?? "",
+      grade: effectiveRace.grade ?? confirmedRace.grade ?? "",
+      conditions: effectiveRace.conditions ?? "",
+      full_gate: effectiveRace.full_gate ?? null,
+      registration_count: rows.length,
+      registration_count_status: "confirmed",
+      target_registration_count: null,
+      period1_start: null,
+      period2_start: null,
+    },
+    rows,
+    warnings: [],
+    calculation_note: "TARGET確定出走馬を表示しています。確定段階では出走順位の賞金計算を行いません。",
+    diagnostics: {
+      confirmed_entry_count: rows.length,
+    },
   };
 }
 
@@ -799,8 +1168,26 @@ function readJsonIfPresent(filePath, fallback) {
   }
 }
 
+function validateRankingPayload(payload) {
+  if (!Array.isArray(payload.rows)) throw new Error("保存対象の馬一覧が不正です。");
+  if (payload.rows.some((row) => !row || typeof row !== "object" || Array.isArray(row))) {
+    throw new Error("保存対象の馬一覧に不正な行があります。");
+  }
+  if (!["next", "special", "confirmed"].includes(payload.stage)) {
+    throw new Error("保存対象の段階が不正です。");
+  }
+  if (payload.stage === "confirmed" && payload.rows.some((row) =>
+    Object.hasOwn(row, "current_yen") || Object.hasOwn(row, "period1_yen") ||
+    Object.hasOwn(row, "period2_g1_yen") || Object.hasOwn(row, "decision_yen") ||
+    Object.hasOwn(row, "rank"))) {
+    throw new Error("確定版に賞金・順位データを保存できません。");
+  }
+  JSON.stringify(payload);
+}
+
 export function saveRankingJson({ payload, repoRoot }) {
   if (!payload?.race?.race_id || !payload?.race?.race_date) throw new Error("保存対象のレース情報が不足しています。");
+  validateRankingPayload(payload);
   const directory = path.join(repoRoot, "app", "race-rankings");
   mkdirSync(directory, { recursive: true });
   const fileName = raceFileName(payload);
@@ -811,7 +1198,12 @@ export function saveRankingJson({ payload, repoRoot }) {
   const current = readJsonIfPresent(indexPath, { schema_version: 1, generated_at: null, races: [] });
   const entry = { ...payload, file: fileName };
   const races = Array.isArray(current.races) ? current.races : [];
-  const nextRaces = races.filter((item) => item?.race?.race_id !== payload.race.race_id);
+  const sameRace = (item) =>
+    item?.race?.race_id === payload.race.race_id ||
+    (item?.race?.race_date === payload.race.race_date &&
+      item?.race?.name === payload.race.name &&
+      item?.race?.venue === payload.race.venue);
+  const nextRaces = races.filter((item) => !sameRace(item));
   nextRaces.push(entry);
   nextRaces.sort((a, b) =>
     `${a.race?.race_date ?? ""}${a.race?.name ?? ""}`.localeCompare(`${b.race?.race_date ?? ""}${b.race?.name ?? ""}`, "ja"),
@@ -821,6 +1213,17 @@ export function saveRankingJson({ payload, repoRoot }) {
     generated_at: new Date().toISOString(),
     races: nextRaces,
   });
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (!entry.isFile() || !/^.+\.json$/i.test(entry.name) || entry.name === "index.json" || entry.name === fileName) continue;
+    const candidatePath = path.join(directory, entry.name);
+    const candidate = readJsonIfPresent(candidatePath, null);
+    if (!candidate || !sameRace(candidate)) continue;
+    try {
+      unlinkSync(candidatePath);
+    } catch (error) {
+      throw new Error(`旧段階のJSONを削除できません: ${entry.name} (${error instanceof Error ? error.message : String(error)})`);
+    }
+  }
   return { filePath, indexPath, fileName };
 }
 
@@ -843,11 +1246,23 @@ function isMain() {
 if (isMain()) {
   try {
     const args = parseArgs(process.argv.slice(2));
-    const snapshot = readTargetSnapshot({ targetRoot: args.data_root, raceDate: args.race_date });
+    const registrationSnapshot = readTargetSnapshot({ targetRoot: args.data_root });
     if (args.list) {
-      console.log(JSON.stringify({ races: snapshot.races, diagnostics: snapshot.diagnostics, warnings: snapshot.warnings }, null, 2));
+      console.log(JSON.stringify({
+        races: registrationSnapshot.races,
+        diagnostics: registrationSnapshot.diagnostics,
+        warnings: registrationSnapshot.warnings,
+      }, null, 2));
     } else {
       if (!args.race_id) throw new Error("--race-id is required unless --list is used.");
+      const registration = registrationSnapshot.races.find((race) => race.race_id === args.race_id);
+      if (!registration) throw new Error(`TARGET特別登録レースが見つかりません: ${args.race_id}`);
+      const snapshot = readTargetSnapshot({
+        targetRoot: args.data_root,
+        raceDate: args.race_date || registration.race_date,
+        raceId: args.race_id,
+        horseIds: registration.entries.map((entry) => entry.ketto_num).filter(Boolean),
+      });
       const payload = calculateRanking({ snapshot, raceId: args.race_id });
       if (args.save) {
         const result = saveRankingJson({ payload, repoRoot: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..") });

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { createAdminServer } from "../tools/windows/target-local-admin.mjs";
 
 const developmentPreviewMeta =
   /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
@@ -145,11 +147,12 @@ test("weekly graded-race data contains the three registered races", async () => 
   assert.ok(cbc.rows.every((row) => row.weight_kg === null));
 });
 
-test("GitHub Pages loads weekly rankings and preserves unpublished handicaps", async () => {
+test("GitHub Pages loads only saved rankings and preserves unpublished handicaps", async () => {
   const script = await readFile(new URL("../pages.js", import.meta.url), "utf8");
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(script, /weekly-graded-races-2026\.json/);
+  assert.match(script, /race-rankings\/index\.json/);
+  assert.doesNotMatch(script, /weekly-graded-races-2026\.json/);
   assert.doesNotMatch(script, /chukyo-kinen-2026/);
   assert.doesNotMatch(page, /chukyo-kinen-2026/);
   assert.match(script, /未発表/);
@@ -178,5 +181,101 @@ test("local TARGET admin provides preview and explicit save controls", async () 
   assert.match(script, /127\.0\.0\.1/);
   assert.match(script, /\/api\/target\/preview/);
   assert.match(script, /\/api\/target\/save/);
+  assert.match(script, /payload\.notices/);
+  assert.match(script, /const warnings = Array\.isArray\(payload\.warnings\)/);
+  assert.match(script, /JRA公式番組を取得/);
+  assert.match(script, /\/api\/jra\/program/);
+  assert.match(script, /\/api\/manual-candidates/);
+  assert.match(script, /賞金・成績を再取得/);
+  assert.match(script, /\/api\/manual-candidates\/enrich/);
+  assert.match(script, /管理者確認候補を追加/);
+  assert.match(script, /NAR照合失敗/);
+  assert.match(script, /nextRaceCatalog/);
+  assert.doesNotMatch(script, /fetchNextRaces|saveNextRacesCache/);
+  assert.match(script, /local-admin-data\.mjs/);
+  assert.match(await readFile(new URL("../scripts/local-admin-data.mjs", import.meta.url), "utf8"), /\.target-local/);
+  const enrichment = await readFile(new URL("../scripts/official-horse-enrichment.mjs", import.meta.url), "utf8");
+  assert.match(enrichment, /地方収得賞金/);
+  assert.match(enrichment, /総賞金は収得賞金と同一視せず/);
   assert.doesNotMatch(script, /JVDTLab|JVInit|JVOpen|JVRead|JVStatus|JVClose|TOKU/);
+});
+
+test("local TARGET admin refuses save before a preview", async () => {
+  const { server } = createAdminServer({ port: 0, targetRoot: "D:/target-does-not-need-to-be-read" });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/target/save`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ race_id: "not-previewed" }),
+    });
+    const body = await response.json();
+    assert.equal(response.status, 400);
+    assert.match(body.error, /先に計算結果を表示して確認/);
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("local TARGET admin serves a syntactically valid page script", async () => {
+  const { server } = createAdminServer({ port: 0, targetRoot: "D:/TFJV" });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/`);
+    const page = await response.text();
+    const script = page.match(/<script>\s*([\s\S]*?)\s*<\/script>/)?.[1] ?? "";
+    assert.equal(response.status, 200);
+    assert.ok(script.length > 0);
+    assert.doesNotThrow(() => new Function(script));
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("local TARGET admin lists saved next races before TARGET registration", async () => {
+  const repositoryRoot = await mkdtemp(path.join(process.cwd(), ".target-admin-race-list-"));
+  const targetRoot = path.join(repositoryRoot, "TFJV");
+  try {
+    await mkdir(path.join(repositoryRoot, "app"), { recursive: true });
+    await mkdir(path.join(targetRoot, "DE_DATA"), { recursive: true });
+    await writeFile(
+      path.join(repositoryRoot, "app", "next-races.json"),
+      JSON.stringify({ rows: [
+        { horse: "古馬候補", next_race: "中京記念", race_url: "https://race.netkeiba.com/special/?id=0076" },
+        { horse: "3歳候補", next_race: "中京記念", race_url: "https://race.netkeiba.com/special/?id=0076" },
+        { horse: "放牧馬", next_race: "放牧", race_url: "" },
+      ] }),
+      "utf8",
+    );
+    const { server } = createAdminServer({ port: 0, targetRoot, repositoryRoot });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    try {
+      const address = server.address();
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/races`);
+      const body = await response.json();
+      assert.equal(response.status, 200);
+      const chukyo = body.races.find((race) => race.name === "中京記念");
+      assert.equal(chukyo.status, "next");
+      assert.equal(chukyo.registration_count, 2);
+      assert.equal(chukyo.race_date, null);
+      assert.equal(body.target_race_count, 0);
+      assert.equal(body.next_race_count, 1);
+    } finally {
+      await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  } finally {
+    await rm(repositoryRoot, { recursive: true, force: true });
+  }
+});
+
+test("enables administrator candidates for TARGET races", async () => {
+  const script = await readFile(
+    new URL("../tools/windows/target-local-admin.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(script, /manualButton\.disabled = busy \|\| !state\.raceId \|\| !resolved;/);
+  assert.doesNotMatch(script, /selectedRace\(\)\?\.status !== "program_only"/);
 });

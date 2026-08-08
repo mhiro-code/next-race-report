@@ -12,6 +12,7 @@ import {
   parseUmRecord,
   parseDuRecord,
   readTargetConfirmedSnapshot,
+  readTargetHorseByName,
   readTargetSnapshot,
   resolveTargetRoot,
   raceFileName,
@@ -172,6 +173,55 @@ test("parses TARGET TK, RA, SE, and UM fields from their local record offsets", 
   assert.equal(parseUmRecord(um).current_acquisition_money_yen, 56_500_000);
 });
 
+test("resolves a horse by name and reads TARGET local ES_DATA history before fallback sources", async () => {
+  const targetRoot = await mkdtemp(path.join(os.tmpdir(), "target-local-es-history-"));
+  try {
+    await Promise.all([
+      mkdir(path.join(targetRoot, "DE_DATA"), { recursive: true }),
+      mkdir(path.join(targetRoot, "ES_DATA", "2026"), { recursive: true }),
+      mkdir(path.join(targetRoot, "UM_DATA", "2021"), { recursive: true }),
+    ]);
+    const horseId = "2021000001";
+    const raceId = "2026052847040212";
+    const um = makeFixedRecord("UM", "0000000000000000");
+    field(um, 11, 10, horseId);
+    field(um, 21, 8, "20210101");
+    field(um, 46, 36, "TARGET LOCAL HORSE");
+    field(um, 1088, 9, "000512000");
+    const localRace = makeFixedRecord("RA", raceId);
+    field(localRace, 2, 1, "A");
+    field(localRace, 32, 60, "LOCAL RACE");
+    const localResult = makeFixedRecord("SE", raceId);
+    field(localResult, 2, 1, "A");
+    field(localResult, 30, 10, horseId);
+    field(localResult, 40, 36, "TARGET LOCAL HORSE");
+    field(localResult, 82, 2, "04");
+    field(localResult, 334, 2, "01");
+    field(localResult, 365, 8, "00300000");
+    await Promise.all([
+      writeFile(path.join(targetRoot, "UM_DATA", "2021", "UM20211.DAT"), um),
+      writeFile(path.join(targetRoot, "ES_DATA", "2026", "LR20260547.DAT"), localRace),
+      writeFile(path.join(targetRoot, "ES_DATA", "2026", "LU20260547.DAT"), localResult),
+    ]);
+
+    const snapshot = readTargetSnapshot({
+      targetRoot,
+      raceDate: "2026-08-09",
+      horseNames: ["TARGET LOCAL HORSE"],
+    });
+    assert.equal(readTargetHorseByName({ targetRoot, horseName: "TARGET LOCAL HORSE" }).ketto_num, horseId);
+    assert.equal(snapshot.horses.get(horseId).current_acquisition_money_yen, 51_200_000);
+    assert.equal(snapshot.diagnostics.es_ra_file_count, 1);
+    assert.equal(snapshot.diagnostics.es_se_file_count, 1);
+    assert.equal(snapshot.history.length, 1);
+    assert.equal(snapshot.history[0].result.ketto_num, horseId);
+    assert.equal(snapshot.history[0].result.earned_main_prize_yen, 30_000_000);
+    assert.equal(snapshot.history[0].race.data_kubun, "A");
+  } finally {
+    await rm(targetRoot, { recursive: true, force: true });
+  }
+});
+
 test("parses the compact DU record used for confirmed runners", () => {
   const parsed = parseDuRecord(makeDuRecord());
   assert.deepEqual(parsed, {
@@ -328,6 +378,39 @@ test("keeps every registered horse and leaves unavailable amounts out of ranking
   assert.equal(payload.rows[2].period1_yen, null);
   assert.equal(payload.rows[2].decision_yen, null);
   assert.equal(payload.rows[2].rank, null);
+});
+
+test("treats a verified empty history as zero period money", () => {
+  const race = {
+    race_id: "R-empty-history",
+    race_date: "2026-08-09",
+    venue: "中京",
+    name: "EMPTY HISTORY G3",
+    grade: "GIII",
+    grade_code: "C",
+    conditions: { age2: "000", age3: "000", age4: "999", age5Plus: "999", youngest: "000" },
+    race_type_code: "11",
+    weight_type_code: "1",
+    registration_count: 1,
+    entries: [{ ketto_num: "EMPTY", horse: "EMPTY HORSE", weight_kg: null }],
+  };
+  const payload = calculateRanking({
+    snapshot: {
+      races: [race],
+      race_records: new Map(),
+      horses: new Map([["EMPTY", { ketto_num: "EMPTY", horse: "EMPTY HORSE", current_acquisition_money_yen: 30_000_000 }]]),
+      history: [],
+      target_data_updated_at: "2026-08-08T00:00:00.000Z",
+      diagnostics: { ra_file_count: 1, se_file_count: 1 },
+      warnings: [],
+    },
+    raceId: race.race_id,
+  });
+  assert.equal(payload.rows[0].period1_yen, 0);
+  assert.equal(payload.rows[0].period2_g1_yen, 0);
+  assert.equal(payload.rows[0].decision_yen, 30_000_000);
+  assert.equal(payload.rows[0].ranking_status, "calculated");
+  assert.equal(payload.rows[0].rank, 1);
 });
 
 test("saves one race at a time without deleting older race rankings", async () => {

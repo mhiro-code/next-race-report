@@ -72,3 +72,33 @@ test("searches NAR by name and reads the official profile without a manual URL",
   assert.equal(enrichment.birth_date, "2022-03-21");
   assert.match(enrichment.horse_url, /k_lineageLoginCode=1/);
 });
+
+test("uses the direct NAR profile returned by the current horse search form", async () => {
+  const calls = [];
+  const profileUrl = "https://www.keiba.go.jp/KeibaWeb/DataRoom/RaceHorseInfo?k_lineageLoginCode=30065408696&k_activeCode=1";
+  const profile = `<meta charset="utf-8"><h1>ケイズレーヴ</h1><p>生年月日 2022.03.21生 調教師 榎 屋 充（愛知） 地方収得賞金 107,150,000 毛色 鹿毛 馬主 伊 藤 健 中央収得賞金 0 中央付加賞金 0</p>`;
+  const enrichment = await fetchOfficialHorseEnrichment({
+    candidate: { candidate_id: "candidate-direct-nar", horse: "ケイズレーヴ" },
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return {
+        ok: true,
+        status: 200,
+        url: profileUrl,
+        arrayBuffer: async () => new TextEncoder().encode(profile).buffer,
+      };
+    },
+  });
+  const searchUrl = new URL(calls[0]);
+  assert.equal(calls.length, 1);
+  assert.equal(searchUrl.searchParams.get("k_horseNameCondition"), "start");
+  assert.equal(searchUrl.searchParams.get("k_dataKind"), "1");
+  assert.equal(searchUrl.searchParams.get("k_birthYear"), "*");
+  assert.equal(enrichment.horse_url, profileUrl);
+  assert.equal(enrichment.current_yen, 107_150_000);
+  assert.equal(enrichment.local_acquisition_yen, 107_150_000);
+  assert.equal(enrichment.central_acquisition_yen, 0);
+  assert.equal(enrichment.additional_acquisition_yen, 0);
+  assert.equal(enrichment.birth_date, "2022-03-21");
+  assert.equal(enrichment.trainer, "榎 屋 充（愛知）");
+});

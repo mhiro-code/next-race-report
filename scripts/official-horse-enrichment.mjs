@@ -44,6 +44,16 @@ function sourceKind(sourceUrl) {
   return "JBIS";
 }
 
+function isNarHorseProfileUrl(sourceUrl) {
+  try {
+    const url = new URL(sourceUrl);
+    return url.hostname.toLowerCase().endsWith("keiba.go.jp") &&
+      url.pathname.toLowerCase().endsWith("/keibaweb/dataroom/racehorseinfo");
+  } catch {
+    return false;
+  }
+}
+
 function normalizeHorseName(value) {
   return String(value ?? "").normalize("NFKC").replace(/[\s\u3000]+/g, "").trim();
 }
@@ -83,15 +93,16 @@ function parseNarProfile(text) {
   const structured = text.match(/収得賞金\s+地方\s+([\d,]+)\s+中央\s+([\d,]+)\s+付加\s+([\d,]+)/);
   const local = structured ? amount(structured[1]) : moneyAfterLabel(text, "地方収得賞金");
   const central = structured ? amount(structured[2]) : moneyAfterLabel(text, "中央収得賞金");
-  const additional = structured ? amount(structured[3]) : null;
-  const currentYen = structured
-    ? local + central + additional
-    : local;
-  const birthMatch = text.match(/生年月日\s+(\d{4})年(\d{1,2})月(\d{1,2})日/);
-  const trainerMatch = text.match(/調教師\s+(.+?)\s+馬主/);
+  const additional = structured ? amount(structured[3]) : moneyAfterLabel(text, "中央付加賞金");
+  const hasCompleteParts = local !== null && central !== null && additional !== null;
+  const currentYen = local === null ? null : hasCompleteParts ? local + central + additional : local;
+  const birthMatch = text.match(/生年月日\s+(\d{4})(?:[./年])(\d{1,2})(?:[./月])(\d{1,2})(?:日|生)?/);
+  const trainerMatch = text.match(/調教師\s+(.+?)(?=\s+(?:地方収得賞金|中央収得賞金|中央付加賞金|毛色|馬主))/);
   return {
     current_yen: currentYen,
-    current_metric: structured ? "NAR収得賞金（地方・中央・付加）暫定合算" : (local === null ? null : "地方収得賞金"),
+    current_metric: structured || hasCompleteParts
+      ? "NAR収得賞金（地方・中央・付加）暫定合算"
+      : (local === null ? null : "地方収得賞金"),
     local_acquisition_yen: local,
     central_acquisition_yen: central,
     additional_acquisition_yen: additional,
@@ -142,18 +153,20 @@ export async function fetchOfficialHorseEnrichment({ candidate, fetchImpl = fetc
   const horse = String(candidate?.horse ?? "").trim();
   let sourceUrl = String(candidate?.source_url ?? "").trim();
   let searchUrl = null;
+  let profileBytes = null;
   if (!sourceUrl) {
     if (!horse) throw new Error("NAR検索対象の馬名がありません。");
     const search = new URL(NAR_HORSE_SEARCH_URL);
     search.searchParams.set("k_activeCode", "1");
-    search.searchParams.set("k_birthYear", "");
-    search.searchParams.set("k_dataKind", "*");
+    search.searchParams.set("k_birthYear", "*");
+    search.searchParams.set("k_dataKind", "1");
+    search.searchParams.set("k_horseNameCondition", "start");
     search.searchParams.set("k_fatherHorse", "");
-    search.searchParams.set("k_flag", "1");
+    search.searchParams.set("k_fatherHorseCondition", "start");
     search.searchParams.set("k_horseName", horse);
-    search.searchParams.set("k_horsebelong", "");
+    search.searchParams.set("k_horsebelong", "*");
     search.searchParams.set("k_motherHorse", "");
-    search.searchParams.set("k_pageNum", "1");
+    search.searchParams.set("k_motherHorseCondition", "start");
     searchUrl = search.href;
     const searchResponse = await fetchImpl(searchUrl, {
       headers: {
@@ -167,26 +180,34 @@ export async function fetchOfficialHorseEnrichment({ candidate, fetchImpl = fetc
       throw new Error(`NAR馬名検索の取得に失敗しました: ${searchResponse.status}${stop}`);
     }
     const searchBytes = await searchResponse.arrayBuffer();
-    sourceUrl = parseNarSearchResults(decodePage(new Uint8Array(searchBytes)), { horse }).source_url;
+    const resolvedSearchUrl = String(searchResponse.url || searchUrl);
+    if (isNarHorseProfileUrl(resolvedSearchUrl)) {
+      sourceUrl = resolvedSearchUrl;
+      profileBytes = new Uint8Array(searchBytes);
+    } else {
+      sourceUrl = parseNarSearchResults(decodePage(new Uint8Array(searchBytes)), { horse }).source_url;
+    }
   }
   const kind = sourceKind(sourceUrl);
-  const response = await fetchImpl(sourceUrl, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (compatible; NextRaceReport/1.0)",
-      Accept: "text/html,application/xhtml+xml",
-    },
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!response.ok) {
-    const stop = [403, 429, 503].includes(response.status) ? "（アクセス制限の可能性があるため再試行しません）" : "";
-    throw new Error(`${kind}公式情報の取得に失敗しました: ${response.status}${stop}`);
+  if (!profileBytes) {
+    const response = await fetchImpl(sourceUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; NextRaceReport/1.0)",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!response.ok) {
+      const stop = [403, 429, 503].includes(response.status) ? "（アクセス制限の可能性があるため再試行しません）" : "";
+      throw new Error(`${kind}公式情報の取得に失敗しました: ${response.status}${stop}`);
+    }
+    profileBytes = new Uint8Array(await response.arrayBuffer());
   }
-  const bytes = await response.arrayBuffer();
   return {
     candidate_id: candidate.candidate_id,
     fetched_at: new Date().toISOString(),
     search_url: searchUrl,
     horse_url: sourceUrl,
-    ...parseOfficialHorsePage(decodePage(new Uint8Array(bytes)), { sourceUrl, horse }),
+    ...parseOfficialHorsePage(decodePage(profileBytes), { sourceUrl, horse }),
   };
 }

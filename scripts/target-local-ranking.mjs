@@ -58,6 +58,13 @@ function parseInteger(value) {
   return Number(normalized);
 }
 
+function normalizeHorseName(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .replace(/[\s\u3000]+/g, "")
+    .trim();
+}
+
 function parseHundredYen(value) {
   const normalized = String(value ?? "").trim();
   if (!normalized) return null;
@@ -144,8 +151,19 @@ function historyFiles(directory, type, startDate, endDateExclusive) {
   );
 }
 
-function horseMasterFiles(directory, horseIds) {
+function localHistoryFiles(directory, type, startDate, endDateExclusive) {
+  const pattern = type === "RA" ? /^LR\d{8}\.DAT$/i : /^LU\d{8}\.DAT$/i;
   if (!directory) return [];
+  return yearsBetween(startDate, endDateExclusive).flatMap((year) =>
+    listFiles(path.join(directory, year), (_, name) => pattern.test(name)),
+  );
+}
+
+function horseMasterFiles(directory, horseIds, horseNames = new Set()) {
+  if (!directory || (!horseIds.size && !horseNames.size)) return [];
+  if (horseNames.size) {
+    return listFiles(directory, (_, name) => /^UM.*\.DAT$/i.test(name));
+  }
   const years = new Set(
     [...horseIds]
       .map((kettoNum) => String(kettoNum).slice(0, 4))
@@ -156,13 +174,22 @@ function horseMasterFiles(directory, horseIds) {
   );
 }
 
-function discoverRecordFiles({ recordFolders, raceDate = null, horseIds = new Set() } = {}) {
-  const files = { TK: latestRegistrationFiles(recordFolders.registration), RA: [], SE: [], UM: [] };
+function discoverRecordFiles({ recordFolders, raceDate = null, horseIds = new Set(), horseNames = new Set() } = {}) {
+  const files = {
+    TK: latestRegistrationFiles(recordFolders.registration),
+    RA: [],
+    SE: [],
+    ES_RA: [],
+    ES_SE: [],
+    UM: [],
+  };
   if (!raceDate) return files;
   const startDate = subtractCalendarYears(raceDate, 2);
   files.RA = historyFiles(recordFolders.history, "RA", startDate, raceDate);
   files.SE = historyFiles(recordFolders.history, "SE", startDate, raceDate);
-  files.UM = horseMasterFiles(recordFolders.horses, horseIds);
+  files.ES_RA = localHistoryFiles(recordFolders.localHistory, "RA", startDate, raceDate);
+  files.ES_SE = localHistoryFiles(recordFolders.localHistory, "SE", startDate, raceDate);
+  files.UM = horseMasterFiles(recordFolders.horses, horseIds, horseNames);
   return files;
 }
 
@@ -546,13 +573,30 @@ export function resolveTargetRoot(value = process.env.TARGET_DATA_ROOT || DEFAUL
     recordFolders: {
       registration: chooseDataFolder(root, dataFolders, ["DE_DATA"], /^TK\d{8}\.DAT$/i, new Set(["TK"])),
       history: chooseDataFolder(root, dataFolders, ["SE_DATA"], /^(SR|SU)\d{6}\.DAT$/i, new Set(["RA", "SE"])),
+      localHistory: chooseDataFolder(root, dataFolders, ["ES_DATA"], /^(LR|LU)\d{8}\.DAT$/i, new Set(["RA", "SE"])),
       horses: chooseDataFolder(root, dataFolders, ["UM_DATA"], /^UM.*\.DAT$/i, new Set(["UM"])),
       confirmed: chooseDataFolder(root, dataFolders, ["DE_DATA"], /^(DR|DU)\d{8}\.DAT$/i, new Set(["RA", "SE"])),
     },
   };
 }
 
-export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null, raceId = null, horseIds = null } = {}) {
+export function findTargetHorseByName(snapshot, horseName) {
+  const targetName = normalizeHorseName(horseName);
+  if (!targetName) return null;
+  const matches = [...(snapshot?.horses?.values?.() ?? [])].filter(
+    (horse) => normalizeHorseName(horse?.horse) === targetName,
+  );
+  return matches.length === 1 ? matches[0] : null;
+}
+
+export function readTargetHorseByName({ targetRoot = DEFAULT_TARGET_ROOT, horseName } = {}) {
+  const resolved = resolveTargetRoot(targetRoot);
+  const files = horseMasterFiles(resolved.recordFolders.horses, new Set(), new Set([normalizeHorseName(horseName)]));
+  const horses = chooseLatestHorses(parseRecordsFromFiles(files, "UM"));
+  return findTargetHorseByName({ horses }, horseName);
+}
+
+export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null, raceId = null, horseIds = null, horseNames = null } = {}) {
   const resolved = resolveTargetRoot(targetRoot);
   const date = raceDate ? normalizeDate(raceDate) : null;
   const historyStart = date ? subtractCalendarYears(date, 2) : null;
@@ -571,28 +615,57 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
   const targetHorseIds = new Set(
     horseIds ?? selectedRace?.entries.map((entry) => entry.ketto_num).filter(Boolean) ?? [],
   );
+  const targetHorseNames = new Set(
+    (Array.isArray(horseNames) ? horseNames : horseNames ? [horseNames] : [])
+      .map(normalizeHorseName)
+      .filter(Boolean),
+  );
   const discoveredFiles = date
-    ? discoverRecordFiles({ recordFolders: resolved.recordFolders, raceDate: date, horseIds: targetHorseIds })
+    ? discoverRecordFiles({
+        recordFolders: resolved.recordFolders,
+        raceDate: date,
+        horseIds: targetHorseIds,
+        horseNames: targetHorseNames,
+      })
     : registrationFiles;
   const tkFiles = discoveredFiles.TK;
   const umFiles = discoveredFiles.UM;
   const raFiles = discoveredFiles.RA;
   const seFiles = discoveredFiles.SE;
-  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles];
+  const esRaFiles = discoveredFiles.ES_RA ?? [];
+  const esSeFiles = discoveredFiles.ES_SE ?? [];
+  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles, ...esRaFiles, ...esSeFiles];
 
   const horses = chooseLatestHorses(parseRecordsFromFiles(umFiles, "UM"));
-  const resultItems = parseRecordsFromFiles(seFiles, "SE", {
-    startDate: historyStart,
-    endDateExclusive: historyEnd,
-    kettoNums: targetHorseIds,
-  });
+  for (const horse of horses.values()) {
+    if (targetHorseNames.has(normalizeHorseName(horse.horse))) targetHorseIds.add(horse.ketto_num);
+  }
+  const resultItems = [
+    ...parseRecordsFromFiles(seFiles, "SE", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      kettoNums: targetHorseIds,
+    }),
+    ...parseRecordsFromFiles(esSeFiles, "SE", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      kettoNums: targetHorseIds,
+    }),
+  ];
   const resultRecords = chooseLatestResults(resultItems);
   const historyRaceIds = new Set([...resultRecords.values()].map((result) => result.race_id));
-  const raceRecords = chooseLatestRaces(parseRecordsFromFiles(raFiles, "RA", {
-    startDate: historyStart,
-    endDateExclusive: historyEnd,
-    raceIds: historyRaceIds,
-  }));
+  const raceRecords = chooseLatestRaces([
+    ...parseRecordsFromFiles(raFiles, "RA", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      raceIds: historyRaceIds,
+    }),
+    ...parseRecordsFromFiles(esRaFiles, "RA", {
+      startDate: historyStart,
+      endDateExclusive: historyEnd,
+      raceIds: historyRaceIds,
+    }),
+  ]);
   const history = [];
   for (const [key, result] of resultRecords) {
     const race = raceRecords.get(result.race_id);
@@ -601,10 +674,12 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
     history.push({ race, result, key });
   }
 
+  const hasRaFiles = raFiles.length > 0 || esRaFiles.length > 0;
+  const hasSeFiles = seFiles.length > 0 || esSeFiles.length > 0;
   const warnings = [];
   if (!tkFiles.length) addUniqueWarning(warnings, "TK特別登録レコードが見つかりません。");
-  if (date && !raFiles.length) addUniqueWarning(warnings, "対象期間のRAレースレコードが見つかりません。");
-  if (date && !seFiles.length) addUniqueWarning(warnings, "対象期間のSE馬毎レースレコードが見つかりません。");
+  if (date && !hasRaFiles) addUniqueWarning(warnings, "対象期間のRAレースレコードが見つかりません。");
+  if (date && !hasSeFiles) addUniqueWarning(warnings, "対象期間のSE馬毎レースレコードが見つかりません。");
   if (date && !umFiles.length) addUniqueWarning(warnings, "UM競走馬マスタレコードが見つかりません。");
 
   return {
@@ -620,6 +695,8 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
       um_file_count: umFiles.length,
       ra_file_count: raFiles.length,
       se_file_count: seFiles.length,
+      es_ra_file_count: esRaFiles.length,
+      es_se_file_count: esSeFiles.length,
       registration_race_count: races.length,
       horse_master_count: horses.size,
       history_result_count: history.length,
@@ -829,6 +906,13 @@ function resultForHorse(history, kettoNum) {
   return history.filter((item) => item.result.ketto_num === kettoNum);
 }
 
+function historyFilesAvailable(snapshot) {
+  const diagnostics = snapshot?.diagnostics ?? {};
+  const raCount = (diagnostics.ra_file_count ?? 0) + (diagnostics.es_ra_file_count ?? 0);
+  const seCount = (diagnostics.se_file_count ?? 0) + (diagnostics.es_se_file_count ?? 0);
+  return raCount > 0 && seCount > 0;
+}
+
 function calculateHorseAmounts({ horse, performances, periods, historyAvailable }) {
   let period1Yen = 0;
   let period2G1Yen = 0;
@@ -860,10 +944,6 @@ function calculateHorseAmounts({ horse, performances, periods, historyAvailable 
     period1Missing = true;
     period2Missing = true;
     addUniqueWarning(warnings, "対象期間のRA/SE履歴を確認できないため、期間賞金は未取得です。");
-  } else if (!performances.length) {
-    period1Missing = true;
-    period2Missing = true;
-    addUniqueWarning(warnings, "対象馬のRA/SE履歴を確認できないため、期間賞金は未取得です。");
   }
 
   return {
@@ -881,7 +961,7 @@ function calculateRaceRow({ entry, snapshot, periods }) {
     horse,
     performances,
     periods,
-    historyAvailable: snapshot.diagnostics.ra_file_count > 0 && snapshot.diagnostics.se_file_count > 0,
+    historyAvailable: historyFilesAvailable(snapshot),
   });
   const warnings = [...amounts.warnings];
   const currentYen = horse?.current_acquisition_money_yen ?? null;

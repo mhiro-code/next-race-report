@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 import { createAdminServer } from "../tools/windows/target-local-admin.mjs";
 
@@ -186,6 +187,9 @@ test("local TARGET admin provides preview and explicit save controls", async () 
   assert.match(script, /賞金・成績を再取得/);
   assert.match(script, /\/api\/manual-candidates\/enrich/);
   assert.match(script, /管理者確認候補を追加/);
+  assert.match(script, /NAR照合失敗/);
+  assert.match(script, /nextRaceCatalog/);
+  assert.doesNotMatch(script, /fetchNextRaces|saveNextRacesCache/);
   assert.match(script, /local-admin-data\.mjs/);
   assert.match(await readFile(new URL("../scripts/local-admin-data.mjs", import.meta.url), "utf8"), /\.target-local/);
   const enrichment = await readFile(new URL("../scripts/official-horse-enrichment.mjs", import.meta.url), "utf8");
@@ -228,12 +232,48 @@ test("local TARGET admin serves a syntactically valid page script", async () => 
   }
 });
 
+test("local TARGET admin lists saved next races before TARGET registration", async () => {
+  const repositoryRoot = await mkdtemp(path.join(process.cwd(), ".target-admin-race-list-"));
+  const targetRoot = path.join(repositoryRoot, "TFJV");
+  try {
+    await mkdir(path.join(repositoryRoot, "app"), { recursive: true });
+    await mkdir(path.join(targetRoot, "DE_DATA"), { recursive: true });
+    await writeFile(
+      path.join(repositoryRoot, "app", "next-races.json"),
+      JSON.stringify({ rows: [
+        { horse: "古馬候補", next_race: "中京記念", race_url: "https://race.netkeiba.com/special/?id=0076" },
+        { horse: "3歳候補", next_race: "中京記念", race_url: "https://race.netkeiba.com/special/?id=0076" },
+        { horse: "放牧馬", next_race: "放牧", race_url: "" },
+      ] }),
+      "utf8",
+    );
+    const { server } = createAdminServer({ port: 0, targetRoot, repositoryRoot });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    try {
+      const address = server.address();
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/races`);
+      const body = await response.json();
+      assert.equal(response.status, 200);
+      const chukyo = body.races.find((race) => race.name === "中京記念");
+      assert.equal(chukyo.status, "next");
+      assert.equal(chukyo.registration_count, 2);
+      assert.equal(chukyo.race_date, null);
+      assert.equal(body.target_race_count, 0);
+      assert.equal(body.next_race_count, 1);
+    } finally {
+      await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  } finally {
+    await rm(repositoryRoot, { recursive: true, force: true });
+  }
+});
+
 test("enables administrator candidates for TARGET races", async () => {
   const script = await readFile(
     new URL("../tools/windows/target-local-admin.mjs", import.meta.url),
     "utf8",
   );
 
-  assert.match(script, /manualButton\.disabled = busy \|\| !state\.raceId;/);
+  assert.match(script, /manualButton\.disabled = busy \|\| !state\.raceId \|\| !resolved;/);
   assert.doesNotMatch(script, /selectedRace\(\)\?\.status !== "program_only"/);
 });

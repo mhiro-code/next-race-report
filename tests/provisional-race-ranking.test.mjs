@@ -8,6 +8,19 @@ import {
   mergeManualCandidates,
 } from "../scripts/provisional-race-ranking.mjs";
 
+function field(bytes, offset, length, value) {
+  Buffer.from(String(value), "ascii").subarray(0, length).copy(bytes, offset);
+}
+
+function fixedRecord(type, size, raceId = "2026052847040212") {
+  const record = Buffer.alloc(size, 0x20);
+  field(record, 0, 2, type);
+  field(record, 2, 1, "A");
+  field(record, 3, 8, "20260529");
+  field(record, 11, 16, raceId);
+  return record;
+}
+
 test("combines public candidates and manager-confirmed candidates without zero-filling money", async () => {
   const repoRoot = await mkdtemp(path.join(os.tmpdir(), "target-provisional-ranking-"));
   try {
@@ -89,6 +102,55 @@ test("uses TARGET only for the selected pre-registration race and leaves missing
     assert.equal(payload.diagnostics.target_estimate, true);
     assert.equal(payload.rows[0].current_yen, null);
     assert.equal(payload.rows[0].decision_yen, null);
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("uses TARGET horse and local history for a manually added horse before NAR fallback", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "target-provisional-local-horse-"));
+  const targetRoot = path.join(repoRoot, "TFJV");
+  try {
+    await mkdir(path.join(repoRoot, "app"), { recursive: true });
+    await mkdir(path.join(targetRoot, "ES_DATA", "2026"), { recursive: true });
+    await mkdir(path.join(targetRoot, "UM_DATA", "2021"), { recursive: true });
+    await writeFile(path.join(repoRoot, "app", "next-races.json"), JSON.stringify({ rows: [] }));
+    await writeFile(path.join(repoRoot, "app", "jra-prize-money.json"), "{}");
+    await writeFile(path.join(repoRoot, "app", "data-lab-prize-money.json"), "[]");
+
+    const horseId = "2021000001";
+    const um = fixedRecord("UM", 1609, "0000000000000000");
+    field(um, 11, 10, horseId);
+    field(um, 21, 8, "20210101");
+    field(um, 46, 36, "TARGET LOCAL HORSE");
+    field(um, 1088, 9, "000512000");
+    const localRace = fixedRecord("RA", 1272);
+    field(localRace, 32, 60, "LOCAL RACE");
+    const localResult = fixedRecord("SE", 555);
+    field(localResult, 30, 10, horseId);
+    field(localResult, 40, 36, "TARGET LOCAL HORSE");
+    field(localResult, 82, 2, "04");
+    field(localResult, 334, 2, "01");
+    field(localResult, 365, 8, "00300000");
+    await Promise.all([
+      writeFile(path.join(targetRoot, "UM_DATA", "2021", "UM20211.DAT"), um),
+      writeFile(path.join(targetRoot, "ES_DATA", "2026", "LR20260547.DAT"), localRace),
+      writeFile(path.join(targetRoot, "ES_DATA", "2026", "LU20260547.DAT"), localResult),
+    ]);
+
+    const payload = buildProvisionalRanking({
+      repoRoot,
+      targetRoot,
+      race: { race_id: "jra-2026-08-16-07-07", race_date: "2026-08-16", venue: "中京", name: "中京記念", grade: "GIII" },
+      manualCandidates: [{ candidate_id: "manual-local", horse: "TARGET LOCAL HORSE", affiliation: "地方" }],
+    });
+    const row = payload.rows[0];
+    assert.equal(row.ketto_num, horseId);
+    assert.equal(row.current_yen, 51_200_000);
+    assert.equal(row.period1_yen, 15_000_000);
+    assert.equal(row.period2_g1_yen, 0);
+    assert.equal(row.decision_yen, 66_200_000);
+    assert.equal(row.current_metric, "TARGET UM収得賞金");
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }

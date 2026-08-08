@@ -130,7 +130,7 @@ function html() {
     const selectedRace = () => state.races.find((race) => race.race_id === state.raceId);
     const setBusy = (busy) => {
       previewButton.disabled = busy || !state.raceId;
-      manualButton.disabled = busy || !state.raceId || selectedRace()?.status !== "program_only";
+      manualButton.disabled = busy || !state.raceId;
       enrichButton.disabled = busy || !state.raceId;
       saveButton.disabled = busy || !state.payload;
       programButton.disabled = busy;

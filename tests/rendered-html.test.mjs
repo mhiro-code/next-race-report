@@ -227,3 +227,13 @@ test("local TARGET admin serves a syntactically valid page script", async () => 
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
+
+test("enables administrator candidates for TARGET races", async () => {
+  const script = await readFile(
+    new URL("../tools/windows/target-local-admin.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(script, /manualButton\.disabled = busy \|\| !state\.raceId;/);
+  assert.doesNotMatch(script, /selectedRace\(\)\?\.status !== "program_only"/);
+});

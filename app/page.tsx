@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import initialData from "./next-races.json";
 import weekly from "./weekly-graded-races-2026.json";
+import rankingIndex from "./race-rankings/index.json";
 import { formatPrizeMoney, getPrizeMoney } from "./prize-money";
 
 type RaceRow = {
@@ -17,11 +18,13 @@ type DetailRow = {
   ketto_num: string;
   horse: string;
   jockey: string;
-  current_yen: number;
-  one_year_yen: number;
-  two_year_g1_yen: number;
-  total_yen: number;
+  current_yen: number | null;
+  one_year_yen: number | null;
+  two_year_g1_yen: number | null;
+  total_yen: number | null;
   weight_kg: number | null;
+  rank?: number | null;
+  ranking_status?: string;
 };
 
 type RaceDetail = {
@@ -31,26 +34,92 @@ type RaceDetail = {
   grade: string;
   distance: string;
   conditions: string;
-  full_gate: number;
+  full_gate: number | null;
   registration_count?: number;
   source_url: string;
   calculation_note: string;
   rows: DetailRow[];
 };
 
-type RankedRow = DetailRow & { rank: number };
+type PublishedRanking = {
+  race?: {
+    name?: string;
+    race_date?: string;
+    venue?: string;
+    grade?: string;
+    conditions?: string;
+    full_gate?: number | null;
+    registration_count?: number;
+  };
+  rows?: Array<Record<string, unknown>>;
+  calculation_note?: string;
+  source_url?: string;
+};
+
+type RankedRow = DetailRow & { rank: number | null };
 type RankedRace = RaceDetail & { rows: RankedRow[] };
 
 const pageSize = 50;
-const detailedRaces = weekly.races as RaceDetail[];
+
+function normalizePublishedRanking(value: PublishedRanking): RaceDetail {
+  const race = value.race ?? {};
+  return {
+    race: race.name ?? "",
+    race_date: race.race_date ?? "",
+    venue: race.venue ?? "",
+    grade: race.grade ?? "",
+    distance: "",
+    conditions: race.conditions ?? "",
+    full_gate: race.full_gate ?? null,
+    registration_count: race.registration_count,
+    source_url: value.source_url ?? "",
+    calculation_note: value.calculation_note ?? "TARGETローカルデータから計算した順位目安です。",
+    rows: (value.rows ?? []).map((row) => ({
+      ketto_num: String(row.ketto_num ?? ""),
+      horse: String(row.horse ?? ""),
+      jockey: String(row.jockey ?? ""),
+      current_yen: typeof row.current_yen === "number" ? row.current_yen : null,
+      one_year_yen:
+        typeof row.period1_yen === "number"
+          ? row.period1_yen
+          : typeof row.one_year_yen === "number"
+            ? row.one_year_yen
+            : null,
+      two_year_g1_yen:
+        typeof row.period2_g1_yen === "number"
+          ? row.period2_g1_yen
+          : typeof row.two_year_g1_yen === "number"
+            ? row.two_year_g1_yen
+            : null,
+      total_yen:
+        typeof row.decision_yen === "number"
+          ? row.decision_yen
+          : typeof row.total_yen === "number"
+            ? row.total_yen
+            : null,
+      weight_kg: typeof row.weight_kg === "number" ? row.weight_kg : null,
+      rank: typeof row.rank === "number" ? row.rank : null,
+      ranking_status: typeof row.ranking_status === "string" ? row.ranking_status : undefined,
+    })),
+  };
+}
+
+const publishedRaces = (rankingIndex.races as PublishedRanking[]).length
+  ? (rankingIndex.races as PublishedRanking[]).map(normalizePublishedRanking)
+  : (weekly.races as RaceDetail[]);
+const detailedRaces = publishedRaces;
 
 const rankedRaces: RankedRace[] = detailedRaces.map((detail) => {
-  let previousTotal = -1;
+  let previousTotal: number | null = null;
   let competitionRank = 0;
   return {
     ...detail,
     rows: detail.rows.map((row, index) => {
-      if (row.total_yen !== previousTotal) competitionRank = index + 1;
+      if (row.rank !== undefined) {
+        previousTotal = row.total_yen;
+        return { ...row, rank: row.rank };
+      }
+      if (row.total_yen !== null && row.total_yen !== previousTotal) competitionRank = index + 1;
       previousTotal = row.total_yen;
       return { ...row, rank: competitionRank };
     }),
@@ -89,8 +158,8 @@ function allRows(): RaceRow[] {
   ];
 }
 
-function money(yen: number) {
-  return yen ? formatPrizeMoney(yen) : "0万円";
+function money(yen: number | null) {
+  return yen === null ? "未取得" : formatPrizeMoney(yen);
 }
 
 export default function Home() {
@@ -131,8 +200,10 @@ export default function Home() {
       const ar = rankingByEntry.get(`${race}\0${a.horse}`);
       const br = rankingByEntry.get(`${race}\0${b.horse}`);
       if (ar && br) {
+        if (ar.total_yen === null && br.total_yen !== null) return 1;
+        if (ar.total_yen !== null && br.total_yen === null) return -1;
         return (
-          br.total_yen - ar.total_yen ||
+          (br.total_yen ?? -1) - (ar.total_yen ?? -1) ||
           a.horse.localeCompare(b.horse, "ja")
         );
       }
@@ -154,10 +225,10 @@ export default function Home() {
     ? selectedRace.registration_count ?? selectedRace.rows.length
     : 0;
   const hasExclusions = selectedRace
-    ? registrationCount > selectedRace.full_gate
+    ? selectedRace.full_gate !== null && registrationCount > selectedRace.full_gate
     : false;
   const cutoff = hasExclusions
-    ? selectedRace?.rows[selectedRace.full_gate - 1]
+    ? selectedRace?.rows[(selectedRace.full_gate ?? 1) - 1]
     : undefined;
 
   return (
@@ -203,7 +274,7 @@ export default function Home() {
           <div><strong>{rows.length}</strong><span>登録</span></div>
           <div><strong>{races.length}</strong><span>予定レース</span></div>
           <div>
-            <strong>{selectedRace ? selectedRace.full_gate : rows.filter((row) => row.update === "NEW").length}</strong>
+            <strong>{selectedRace ? (selectedRace.full_gate ?? "—") : rows.filter((row) => row.update === "NEW").length}</strong>
             <span>{selectedRace ? "フルゲート" : "NEW"}</span>
           </div>
         </div>
@@ -221,7 +292,7 @@ export default function Home() {
                   setQuery(event.target.value);
                   setPage(1);
                 }}
-                placeholder="例：CBC賞、フィオライア"
+              placeholder="例：レース名、馬名"
               />
             </div>
           </label>
@@ -275,8 +346,8 @@ export default function Home() {
                 <>
                   <span>登録状況</span>
                   <strong>
-                    登録{registrationCount}頭／フルゲート{selectedRace.full_gate}頭
-                    {registrationCount < selectedRace.full_gate ? "（全頭出走可能）" : ""}
+                    登録{registrationCount}頭／フルゲート{selectedRace.full_gate ?? "未取得"}頭
+                    {selectedRace.full_gate !== null && registrationCount < selectedRace.full_gate ? "（全頭出走可能）" : ""}
                   </strong>
                 </>
               )}
@@ -339,12 +410,12 @@ export default function Home() {
                         : ""
                     }
                   >
-                    <td><span className="rankBadge">{detail.rank}</span></td>
+                    <td><span className="rankBadge">{detail.rank ?? "—"}</span></td>
                     <td><a href={row.horse_url} target="_blank" rel="noreferrer">{row.horse}↗</a></td>
                     <td>{detail.jockey || <span className="unverified">未定</span>}</td>
                     <td className="numeric">{money(detail.current_yen)}</td>
-                    <td className="numeric plus">+{money(detail.one_year_yen)}</td>
-                    <td className="numeric plus">+{money(detail.two_year_g1_yen)}</td>
+                    <td className="numeric plus">{detail.one_year_yen === null ? "未取得" : `+${money(detail.one_year_yen)}`}</td>
+                    <td className="numeric plus">{detail.two_year_g1_yen === null ? "未取得" : `+${money(detail.two_year_g1_yen)}`}</td>
                     <td className="numeric totalCell">{money(detail.total_yen)}</td>
                     <td className="numeric">
                       {detail.weight_kg === null ? (

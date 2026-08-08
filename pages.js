@@ -51,6 +51,7 @@ const esc = (value) =>
 const horseId = (url) => url.match(/\/horse\/(\d{10})/)?.[1];
 
 const format = (yen) => {
+  if (yen === null || yen === undefined) return "未取得";
   const man = yen / 10000;
   if (man >= 10000) {
     const oku = Math.floor(man / 10000);
@@ -71,6 +72,49 @@ function selectedRace() {
   return state.specials.find((special) => special.race === state.race);
 }
 
+function normalizePublishedRanking(value) {
+  const race = value.race || {};
+  return {
+    race: race.name || "",
+    race_date: race.race_date || "",
+    venue: race.venue || "",
+    grade: race.grade || "",
+    distance: "",
+    conditions: race.conditions || "",
+    full_gate: race.full_gate ?? null,
+    registration_count: race.registration_count,
+    source_url: value.source_url || "",
+    calculation_note:
+      value.calculation_note || "TARGETローカルデータから計算した順位目安です。",
+    rows: (value.rows || []).map((row) => ({
+      ketto_num: row.ketto_num || "",
+      horse: row.horse || "",
+      jockey: row.jockey || "",
+      current_yen: typeof row.current_yen === "number" ? row.current_yen : null,
+      one_year_yen:
+        typeof row.period1_yen === "number"
+          ? row.period1_yen
+          : typeof row.one_year_yen === "number"
+            ? row.one_year_yen
+            : null,
+      two_year_g1_yen:
+        typeof row.period2_g1_yen === "number"
+          ? row.period2_g1_yen
+          : typeof row.two_year_g1_yen === "number"
+            ? row.two_year_g1_yen
+            : null,
+      total_yen:
+        typeof row.decision_yen === "number"
+          ? row.decision_yen
+          : typeof row.total_yen === "number"
+            ? row.total_yen
+            : null,
+      weight_kg: typeof row.weight_kg === "number" ? row.weight_kg : null,
+      rank: typeof row.rank === "number" ? row.rank : null,
+    })),
+  };
+}
+
 function link(url, label) {
   return url
     ? `<a href="${esc(url)}" target="_blank" rel="noreferrer">${esc(label)}↗</a>`
@@ -78,11 +122,15 @@ function link(url, label) {
 }
 
 function rankRace(special) {
-  let previousTotal = -1;
+  let previousTotal = null;
   let rank = 0;
   return new Map(
     special.rows.map((row, index) => {
-      if (row.total_yen !== previousTotal) rank = index + 1;
+      if (Object.prototype.hasOwnProperty.call(row, "rank")) {
+        previousTotal = row.total_yen;
+        return [row.horse, { ...row, rank: row.rank }];
+      }
+      if (row.total_yen !== null && row.total_yen !== previousTotal) rank = index + 1;
       previousTotal = row.total_yen;
       return [row.horse, { ...row, rank }];
     }),
@@ -140,8 +188,10 @@ function filtered() {
       const ar = ranking.get(a.horse);
       const br = ranking.get(b.horse);
       if (ar && br) {
+        if (ar.total_yen === null && br.total_yen !== null) return 1;
+        if (ar.total_yen !== null && br.total_yen === null) return -1;
         return (
-          br.total_yen - ar.total_yen ||
+          (br.total_yen ?? -1) - (ar.total_yen ?? -1) ||
           a.horse.localeCompare(b.horse, "ja")
         );
       }
@@ -172,7 +222,7 @@ function render() {
   e.summary.hidden = !detailed;
   e.table.className = detailed ? "rankingTable" : "";
   e.third.textContent = detailed
-    ? special.full_gate
+    ? special.full_gate ?? "—"
     : state.rows.filter((row) => row.update === "NEW").length;
   e.thirdLabel.textContent = detailed ? "フルゲート" : "NEW";
   e.source.href = detailed ? special.source_url : state.data.source_url;
@@ -180,9 +230,9 @@ function render() {
   if (special) {
     const registrationCount =
       special.registration_count ?? special.rows.length;
-    const hasExclusions = registrationCount > special.full_gate;
+    const hasExclusions = special.full_gate !== null && registrationCount > special.full_gate;
     const cutoff = hasExclusions
-      ? special.rows[special.full_gate - 1]
+      ? special.rows[(special.full_gate ?? 1) - 1]
       : null;
 
     e.raceTitle.innerHTML =
@@ -197,8 +247,8 @@ function render() {
     } else {
       e.cutoffLabel.textContent = "登録状況";
       e.cutoff.textContent =
-        `登録${registrationCount}頭／フルゲート${special.full_gate}頭` +
-        (registrationCount < special.full_gate ? "（全頭出走可能）" : "");
+        `登録${registrationCount}頭／フルゲート${special.full_gate ?? "未取得"}頭` +
+        (special.full_gate !== null && registrationCount < special.full_gate ? "（全頭出走可能）" : "");
     }
 
     e.head.innerHTML =
@@ -224,8 +274,8 @@ function render() {
           `<td>${link(row.horse_url, row.horse)}</td>` +
           `<td>${detail.jockey ? esc(detail.jockey) : '<span class="unverified">未定</span>'}</td>` +
           `<td class="numeric">${format(detail.current_yen)}</td>` +
-          `<td class="numeric plus">+${format(detail.one_year_yen)}</td>` +
-          `<td class="numeric plus">+${format(detail.two_year_g1_yen)}</td>` +
+          `<td class="numeric plus">${detail.one_year_yen === null ? "未取得" : `+${format(detail.one_year_yen)}`}</td>` +
+          `<td class="numeric plus">${detail.two_year_g1_yen === null ? "未取得" : `+${format(detail.two_year_g1_yen)}`}</td>` +
           `<td class="numeric totalCell">${format(detail.total_yen)}</td>` +
           `<td class="numeric">${weight}</td>` +
           `<td>${link(special.source_url, special.race)}</td></tr>`
@@ -269,14 +319,16 @@ function render() {
 async function load() {
   try {
     const version = `?v=${Date.now()}`;
-    const [race, weekly, lab, jra] = await Promise.all([
+    const [race, rankings, weekly, lab, jra] = await Promise.all([
       fetch(`./app/next-races.json${version}`),
+      fetch(`./app/race-rankings/index.json${version}`),
       fetch(`./app/weekly-graded-races-2026.json${version}`),
       fetch(`./app/data-lab-prize-money.json${version}`),
       fetch(`./app/jra-prize-money.json${version}`),
     ]);
     if (
       !race.ok ||
+      !rankings.ok ||
       !weekly.ok ||
       !lab.ok ||
       !jra.ok
@@ -285,8 +337,11 @@ async function load() {
     }
 
     state.data = await race.json();
+    const rankingData = await rankings.json();
     const weeklyData = await weekly.json();
-    state.specials = weeklyData.races;
+    state.specials = rankingData.races?.length
+      ? rankingData.races.map(normalizePublishedRanking)
+      : weeklyData.races;
     state.jra = await jra.json();
     state.dataLab = new Map(
       (await lab.json()).map((item) => [

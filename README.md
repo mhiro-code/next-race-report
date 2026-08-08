@@ -2,7 +2,7 @@
 
 netkeiba「次走想定（古馬）」と「次走想定（2歳・3歳）」の一覧を統合し、検索・レース名フィルター・並び替えに対応させたブラウザ版レポートです。
 
-収得賞金は JRA-VAN Data Lab / JV-Link の UM レコードから取得した CSV を取り込み、競走馬コード（血統登録番号）で照合します。
+重賞の出走順位目安は、Windows PCに保存済みのTARGET Frontier JVデータ（`D:\TFJV`）からローカル計算します。順位更新ではJRA-VANからの追加ダウンロード、JV-Link、COM接続を使用しません。
 
 ## 主な機能
 
@@ -12,6 +12,7 @@ netkeiba「次走想定（古馬）」と「次走想定（2歳・3歳）」の�
 - netkeiba の馬・レース詳細ページへのリンク
 - GitHub Actionsによるnetkeiba掲載データの再取得
 - Data Lab の収得賞金データ取り込み
+- TARGETローカルデータによる重賞出走順位目安の計算・確認・保存
 
 ## 開発環境
 
@@ -35,7 +36,22 @@ GitHubで **Actions** → **Update next-race data** → **Run workflow** の順�
 
 処理が成功すると、古馬と2・3歳の両ページから取得した内容が `app/next-races.json` へ自動コミットされ、GitHub Pagesにも反映されます。画面の再読み込みは、反映後のJSONを表示するだけです。
 
+## TARGETローカルデータから順位目安を更新
+
+Windows PCの `D:\TFJV` にTARGETの保存済みデータがある状態で、リポジトリ直下からローカル管理画面を起動します。
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+& ".\tools\windows\start-target-local-admin.ps1"
+```
+
+`http://127.0.0.1:3210/` を開き、対象レースを選択して **TARGETローカルデータから更新** を押します。結果を確認してから **保存して公開データへ反映** を押すと、開催日・レース単位の `app/race-rankings/` JSONだけが更新されます。GitHubへのpush、Pull Request、マージは自動実行しません。
+
+GitHub Pagesは保存済みの `app/race-rankings/index.json` を閲覧し、未保存のTARGETデータを直接読み取りません。週次のnetkeiba再取得はこの順位JSONを削除しません。
+
 ## Data Lab データの更新
+
+以下は既存の一般収得賞金CSV取り込み手順です。TARGETローカルの重賞順位更新では使用しません。
 
 ### 1. JV-LinkからCSVを出力
 

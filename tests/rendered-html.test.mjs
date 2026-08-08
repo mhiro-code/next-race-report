@@ -34,11 +34,12 @@ test("renders development preview metadata", async () => {
 });
 
 test("includes a self-contained GitHub Pages entry point", async () => {
-  const [html, script, nextRaces, dataLabPrizes] = await Promise.all([
+  const [html, script, nextRaces, dataLabPrizes, rankingIndex] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../pages.js", import.meta.url), "utf8"),
     readFile(new URL("../app/next-races.json", import.meta.url), "utf8"),
     readFile(new URL("../app/data-lab-prize-money.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/race-rankings/index.json", import.meta.url), "utf8"),
   ]);
 
   assert.match(html, /<script src="\.\/pages\.js" defer><\/script>/);
@@ -47,8 +48,11 @@ test("includes a self-contained GitHub Pages entry point", async () => {
 
   const races = JSON.parse(nextRaces);
   const prizes = JSON.parse(dataLabPrizes);
+  const rankings = JSON.parse(rankingIndex);
   assert.ok(races.rows.length > 0);
   assert.ok(prizes.length > 0);
+  assert.equal(rankings.schema_version, 1);
+  assert.ok(Array.isArray(rankings.races));
 });
 
 test("GitHub Pages does not show a misleading refresh button", async () => {
@@ -61,8 +65,9 @@ test("GitHub Pages does not show a misleading refresh button", async () => {
 });
 
 test("next-race updater parses the netkeiba table format", async () => {
-  const { combineRows, findPartsNumber, parseRows, sourcePages } = await import("../scripts/fetch-next-races.mjs");
-  const mainHtml = `<div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>`;
+  const { combineRows, findPartsNumber, findPartsNumbers, parseRows, sourcePages } = await import("../scripts/fetch-next-races.mjs");
+  const mainHtml = `<div id="prev_parts-999"><script>const params = { 'no': '12345' };</script></div>
+    <div id="prev_parts-1000"><script>const params = { 'no': '67890' };</script></div>`;
   const tableHtml = `
     <table>
       <tr><th>更新</th><th>馬名</th><th>予定レース</th></tr>
@@ -74,6 +79,7 @@ test("next-race updater parses the netkeiba table format", async () => {
     </table>`;
 
   assert.equal(findPartsNumber(mainHtml), "12345");
+  assert.deepEqual(findPartsNumbers(mainHtml), ["12345", "67890"]);
   assert.deepEqual(parseRows(tableHtml), [
     {
       update: "NEW",
@@ -150,14 +156,27 @@ test("GitHub Pages loads weekly rankings and preserves unpublished handicaps", a
   assert.match(script, /ハンデ未発表のため斤量による優先条件はまだ反映していません/);
 });
 
-test("weekly exporter uses the correct RA offsets without changing TK offsets", async () => {
+test("TARGET updater uses only local data and has no JV-Link or fixed-race path", async () => {
   const script = await readFile(
     new URL("../tools/windows/target-weekly-graded-races.ps1", import.meta.url),
     "utf8",
   );
 
-  assert.match(script, /SyubetuCD = Get-TextFromBytes \$recordBytes 615 2/);
-  assert.match(script, /SyubetuCD = Get-TextFromBytes \$recordBytes 616 2/);
-  assert.match(script, /JyokenCD1 = Get-TextFromBytes \$recordBytes 622 3/);
-  assert.match(script, /JyokenCD5 = Get-TextFromBytes \$recordBytes 634 3/);
+  assert.match(script, /target-local-ranking\.mjs/);
+  assert.match(script, /DataRoot/);
+  assert.doesNotMatch(script, /JVDTLab|JVInit|JVOpen|JVRead|JVStatus|JVClose|TOKU|SysWOW64|20260808|20260809|Count -ne 3/);
+});
+
+test("local TARGET admin provides preview and explicit save controls", async () => {
+  const script = await readFile(
+    new URL("../tools/windows/target-local-admin.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(script, /TARGETローカルデータから更新/);
+  assert.match(script, /保存して公開データへ反映/);
+  assert.match(script, /127\.0\.0\.1/);
+  assert.match(script, /\/api\/target\/preview/);
+  assert.match(script, /\/api\/target\/save/);
+  assert.doesNotMatch(script, /JVDTLab|JVInit|JVOpen|JVRead|JVStatus|JVClose|TOKU/);
 });

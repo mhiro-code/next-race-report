@@ -102,6 +102,11 @@ test("uses TARGET only for the selected pre-registration race and leaves missing
     assert.equal(payload.diagnostics.target_estimate, true);
     assert.equal(payload.rows[0].current_yen, null);
     assert.equal(payload.rows[0].decision_yen, null);
+    assert.deepEqual(payload.notices, [
+      "TARGET特別登録前の暫定候補です。JRA公式番組をレース情報の正本として表示しています。",
+      "選択したレースに限り、TARGETのUM・RA・SEから賞金を試算しています。",
+    ]);
+    assert.deepEqual(payload.warnings, []);
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }

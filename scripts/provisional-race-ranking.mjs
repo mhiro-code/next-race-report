@@ -294,12 +294,13 @@ export function buildProvisionalRanking({
     }
   }
 
-  const warnings = [
+  const notices = [
     "TARGET特別登録前の暫定候補です。JRA公式番組をレース情報の正本として表示しています。",
     targetEstimate
       ? "選択したレースに限り、TARGETのUM・RA・SEから賞金を試算しています。"
       : "netkeiba候補と管理者確認候補を統合しています。正式な登録馬はTARGET特別登録データ取得後に確認してください。",
   ];
+  const warnings = [];
   if (!rows.length) warnings.push("候補馬が見つかりません。管理者確認候補を追加してください。");
   return {
     schema_version: 1,
@@ -324,6 +325,7 @@ export function buildProvisionalRanking({
       period2_start: null,
     },
     rows,
+    notices,
     warnings,
     calculation_note: targetEstimate
       ? "TARGET特別登録前の選択レース限定試算です。データ未取得は未取得のまま扱い、対象期間に出走がないことを確認できる場合だけ0円とします。"

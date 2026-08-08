@@ -181,6 +181,8 @@ test("local TARGET admin provides preview and explicit save controls", async () 
   assert.match(script, /127\.0\.0\.1/);
   assert.match(script, /\/api\/target\/preview/);
   assert.match(script, /\/api\/target\/save/);
+  assert.match(script, /payload\.notices/);
+  assert.match(script, /const warnings = Array\.isArray\(payload\.warnings\)/);
   assert.match(script, /JRA公式番組を取得/);
   assert.match(script, /\/api\/jra\/program/);
   assert.match(script, /\/api\/manual-candidates/);

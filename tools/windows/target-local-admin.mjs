@@ -157,11 +157,20 @@ function html() {
       const targetCount = race.target_registration_count === null || race.target_registration_count === undefined ? "" : "・TARGET登録 " + race.target_registration_count + "頭";
       document.getElementById("meta").textContent = text(race.race_date).replaceAll("-", "/") + "・" + text(race.venue) + "・" + countLabel + " " + (race.registration_count ?? "未取得") + "・フルゲート " + (race.full_gate ?? "未取得") + targetCount + "・TARGET更新 " + (payload.target_data_updated_at ?? "未取得") + "・計算 " + payload.generated_at;
       const missing = confirmed ? 0 : payload.rows.filter((row) => row.current_yen === null || row.period1_yen === null || row.period2_g1_yen === null).length;
+      const notices = Array.isArray(payload.notices) ? payload.notices : [];
+      const warnings = Array.isArray(payload.warnings) ? payload.warnings : [];
       document.getElementById("summary").innerHTML = (confirmed
-        ? [["確定頭数", payload.rows.length], ["所属表示", "JRA"], ["賞金計算", "対象外"], ["警告", payload.warnings.length]]
-        : [["登録頭数", payload.race.registration_count], ["賞金取得済み", payload.rows.length - missing], ["賞金未取得", missing], ["警告", payload.warnings.length]])
+        ? [["確定頭数", payload.rows.length], ["所属表示", "JRA"], ["賞金計算", "対象外"], ["警告", warnings.length]]
+        : [["登録頭数", payload.race.registration_count], ["賞金取得済み", payload.rows.length - missing], ["賞金未取得", missing], ["警告", warnings.length]])
         .map(([label, value]) => "<div><span>" + htmlText(label) + "</span><strong>" + htmlText(value) + "</strong></div>").join("");
-      document.getElementById("notices").innerHTML = (payload.warnings.length ? payload.warnings : ["警告はありません。"]).map((warning) => '<li class="' + (payload.warnings.length ? "warning" : "muted") + '">' + htmlText(warning) + "</li>").join("");
+      const noticeItems = [
+        ...notices.map((notice) => ({ text: notice, className: "muted" })),
+        ...warnings.map((warning) => ({ text: warning, className: "warning" })),
+      ];
+      if (!noticeItems.length) noticeItems.push({ text: "警告はありません。", className: "muted" });
+      document.getElementById("notices").innerHTML = noticeItems
+        .map((item) => '<li class="' + item.className + '">' + htmlText(item.text) + "</li>")
+        .join("");
       document.getElementById("table-head").innerHTML = confirmed
         ? '<tr><th>馬名</th><th>所属</th><th>状態</th></tr>'
         : '<tr><th>順位目安</th><th>馬名</th><th>所属</th><th class="numeric">現在</th><th class="numeric">1年加算</th><th class="numeric">2年GⅠ加算</th><th class="numeric">合計</th><th>状態</th></tr>';

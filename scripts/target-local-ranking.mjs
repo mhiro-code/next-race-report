@@ -3,13 +3,10 @@
 import {
   existsSync,
   mkdirSync,
-  openSync,
   readFileSync,
-  readSync,
   readdirSync,
   renameSync,
   statSync,
-  closeSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -104,25 +101,15 @@ function addUniqueWarning(list, value) {
   if (value && !list.includes(value)) list.push(value);
 }
 
-function filePrefix(filePath) {
-  const fd = openSync(filePath, "r");
-  try {
-    const bytes = Buffer.alloc(2);
-    const count = readSync(fd, bytes, 0, 2, 0);
-    return count === 2 ? bytes.toString("ascii") : "";
-  } finally {
-    closeSync(fd);
-  }
-}
-
-function walkFiles(root) {
+function listFiles(root, predicate = () => true) {
   const files = [];
+  if (!existsSync(root) || !statSync(root).isDirectory()) return files;
   const visit = (directory) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         visit(fullPath);
-      } else if (entry.isFile()) {
+      } else if (entry.isFile() && predicate(fullPath, entry.name)) {
         files.push(fullPath);
       }
     }
@@ -131,30 +118,47 @@ function walkFiles(root) {
   return files.sort((a, b) => a.localeCompare(b, "en"));
 }
 
-function yearParts(filePath) {
-  return [...filePath.matchAll(/(?:^|[\\/])(\d{4})(?:[\\/]|$)/g)].map((match) => match[1]);
-}
-
-function fileMayContainDate(filePath, startDate, endDateExclusive) {
-  if (!startDate || !endDateExclusive) return true;
-  const years = yearParts(filePath);
-  if (!years.length) return true;
+function yearsBetween(startDate, endDateExclusive) {
   const firstYear = Number(startDate.slice(0, 4));
   const lastYear = Number(endDateExclusive.slice(0, 4));
-  return years.some((year) => Number(year) >= firstYear && Number(year) <= lastYear);
+  return Array.from({ length: lastYear - firstYear + 1 }, (_, index) => String(firstYear + index));
 }
 
-function discoverRecordFiles(root, startDate, endDateExclusive) {
-  const files = { TK: [], RA: [], SE: [], UM: [] };
-  if (!existsSync(root)) return files;
-  for (const filePath of walkFiles(root)) {
-    const type = filePrefix(filePath);
-    if (!(type in files)) continue;
-    if ((type === "RA" || type === "SE") && !fileMayContainDate(filePath, startDate, endDateExclusive)) {
-      continue;
-    }
-    files[type].push(filePath);
-  }
+function latestRegistrationFiles(root) {
+  const files = listFiles(path.join(root, "DE_DATA"), (_, name) => /^TK\d{8}\.DAT$/i.test(name))
+    .map((filePath) => ({ filePath, date: path.basename(filePath).slice(2, 10) }))
+    .filter((item) => validDateString(`${item.date.slice(0, 4)}-${item.date.slice(4, 6)}-${item.date.slice(6, 8)}`));
+  if (!files.length) return [];
+  const latestDate = files.reduce((latest, item) => (item.date > latest ? item.date : latest), "");
+  return files.filter((item) => item.date === latestDate).map((item) => item.filePath);
+}
+
+function historyFiles(root, type, startDate, endDateExclusive) {
+  const directory = path.join(root, "SE_DATA");
+  const pattern = type === "RA" ? /^SR\d{6}\.DAT$/i : /^SU\d{6}\.DAT$/i;
+  return yearsBetween(startDate, endDateExclusive).flatMap((year) =>
+    listFiles(path.join(directory, year), (_, name) => pattern.test(name)),
+  );
+}
+
+function horseMasterFiles(root, horseIds) {
+  const years = new Set(
+    [...horseIds]
+      .map((kettoNum) => String(kettoNum).slice(0, 4))
+      .filter((year) => /^\d{4}$/.test(year)),
+  );
+  return [...years].flatMap((year) =>
+    listFiles(path.join(root, "UM_DATA", year), (_, name) => /^UM.*\.DAT$/i.test(name)),
+  );
+}
+
+function discoverRecordFiles(root, { raceDate = null, horseIds = new Set() } = {}) {
+  const files = { TK: latestRegistrationFiles(root), RA: [], SE: [], UM: [] };
+  if (!raceDate) return files;
+  const startDate = subtractCalendarYears(raceDate, 2);
+  files.RA = historyFiles(root, "RA", startDate, raceDate);
+  files.SE = historyFiles(root, "SE", startDate, raceDate);
+  files.UM = horseMasterFiles(root, horseIds);
   return files;
 }
 
@@ -322,12 +326,19 @@ export function parseUmRecord(record) {
   };
 }
 
-function parseRecordsFromFiles(files, type) {
+function parseRecordsFromFiles(files, type, { startDate = null, endDateExclusive = null, kettoNums = null, raceIds = null } = {}) {
   const records = [];
   const size = RECORD_SIZES[type];
+  const parse = type === "RA" ? parseRaRecord : type === "SE" ? parseSeRecord : parseUmRecord;
   for (const filePath of files) {
     const parsed = parseFixedRecords(filePath, type, size);
-    for (const record of parsed) records.push({ record, filePath });
+    for (const record of parsed) {
+      const value = parse(record);
+      if (startDate && (!value.race_date || value.race_date < startDate || value.race_date >= endDateExclusive)) continue;
+      if (kettoNums && type === "SE" && !kettoNums.has(value.ketto_num)) continue;
+      if (raceIds && type === "RA" && !raceIds.has(value.race_id)) continue;
+      records.push({ record, filePath });
+    }
   }
   return records;
 }
@@ -445,19 +456,14 @@ export function resolveTargetRoot(value = process.env.TARGET_DATA_ROOT || DEFAUL
   return { root, dataFolders };
 }
 
-export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null } = {}) {
+export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate = null, raceId = null, horseIds = null } = {}) {
   const resolved = resolveTargetRoot(targetRoot);
   const date = raceDate ? normalizeDate(raceDate) : null;
   const historyStart = date ? subtractCalendarYears(date, 2) : null;
   const historyEnd = date;
-  const discoveredFiles = discoverRecordFiles(resolved.root, historyStart, historyEnd);
-  const tkFiles = discoveredFiles.TK;
-  const umFiles = discoveredFiles.UM;
-  const raFiles = discoveredFiles.RA;
-  const seFiles = discoveredFiles.SE;
-  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles];
-
-  const allRaces = chooseLatestTk(parseTkFromFiles(tkFiles));
+  const registrationFiles = discoverRecordFiles(resolved.root);
+  const registrationTkFiles = registrationFiles.TK;
+  const allRaces = chooseLatestTk(parseTkFromFiles(registrationTkFiles));
   const latestRegistrationDate = allRaces.reduce(
     (latest, race) => (race.data_created_at > latest ? race.data_created_at : latest),
     "",
@@ -465,9 +471,32 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
   const races = latestRegistrationDate
     ? allRaces.filter((race) => race.data_created_at === latestRegistrationDate)
     : allRaces;
+  const selectedRace = raceId ? races.find((race) => race.race_id === raceId) : null;
+  const targetHorseIds = new Set(
+    horseIds ?? selectedRace?.entries.map((entry) => entry.ketto_num).filter(Boolean) ?? [],
+  );
+  const discoveredFiles = date
+    ? discoverRecordFiles(resolved.root, { raceDate: date, horseIds: targetHorseIds })
+    : registrationFiles;
+  const tkFiles = discoveredFiles.TK;
+  const umFiles = discoveredFiles.UM;
+  const raFiles = discoveredFiles.RA;
+  const seFiles = discoveredFiles.SE;
+  const allUsedFiles = [...tkFiles, ...umFiles, ...raFiles, ...seFiles];
+
   const horses = chooseLatestHorses(parseRecordsFromFiles(umFiles, "UM"));
-  const raceRecords = chooseLatestRaces(parseRecordsFromFiles(raFiles, "RA"));
-  const resultRecords = chooseLatestResults(parseRecordsFromFiles(seFiles, "SE"));
+  const resultItems = parseRecordsFromFiles(seFiles, "SE", {
+    startDate: historyStart,
+    endDateExclusive: historyEnd,
+    kettoNums: targetHorseIds,
+  });
+  const resultRecords = chooseLatestResults(resultItems);
+  const historyRaceIds = new Set([...resultRecords.values()].map((result) => result.race_id));
+  const raceRecords = chooseLatestRaces(parseRecordsFromFiles(raFiles, "RA", {
+    startDate: historyStart,
+    endDateExclusive: historyEnd,
+    raceIds: historyRaceIds,
+  }));
   const history = [];
   for (const [key, result] of resultRecords) {
     const race = raceRecords.get(result.race_id);
@@ -480,7 +509,7 @@ export function readTargetSnapshot({ targetRoot = DEFAULT_TARGET_ROOT, raceDate 
   if (!tkFiles.length) addUniqueWarning(warnings, "TK特別登録レコードが見つかりません。");
   if (date && !raFiles.length) addUniqueWarning(warnings, "対象期間のRAレースレコードが見つかりません。");
   if (date && !seFiles.length) addUniqueWarning(warnings, "対象期間のSE馬毎レースレコードが見つかりません。");
-  if (!umFiles.length) addUniqueWarning(warnings, "UM競走馬マスタレコードが見つかりません。");
+  if (date && !umFiles.length) addUniqueWarning(warnings, "UM競走馬マスタレコードが見つかりません。");
 
   return {
     target_root: resolved.root,
@@ -848,11 +877,23 @@ function isMain() {
 if (isMain()) {
   try {
     const args = parseArgs(process.argv.slice(2));
-    const snapshot = readTargetSnapshot({ targetRoot: args.data_root, raceDate: args.race_date });
+    const registrationSnapshot = readTargetSnapshot({ targetRoot: args.data_root });
     if (args.list) {
-      console.log(JSON.stringify({ races: snapshot.races, diagnostics: snapshot.diagnostics, warnings: snapshot.warnings }, null, 2));
+      console.log(JSON.stringify({
+        races: registrationSnapshot.races,
+        diagnostics: registrationSnapshot.diagnostics,
+        warnings: registrationSnapshot.warnings,
+      }, null, 2));
     } else {
       if (!args.race_id) throw new Error("--race-id is required unless --list is used.");
+      const registration = registrationSnapshot.races.find((race) => race.race_id === args.race_id);
+      if (!registration) throw new Error(`TARGET特別登録レースが見つかりません: ${args.race_id}`);
+      const snapshot = readTargetSnapshot({
+        targetRoot: args.data_root,
+        raceDate: args.race_date || registration.race_date,
+        raceId: args.race_id,
+        horseIds: registration.entries.map((entry) => entry.ketto_num).filter(Boolean),
+      });
       const payload = calculateRanking({ snapshot, raceId: args.race_id });
       if (args.save) {
         const result = saveRankingJson({ payload, repoRoot: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..") });

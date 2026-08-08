@@ -254,8 +254,8 @@ export function createAdminServer({ targetRoot = process.env.TARGET_DATA_ROOT ||
     if (!snapshots.has(raceDate)) snapshots.set(raceDate, readTargetSnapshot({ targetRoot, raceDate: raceDate === "list" ? null : raceDate }));
     return snapshots.get(raceDate);
   };
-  const readFreshSnapshot = (raceDate = null) =>
-    readTargetSnapshot({ targetRoot, raceDate });
+  const readFreshSnapshot = ({ raceDate = null, raceId = null, horseIds = null } = {}) =>
+    readTargetSnapshot({ targetRoot, raceDate, raceId, horseIds });
   const rememberJraProgram = (program) => {
     for (const race of program?.races ?? []) jraPrograms.set(race.race_id, race);
     return program;
@@ -279,7 +279,14 @@ export function createAdminServer({ targetRoot = process.env.TARGET_DATA_ROOT ||
   const buildPayload = ({ raceId, selected }) => {
     const manualCandidates = findManualCandidates({ repoRoot, race: selected.race });
     if (selected.kind === "target") {
-      const targetPayload = calculateRanking({ snapshot: readFreshSnapshot(selected.race.race_date), raceId });
+      const targetPayload = calculateRanking({
+        snapshot: readFreshSnapshot({
+          raceDate: selected.race.race_date,
+          raceId,
+          horseIds: selected.race.entries.map((entry) => entry.ketto_num).filter(Boolean),
+        }),
+        raceId,
+      });
       return mergeManualCandidates({ payload: targetPayload, manualCandidates, repoRoot });
     }
     return buildProvisionalRanking({ repoRoot, race: selected.race, manualCandidates });

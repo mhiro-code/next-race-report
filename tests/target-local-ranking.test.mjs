@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -10,6 +10,7 @@ import {
   parseSeRecord,
   parseTkRecord,
   parseUmRecord,
+  readTargetSnapshot,
   raceFileName,
   saveRankingJson,
 } from "../scripts/target-local-ranking.mjs";
@@ -58,6 +59,64 @@ function makeFixedRecord(type, raceId = "2025081005010101") {
   field(record, 11, 16, raceId);
   return record;
 }
+
+async function writeTargetFixture(root) {
+  const tkDirectory = path.join(root, "DE_DATA", "2026");
+  const raDirectory = path.join(root, "SE_DATA", "2025");
+  const umDirectory = path.join(root, "UM_DATA", "2021");
+  await mkdir(tkDirectory, { recursive: true });
+  await mkdir(raDirectory, { recursive: true });
+  await mkdir(umDirectory, { recursive: true });
+
+  const tk = makeTkRecord();
+  field(tk, 655 + 3, 10, "2021000001");
+  field(tk, 725 + 3, 10, "2021000002");
+  await writeFile(path.join(tkDirectory, "TK20260808.DAT"), tk);
+
+  const ra = makeFixedRecord("RA");
+  const se = makeFixedRecord("SE");
+  field(se, 30, 10, "2021000001");
+  field(se, 40, 36, "TEST HORSE 1");
+  field(se, 82, 2, "04");
+  field(se, 334, 2, "01");
+  field(se, 365, 8, "00080000");
+  await writeFile(path.join(raDirectory, "SR202524.DAT"), ra);
+  await writeFile(path.join(raDirectory, "SU202524.DAT"), se);
+
+  const um = makeFixedRecord("UM", "0000000000000000");
+  field(um, 11, 10, "2021000001");
+  field(um, 21, 8, "20210101");
+  field(um, 46, 36, "TEST HORSE 1");
+  field(um, 1088, 9, "000565000");
+  await writeFile(path.join(umDirectory, "UM20211.DAT"), um);
+}
+
+test("reads only TK for the initial list and narrows detail reads to the selected horses", async () => {
+  const targetRoot = await mkdtemp(path.join(os.tmpdir(), "target-local-scope-"));
+  try {
+    await writeTargetFixture(targetRoot);
+
+    const listSnapshot = readTargetSnapshot({ targetRoot });
+    assert.equal(listSnapshot.diagnostics.tk_file_count, 1);
+    assert.equal(listSnapshot.diagnostics.ra_file_count, 0);
+    assert.equal(listSnapshot.diagnostics.se_file_count, 0);
+    assert.equal(listSnapshot.diagnostics.um_file_count, 0);
+
+    const detailSnapshot = readTargetSnapshot({
+      targetRoot,
+      raceDate: "2026-08-09",
+      raceId: "2026080907010607",
+      horseIds: ["2021000001"],
+    });
+    assert.equal(detailSnapshot.diagnostics.ra_file_count, 1);
+    assert.equal(detailSnapshot.diagnostics.se_file_count, 1);
+    assert.equal(detailSnapshot.diagnostics.um_file_count, 1);
+    assert.equal(detailSnapshot.horses.get("2021000001").current_acquisition_money_yen, 56_500_000);
+    assert.equal(detailSnapshot.history.length, 1);
+  } finally {
+    await rm(targetRoot, { recursive: true, force: true });
+  }
+});
 
 test("parses TARGET TK, RA, SE, and UM fields from their local record offsets", () => {
   const tk = parseTkRecord(makeTkRecord());

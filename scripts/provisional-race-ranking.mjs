@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { readCandidateEnrichmentState } from "./local-admin-data.mjs";
+import { calculateRanking, readTargetSnapshot } from "./target-local-ranking.mjs";
 
 function readJson(repoRoot, fileName, fallback) {
   const filePath = path.join(repoRoot, "app", fileName);
@@ -10,6 +11,18 @@ function readJson(repoRoot, fileName, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function readNextRacesJson(repoRoot) {
+  const localPath = path.join(repoRoot, ".target-local", "next-races-cache.json");
+  if (existsSync(localPath)) {
+    try {
+      return JSON.parse(readFileSync(localPath, "utf8"));
+    } catch {
+      // Use the committed snapshot when the local cache is incomplete.
+    }
+  }
+  return readJson(repoRoot, "next-races.json", { rows: [] });
 }
 
 function normalizeText(value) {
@@ -56,13 +69,14 @@ function enrichmentStatus(enrichment) {
   return "管理者確認・賞金未取得";
 }
 
-function candidateRow({ horse, horseUrl = "", raceUrl = "", update = "", sourceKind, statusLabel, prizeMoney, currentOverride, currentMetric = null, warning = null }) {
+function candidateRow({ horse, horseUrl = "", raceUrl = "", update = "", sourceKind, affiliation = "JRA", statusLabel, prizeMoney, currentOverride, currentMetric = null, warning = null, enrichment = null }) {
   const currentYen = currentOverride === undefined
     ? currentMoney({ horse, horseUrl, prizeMoney })
     : currentOverride;
   return {
     ketto_num: horseIdFromUrl(horseUrl) || null,
     horse,
+    affiliation,
     jockey: "",
     current_yen: currentYen,
     period1_yen: null,
@@ -70,8 +84,14 @@ function candidateRow({ horse, horseUrl = "", raceUrl = "", update = "", sourceK
     decision_yen: null,
     rank: null,
     ranking_status: "unavailable",
+    status: "provisional",
     status_label: statusLabel ?? provisionalStatus(currentYen),
     current_metric: currentMetric,
+    birth_date: enrichment?.birth_date ?? null,
+    trainer: enrichment?.trainer ?? null,
+    local_acquisition_yen: enrichment?.local_acquisition_yen ?? null,
+    central_acquisition_yen: enrichment?.central_acquisition_yen ?? null,
+    additional_acquisition_yen: enrichment?.additional_acquisition_yen ?? null,
     source_kind: sourceKind,
     weight_kg: null,
     horse_url: horseUrl,
@@ -86,7 +106,7 @@ function candidateRow({ horse, horseUrl = "", raceUrl = "", update = "", sourceK
 }
 
 export function nextRaceCandidates({ repoRoot, raceName }) {
-  const payload = readJson(repoRoot, "next-races.json", { rows: [] });
+  const payload = readNextRacesJson(repoRoot);
   const targetName = normalizeText(raceName);
   const rows = Array.isArray(payload.rows) ? payload.rows : [];
   const unique = new Map();
@@ -108,6 +128,7 @@ export function buildProvisionalRanking({
   repoRoot,
   race,
   manualCandidates = [],
+  targetRoot = null,
   generatedAt = new Date().toISOString(),
 }) {
   if (!race?.race_date || !race?.name) throw new Error("暫定順位のレース情報が不足しています。");
@@ -128,6 +149,7 @@ export function buildProvisionalRanking({
       raceUrl: candidate.race_url,
       update: candidate.update,
       sourceKind: "netkeiba",
+      affiliation: "JRA",
       prizeMoney,
     }));
   }
@@ -140,28 +162,95 @@ export function buildProvisionalRanking({
     const currentOverride = enrichment ? enrichment.current_yen : undefined;
     rows.push(candidateRow({
       horse,
-      horseUrl: candidate.horse_url,
+      horseUrl: enrichment?.horse_url ?? candidate.horse_url ?? enrichment?.source_url ?? "",
       sourceKind: "admin_candidate",
+      affiliation: candidate.affiliation ?? "地方",
       statusLabel: enrichmentStatus(enrichment),
       prizeMoney,
       currentOverride,
       currentMetric: enrichment?.current_metric ?? null,
       warning: enrichment?.warning ?? null,
+      enrichment,
     }));
+  }
+
+  let targetSnapshot = null;
+  let targetEstimate = false;
+  const targetEntries = rows
+    .filter((row) => row.source_kind === "netkeiba" && row.ketto_num)
+    .map((row) => ({ ketto_num: row.ketto_num, horse: row.horse, weight_kg: null }));
+  if (targetRoot && targetEntries.length) {
+    const targetRace = {
+      ...race,
+      entries: targetEntries,
+      conditions: typeof race.conditions === "object" && race.conditions
+        ? race.conditions
+        : { age2: "000", age3: "000", age4: "999", age5Plus: "999", youngest: "999" },
+      grade_code: race.grade_code ?? null,
+    };
+    try {
+      targetSnapshot = readTargetSnapshot({
+        targetRoot,
+        raceDate: race.race_date,
+        horseIds: targetEntries.map((entry) => entry.ketto_num),
+      });
+      const calculated = calculateRanking({
+        snapshot: { ...targetSnapshot, races: [targetRace] },
+        raceId: race.race_id,
+        raceOverride: targetRace,
+      });
+      const byKetto = new Map(calculated.rows.map((row) => [row.ketto_num, row]));
+      for (const row of rows) {
+        const targetRow = byKetto.get(row.ketto_num);
+        if (!targetRow) continue;
+        row.current_yen = targetRow.current_yen;
+        row.period1_yen = targetRow.period1_yen;
+        row.period2_g1_yen = targetRow.period2_g1_yen;
+        row.decision_yen = targetRow.decision_yen;
+        row.rank = targetRow.rank;
+        row.ranking_status = targetRow.ranking_status;
+        row.status_label = targetRow.status_label;
+        row.warnings = targetRow.warnings;
+        row.calculation_methods = targetRow.calculation_methods;
+      }
+      targetEstimate = true;
+      rows.sort((a, b) => {
+        if (a.rank === null && b.rank !== null) return 1;
+        if (a.rank !== null && b.rank === null) return -1;
+        if (a.rank !== null && b.rank !== null && a.rank !== b.rank) return a.rank - b.rank;
+        return a.horse.localeCompare(b.horse, "ja");
+      });
+    } catch (error) {
+      rows.forEach((row) => {
+        if (row.source_kind === "netkeiba") {
+          row.current_yen = null;
+          row.period1_yen = null;
+          row.period2_g1_yen = null;
+          row.decision_yen = null;
+          row.rank = null;
+          row.ranking_status = "unavailable";
+          row.status_label = "管理者確認・TARGET取得失敗";
+          row.warnings = [...row.warnings, error instanceof Error ? error.message : String(error)];
+        }
+      });
+    }
   }
 
   const warnings = [
     "TARGET特別登録前の暫定候補です。JRA公式番組をレース情報の正本として表示しています。",
-    "netkeiba候補と管理者確認候補を統合しています。正式な登録馬はTARGET特別登録データ取得後に確認してください。",
+    targetEstimate
+      ? "選択したレースに限り、TARGETのUM・RA・SEから賞金を試算しています。"
+      : "netkeiba候補と管理者確認候補を統合しています。正式な登録馬はTARGET特別登録データ取得後に確認してください。",
   ];
   if (!rows.length) warnings.push("候補馬が見つかりません。管理者確認候補を追加してください。");
   return {
     schema_version: 1,
     generated_at: generatedAt,
-    source: "JRA official program + public candidate list + admin candidates",
+    stage: "next",
+    source: "JRA official program + netkeiba next-race pages + admin candidates",
     source_url: race.source_url ?? "",
-    period_basis: "not_available_before_target_registration",
-    target_data_updated_at: null,
+    period_basis: targetEstimate ? "approximate" : "not_available_before_target_registration",
+    target_data_updated_at: targetSnapshot?.target_data_updated_at ?? null,
     race: {
       race_id: race.race_id,
       name: race.name,
@@ -178,10 +267,13 @@ export function buildProvisionalRanking({
     },
     rows,
     warnings,
-    calculation_note: "TARGET特別登録前の暫定一覧です。現在の収得賞金は既存の検証済みデータがある場合だけ表示し、未取得を0円として扱いません。",
+    calculation_note: targetEstimate
+      ? "TARGET特別登録前の選択レース限定試算です。未取得の賞金は0円として扱いません。"
+      : "TARGET特別登録前の暫定一覧です。現在の収得賞金は既存の検証済みデータがある場合だけ表示し、未取得を0円として扱いません。",
     diagnostics: {
       netkeiba_candidate_count: rows.filter((row) => row.source_kind === "netkeiba").length,
       admin_candidate_count: rows.filter((row) => row.source_kind === "admin_candidate").length,
+      target_estimate: targetEstimate,
     },
   };
 }
@@ -212,11 +304,13 @@ export function mergeManualCandidates({ payload, manualCandidates = [], repoRoot
       horse,
       horseUrl: candidate.horse_url,
       sourceKind: "admin_candidate",
+      affiliation: candidate.affiliation ?? "地方",
       statusLabel: enrichmentStatus(enrichment),
       prizeMoney,
       currentOverride,
       currentMetric: enrichment?.current_metric ?? null,
       warning: enrichment?.warning ?? null,
+      enrichment,
     }));
   }
   return {

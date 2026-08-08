@@ -3,9 +3,12 @@ const ALLOWED_HOSTS = new Set([
   "www.jra.go.jp",
   "keiba.go.jp",
   "www.keiba.go.jp",
+  "sp.keiba.go.jp",
+  "www2.keiba.go.jp",
   "jbis.or.jp",
   "www.jbis.or.jp",
 ]);
+export const NAR_HORSE_SEARCH_URL = "https://www.keiba.go.jp/KeibaWeb/DataRoom/RaceHorseList";
 
 function decodeEntities(value) {
   return String(value ?? "")
@@ -41,12 +44,62 @@ function sourceKind(sourceUrl) {
   return "JBIS";
 }
 
+function normalizeHorseName(value) {
+  return String(value ?? "").normalize("NFKC").replace(/[\s\u3000]+/g, "").trim();
+}
+
 function moneyAfterLabel(text, label) {
   const match = text.match(new RegExp(`${label}\\s*([\\d,]+)\\s*(?:円|万円)?`));
   if (!match) return null;
   const amount = Number(match[1].replaceAll(",", ""));
   if (!Number.isFinite(amount)) return null;
   return /万円/.test(match[0]) ? amount * 10_000 : amount;
+}
+
+function amount(value) {
+  const normalized = String(value ?? "").replaceAll(",", "").trim();
+  if (!/^\d+$/.test(normalized)) return null;
+  return Number(normalized);
+}
+
+export function parseNarSearchResults(html, { horse } = {}) {
+  const target = normalizeHorseName(horse);
+  if (!target) throw new Error("NAR検索対象の馬名がありません。");
+  const candidates = [...String(html ?? "").matchAll(
+    /<a\b[^>]*href=["']([^"']*RaceHorseInfo[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi,
+  )]
+    .map((match) => ({
+      horse: plainText(match[2]),
+      source_url: new URL(decodeEntities(match[1]), NAR_HORSE_SEARCH_URL).href,
+    }))
+    .filter((candidate) => candidate.horse);
+  const exact = candidates.filter((candidate) => normalizeHorseName(candidate.horse) === target);
+  if (!exact.length) throw new Error("NARで馬名を確認できません（管理者確認）。");
+  if (exact.length > 1) throw new Error("NARで同名馬を一意に確認できません（管理者確認）。");
+  return exact[0];
+}
+
+function parseNarProfile(text) {
+  const structured = text.match(/収得賞金\s+地方\s+([\d,]+)\s+中央\s+([\d,]+)\s+付加\s+([\d,]+)/);
+  const local = structured ? amount(structured[1]) : moneyAfterLabel(text, "地方収得賞金");
+  const central = structured ? amount(structured[2]) : moneyAfterLabel(text, "中央収得賞金");
+  const additional = structured ? amount(structured[3]) : null;
+  const currentYen = structured
+    ? local + central + additional
+    : local;
+  const birthMatch = text.match(/生年月日\s+(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  const trainerMatch = text.match(/調教師\s+(.+?)\s+馬主/);
+  return {
+    current_yen: currentYen,
+    current_metric: structured ? "NAR収得賞金（地方・中央・付加）暫定合算" : (local === null ? null : "地方収得賞金"),
+    local_acquisition_yen: local,
+    central_acquisition_yen: central,
+    additional_acquisition_yen: additional,
+    birth_date: birthMatch
+      ? `${birthMatch[1]}-${String(birthMatch[2]).padStart(2, "0")}-${String(birthMatch[3]).padStart(2, "0")}`
+      : null,
+    trainer: trainerMatch?.[1]?.trim() ?? null,
+  };
 }
 
 export function parseOfficialHorsePage(html, { sourceUrl, horse } = {}) {
@@ -56,16 +109,11 @@ export function parseOfficialHorsePage(html, { sourceUrl, horse } = {}) {
 
   let currentYen = null;
   let currentMetric = null;
+  let profile = {};
   if (kind === "NAR") {
-    const local = moneyAfterLabel(text, "地方収得賞金");
-    const central = moneyAfterLabel(text, "中央収得賞金");
-    if (local !== null) {
-      currentYen = local;
-      currentMetric = "地方収得賞金";
-    } else if (central !== null) {
-      currentYen = central;
-      currentMetric = "中央収得賞金";
-    }
+    profile = parseNarProfile(text);
+    currentYen = profile.current_yen;
+    currentMetric = profile.current_metric;
   } else if (kind === "JRA") {
     currentYen = moneyAfterLabel(text, "収得賞金（平地）") ?? moneyAfterLabel(text, "収得賞金\\(平地\\)");
     if (currentYen !== null) currentMetric = "収得賞金（平地）";
@@ -74,12 +122,14 @@ export function parseOfficialHorsePage(html, { sourceUrl, horse } = {}) {
   return {
     source_kind: kind,
     source_url: sourceUrl,
+    affiliation: kind === "NAR" ? "地方" : kind === "JRA" ? "JRA" : null,
     current_yen: currentYen,
     current_metric: currentMetric,
     period1_yen: null,
     period2_g1_yen: null,
     decision_yen: null,
     status: currentYen === null ? "unavailable" : "current_only",
+    ...profile,
     warning: currentYen === null
       ? kind === "JBIS"
         ? "JBISの総賞金は収得賞金と同一視せず、現在の収得賞金は未取得です。"
@@ -89,8 +139,36 @@ export function parseOfficialHorsePage(html, { sourceUrl, horse } = {}) {
 }
 
 export async function fetchOfficialHorseEnrichment({ candidate, fetchImpl = fetch } = {}) {
-  const sourceUrl = String(candidate?.source_url ?? "").trim();
-  if (!sourceUrl) throw new Error("公式情報URLが未登録です。");
+  const horse = String(candidate?.horse ?? "").trim();
+  let sourceUrl = String(candidate?.source_url ?? "").trim();
+  let searchUrl = null;
+  if (!sourceUrl) {
+    if (!horse) throw new Error("NAR検索対象の馬名がありません。");
+    const search = new URL(NAR_HORSE_SEARCH_URL);
+    search.searchParams.set("k_activeCode", "1");
+    search.searchParams.set("k_birthYear", "");
+    search.searchParams.set("k_dataKind", "*");
+    search.searchParams.set("k_fatherHorse", "");
+    search.searchParams.set("k_flag", "1");
+    search.searchParams.set("k_horseName", horse);
+    search.searchParams.set("k_horsebelong", "");
+    search.searchParams.set("k_motherHorse", "");
+    search.searchParams.set("k_pageNum", "1");
+    searchUrl = search.href;
+    const searchResponse = await fetchImpl(searchUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; NextRaceReport/1.0)",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!searchResponse.ok) {
+      const stop = [403, 429, 503].includes(searchResponse.status) ? "（アクセス制限の可能性があるため再試行しません）" : "";
+      throw new Error(`NAR馬名検索の取得に失敗しました: ${searchResponse.status}${stop}`);
+    }
+    const searchBytes = await searchResponse.arrayBuffer();
+    sourceUrl = parseNarSearchResults(decodePage(new Uint8Array(searchBytes)), { horse }).source_url;
+  }
   const kind = sourceKind(sourceUrl);
   const response = await fetchImpl(sourceUrl, {
     headers: {
@@ -107,6 +185,8 @@ export async function fetchOfficialHorseEnrichment({ candidate, fetchImpl = fetc
   return {
     candidate_id: candidate.candidate_id,
     fetched_at: new Date().toISOString(),
-    ...parseOfficialHorsePage(decodePage(new Uint8Array(bytes)), { sourceUrl, horse: candidate.horse }),
+    search_url: searchUrl,
+    horse_url: sourceUrl,
+    ...parseOfficialHorsePage(decodePage(new Uint8Array(bytes)), { sourceUrl, horse }),
   };
 }

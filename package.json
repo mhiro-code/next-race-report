@@ -8,9 +8,9 @@
   "scripts": {
     "install:ci": "bash scripts/install-ci.sh",
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vite",
-    "build": "bash scripts/build-verified.sh",
+    "build": "node scripts/build-verified.mjs",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "test": "npm run build && node --test tests/rendered-html.test.mjs tests/target-local-ranking.test.mjs tests/jra-race-program.test.mjs tests/local-admin-data.test.mjs tests/official-horse-enrichment.test.mjs tests/provisional-race-ranking.test.mjs",
+    "test": "npm run build && node --test --test-isolation=none tests/rendered-html.test.mjs tests/target-local-ranking.test.mjs tests/jra-race-program.test.mjs tests/local-admin-data.test.mjs tests/official-horse-enrichment.test.mjs tests/provisional-race-ranking.test.mjs tests/race-stage.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"

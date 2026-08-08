@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { createAdminServer } from "../tools/windows/target-local-admin.mjs";
 
 const developmentPreviewMeta =
   /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
@@ -145,11 +146,12 @@ test("weekly graded-race data contains the three registered races", async () => 
   assert.ok(cbc.rows.every((row) => row.weight_kg === null));
 });
 
-test("GitHub Pages loads weekly rankings and preserves unpublished handicaps", async () => {
+test("GitHub Pages loads only saved rankings and preserves unpublished handicaps", async () => {
   const script = await readFile(new URL("../pages.js", import.meta.url), "utf8");
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(script, /weekly-graded-races-2026\.json/);
+  assert.match(script, /race-rankings\/index\.json/);
+  assert.doesNotMatch(script, /weekly-graded-races-2026\.json/);
   assert.doesNotMatch(script, /chukyo-kinen-2026/);
   assert.doesNotMatch(page, /chukyo-kinen-2026/);
   assert.match(script, /未発表/);
@@ -190,4 +192,38 @@ test("local TARGET admin provides preview and explicit save controls", async () 
   assert.match(enrichment, /地方収得賞金/);
   assert.match(enrichment, /総賞金は収得賞金と同一視せず/);
   assert.doesNotMatch(script, /JVDTLab|JVInit|JVOpen|JVRead|JVStatus|JVClose|TOKU/);
+});
+
+test("local TARGET admin refuses save before a preview", async () => {
+  const { server } = createAdminServer({ port: 0, targetRoot: "D:/target-does-not-need-to-be-read" });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/target/save`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ race_id: "not-previewed" }),
+    });
+    const body = await response.json();
+    assert.equal(response.status, 400);
+    assert.match(body.error, /先に計算結果を表示して確認/);
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("local TARGET admin serves a syntactically valid page script", async () => {
+  const { server } = createAdminServer({ port: 0, targetRoot: "D:/TFJV" });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}/`);
+    const page = await response.text();
+    const script = page.match(/<script>\s*([\s\S]*?)\s*<\/script>/)?.[1] ?? "";
+    assert.equal(response.status, 200);
+    assert.ok(script.length > 0);
+    assert.doesNotThrow(() => new Function(script));
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
 });

@@ -10,7 +10,10 @@ import {
   parseSeRecord,
   parseTkRecord,
   parseUmRecord,
+  parseDuRecord,
+  readTargetConfirmedSnapshot,
   readTargetSnapshot,
+  resolveTargetRoot,
   raceFileName,
   saveRankingJson,
 } from "../scripts/target-local-ranking.mjs";
@@ -57,6 +60,18 @@ function makeFixedRecord(type, raceId = "2025081005010101") {
   field(record, 2, 1, "1");
   field(record, 3, 8, "20250811");
   field(record, 11, 16, raceId);
+  return record;
+}
+
+function makeDuRecord() {
+  const record = Buffer.alloc(159, 0x20);
+  field(record, 0, 2, "SE");
+  field(record, 2, 1, "2");
+  field(record, 3, 8, "20260813");
+  field(record, 11, 16, "2026081607010807");
+  field(record, 27, 3, "101");
+  field(record, 30, 10, "2022100001");
+  field(record, 40, 36, "FINAL HORSE");
   return record;
 }
 
@@ -155,6 +170,60 @@ test("parses TARGET TK, RA, SE, and UM fields from their local record offsets", 
   field(um, 46, 36, "TEST HORSE 1");
   field(um, 1088, 9, "000565000");
   assert.equal(parseUmRecord(um).current_acquisition_money_yen, 56_500_000);
+});
+
+test("parses the compact DU record used for confirmed runners", () => {
+  const parsed = parseDuRecord(makeDuRecord());
+  assert.deepEqual(parsed, {
+    race_id: "2026081607010807",
+    race_date: "2026-08-16",
+    ketto_num: "2022100001",
+    horse: "FINAL HORSE",
+    affiliation: "JRA",
+    status: "confirmed",
+    data_created_at: "20260813",
+  });
+});
+
+test("reads confirmed runners from DU without needing JV-Link", async () => {
+  const targetRoot = await mkdtemp(path.join(os.tmpdir(), "target-confirmed-"));
+  try {
+    const directory = path.join(targetRoot, "DE_DATA", "2026");
+    await mkdir(directory, { recursive: true });
+    await writeFile(path.join(directory, "DU20260816.DAT"), makeDuRecord());
+    const snapshot = readTargetConfirmedSnapshot({ targetRoot });
+    assert.equal(snapshot.races.length, 1);
+    assert.equal(snapshot.races[0].race_id, "2026081607010807");
+    assert.deepEqual(snapshot.races[0].entries.map((entry) => entry.horse), ["FINAL HORSE"]);
+    assert.equal(snapshot.diagnostics.du_file_count, 1);
+  } finally {
+    await rm(targetRoot, { recursive: true, force: true });
+  }
+});
+
+test("resolves TARGET record folders by known names or record files", async () => {
+  const targetRoot = await mkdtemp(path.join(os.tmpdir(), "target-folders-"));
+  try {
+    await Promise.all([
+      mkdir(path.join(targetRoot, "REGISTRATION_DATA"), { recursive: true }),
+      mkdir(path.join(targetRoot, "HISTORY_DATA"), { recursive: true }),
+      mkdir(path.join(targetRoot, "HORSE_DATA"), { recursive: true }),
+      mkdir(path.join(targetRoot, "CONFIRMED_DATA"), { recursive: true }),
+    ]);
+    await Promise.all([
+      writeFile(path.join(targetRoot, "REGISTRATION_DATA", "TK20260808.DAT"), "TK"),
+      writeFile(path.join(targetRoot, "HISTORY_DATA", "SR260808.DAT"), "RA"),
+      writeFile(path.join(targetRoot, "HORSE_DATA", "UM2022.DAT"), "UM"),
+      writeFile(path.join(targetRoot, "CONFIRMED_DATA", "DU20260808.DAT"), "SE"),
+    ]);
+    const resolved = resolveTargetRoot(targetRoot);
+    assert.equal(path.basename(resolved.recordFolders.registration), "REGISTRATION_DATA");
+    assert.equal(path.basename(resolved.recordFolders.history), "HISTORY_DATA");
+    assert.equal(path.basename(resolved.recordFolders.horses), "HORSE_DATA");
+    assert.equal(path.basename(resolved.recordFolders.confirmed), "CONFIRMED_DATA");
+  } finally {
+    await rm(targetRoot, { recursive: true, force: true });
+  }
 });
 
 test("does not treat the SE main prize as acquisition money", () => {
@@ -267,6 +336,7 @@ test("saves one race at a time without deleting older race rankings", async () =
     const first = {
       schema_version: 1,
       generated_at: "2026-08-08T00:00:00.000Z",
+      stage: "special",
       race: { race_id: "R1", race_date: "2026-08-08", name: "RACE ONE" },
       rows: [],
     };
@@ -291,11 +361,13 @@ test("replaces a provisional JRA race snapshot when TARGET supplies the same rac
     const provisional = {
       schema_version: 1,
       generated_at: "2026-08-08T00:00:00.000Z",
+      stage: "next",
       race: { race_id: "jra-2026-08-16-07-07", race_date: "2026-08-16", venue: "中京", name: "中京記念" },
       rows: [],
     };
     const target = {
       ...provisional,
+      stage: "special",
       race: { ...provisional.race, race_id: "2026081607010807" },
     };
     saveRankingJson({ payload: provisional, repoRoot });
@@ -303,6 +375,7 @@ test("replaces a provisional JRA race snapshot when TARGET supplies the same rac
     const index = JSON.parse(await readFile(saved.indexPath, "utf8"));
     assert.equal(index.races.length, 1);
     assert.equal(index.races[0].race.race_id, "2026081607010807");
+    await assert.rejects(readFile(path.join(repoRoot, "app", "race-rankings", raceFileName(provisional))));
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
   }

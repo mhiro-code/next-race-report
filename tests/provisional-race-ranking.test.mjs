@@ -69,3 +69,27 @@ test("uses a saved official enrichment amount without inventing period amounts",
     await rm(repoRoot, { recursive: true, force: true });
   }
 });
+
+test("uses TARGET only for the selected pre-registration race and leaves missing money null", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "target-provisional-target-estimate-"));
+  const targetRoot = path.join(repoRoot, "TFJV");
+  try {
+    await mkdir(path.join(repoRoot, "app"), { recursive: true });
+    await mkdir(path.join(targetRoot, "DE_DATA"), { recursive: true });
+    await writeFile(path.join(repoRoot, "app", "next-races.json"), JSON.stringify({ rows: [
+      { horse: "中央候補", next_race: "中京記念", horse_url: "https://db.netkeiba.com/horse/2020100001/" },
+    ] }));
+    await writeFile(path.join(repoRoot, "app", "jra-prize-money.json"), JSON.stringify({ 中央候補: { yen: 12300000 } }));
+    await writeFile(path.join(repoRoot, "app", "data-lab-prize-money.json"), "[]");
+    const payload = buildProvisionalRanking({
+      repoRoot,
+      targetRoot,
+      race: { race_id: "jra-2026-08-16-07-07", race_date: "2026-08-16", venue: "中京", name: "中京記念", grade: "GIII" },
+    });
+    assert.equal(payload.diagnostics.target_estimate, true);
+    assert.equal(payload.rows[0].current_yen, null);
+    assert.equal(payload.rows[0].decision_yen, null);
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
+});

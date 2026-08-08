@@ -83,6 +83,8 @@ function normalizePublishedRanking(value) {
     conditions: race.conditions || "",
     full_gate: race.full_gate ?? null,
     registration_count: race.registration_count,
+    registration_count_status: race.registration_count_status,
+    target_registration_count: race.target_registration_count ?? null,
     source_url: value.source_url || "",
     calculation_note:
       value.calculation_note || "TARGETローカルデータから計算した順位目安です。",
@@ -111,6 +113,9 @@ function normalizePublishedRanking(value) {
             : null,
       weight_kg: typeof row.weight_kg === "number" ? row.weight_kg : null,
       rank: typeof row.rank === "number" ? row.rank : null,
+      ranking_status: typeof row.ranking_status === "string" ? row.ranking_status : "",
+      status_label: typeof row.status_label === "string" ? row.status_label : "",
+      source_kind: typeof row.source_kind === "string" ? row.source_kind : "",
     })),
   };
 }
@@ -157,7 +162,7 @@ function composeRows() {
         update: original.get(row.horse)?.update || "",
         horse: row.horse,
         next_race: special.race,
-        horse_url: `https://db.netkeiba.com/horse/${row.ketto_num}/`,
+        horse_url: row.ketto_num ? `https://db.netkeiba.com/horse/${row.ketto_num}/` : "",
         race_url: special.source_url,
       })),
     ),
@@ -247,7 +252,7 @@ function render() {
     } else {
       e.cutoffLabel.textContent = "登録状況";
       e.cutoff.textContent =
-        `登録${registrationCount}頭／フルゲート${special.full_gate ?? "未取得"}頭` +
+        `${special.registration_count_status === "candidate_count" ? "候補" : "登録"}${registrationCount}頭／フルゲート${special.full_gate ?? "未取得"}頭` +
         (special.full_gate !== null && registrationCount < special.full_gate ? "（全頭出走可能）" : "");
     }
 
@@ -255,7 +260,7 @@ function render() {
       '<tr><th>順位目安</th><th>馬名</th><th>想定騎手</th>' +
       '<th class="numeric">現在</th><th class="numeric">1年加算</th>' +
       '<th class="numeric">2年GI加算</th><th class="numeric totalHead">合計</th>' +
-      '<th class="numeric">斤量</th><th>次走</th></tr>';
+      '<th class="numeric">斤量</th><th>次走</th><th>状態</th></tr>';
 
     e.body.innerHTML = shown
       .map((row) => {
@@ -278,7 +283,8 @@ function render() {
           `<td class="numeric plus">${detail.two_year_g1_yen === null ? "未取得" : `+${format(detail.two_year_g1_yen)}`}</td>` +
           `<td class="numeric totalCell">${format(detail.total_yen)}</td>` +
           `<td class="numeric">${weight}</td>` +
-          `<td>${link(special.source_url, special.race)}</td></tr>`
+          `<td>${link(special.source_url, special.race)}</td>` +
+          `<td>${esc(detail.status_label || (detail.ranking_status === "calculated" ? "計算済み" : "順位未計算"))}</td></tr>`
         );
       })
       .join("");
@@ -307,7 +313,7 @@ function render() {
 
   if (!shown.length) {
     e.body.innerHTML =
-      `<tr><td class="empty" colspan="${detailed ? 9 : 4}">条件に一致する馬が見つかりません。</td></tr>`;
+      `<tr><td class="empty" colspan="${detailed ? 10 : 4}">条件に一致する馬が見つかりません。</td></tr>`;
   }
 
   e.pagination.hidden = pages <= 1;

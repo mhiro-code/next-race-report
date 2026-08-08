@@ -811,7 +811,12 @@ export function saveRankingJson({ payload, repoRoot }) {
   const current = readJsonIfPresent(indexPath, { schema_version: 1, generated_at: null, races: [] });
   const entry = { ...payload, file: fileName };
   const races = Array.isArray(current.races) ? current.races : [];
-  const nextRaces = races.filter((item) => item?.race?.race_id !== payload.race.race_id);
+  const sameRace = (item) =>
+    item?.race?.race_id === payload.race.race_id ||
+    (item?.race?.race_date === payload.race.race_date &&
+      item?.race?.name === payload.race.name &&
+      item?.race?.venue === payload.race.venue);
+  const nextRaces = races.filter((item) => !sameRace(item));
   nextRaces.push(entry);
   nextRaces.sort((a, b) =>
     `${a.race?.race_date ?? ""}${a.race?.name ?? ""}`.localeCompare(`${b.race?.race_date ?? ""}${b.race?.name ?? ""}`, "ja"),

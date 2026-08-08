@@ -178,5 +178,16 @@ test("local TARGET admin provides preview and explicit save controls", async () 
   assert.match(script, /127\.0\.0\.1/);
   assert.match(script, /\/api\/target\/preview/);
   assert.match(script, /\/api\/target\/save/);
+  assert.match(script, /JRA公式番組を取得/);
+  assert.match(script, /\/api\/jra\/program/);
+  assert.match(script, /\/api\/manual-candidates/);
+  assert.match(script, /賞金・成績を再取得/);
+  assert.match(script, /\/api\/manual-candidates\/enrich/);
+  assert.match(script, /管理者確認候補を追加/);
+  assert.match(script, /local-admin-data\.mjs/);
+  assert.match(await readFile(new URL("../scripts/local-admin-data.mjs", import.meta.url), "utf8"), /\.target-local/);
+  const enrichment = await readFile(new URL("../scripts/official-horse-enrichment.mjs", import.meta.url), "utf8");
+  assert.match(enrichment, /地方収得賞金/);
+  assert.match(enrichment, /総賞金は収得賞金と同一視せず/);
   assert.doesNotMatch(script, /JVDTLab|JVInit|JVOpen|JVRead|JVStatus|JVClose|TOKU/);
 });

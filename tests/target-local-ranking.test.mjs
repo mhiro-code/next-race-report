@@ -225,3 +225,26 @@ test("saves one race at a time without deleting older race rankings", async () =
     await rm(repoRoot, { recursive: true, force: true });
   }
 });
+
+test("replaces a provisional JRA race snapshot when TARGET supplies the same race", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "target-local-ranking-replace-"));
+  try {
+    const provisional = {
+      schema_version: 1,
+      generated_at: "2026-08-08T00:00:00.000Z",
+      race: { race_id: "jra-2026-08-16-07-07", race_date: "2026-08-16", venue: "中京", name: "中京記念" },
+      rows: [],
+    };
+    const target = {
+      ...provisional,
+      race: { ...provisional.race, race_id: "2026081607010807" },
+    };
+    saveRankingJson({ payload: provisional, repoRoot });
+    const saved = saveRankingJson({ payload: target, repoRoot });
+    const index = JSON.parse(await readFile(saved.indexPath, "utf8"));
+    assert.equal(index.races.length, 1);
+    assert.equal(index.races[0].race.race_id, "2026081607010807");
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
+});

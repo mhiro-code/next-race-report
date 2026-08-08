@@ -45,7 +45,11 @@ Set-ExecutionPolicy -Scope Process Bypass
 & ".\tools\windows\start-target-local-admin.ps1"
 ```
 
-`http://127.0.0.1:3210/` を開き、対象レースを選択して **TARGETローカルデータから更新** を押します。結果を確認してから **保存して公開データへ反映** を押すと、開催日・レース単位の `app/race-rankings/` JSONだけが更新されます。GitHubへのpush、Pull Request、マージは自動実行しません。
+`http://127.0.0.1:3210/` を開き、TARGET登録前のレースは開催日を指定して **JRA公式番組を取得** を押します。JRA公式番組は明示操作時だけ1ページ取得し、24時間ローカルキャッシュを使います。表示された候補から **管理者確認候補を追加** で地方馬などを追加できます。情報源メモは `.target-local/` に保存され、公開JSONには含めません。
+
+候補にJRA・NAR・JBISの公式情報URLを登録した場合は、**賞金・成績を再取得** を明示的に押したときだけ、登録URLを1件ずつ確認します。明示された「収得賞金」欄だけを使い、JBISの総賞金や本賞金を収得賞金へ置き換えません。アクセス制限（403・429・503）が返った場合はその時点で停止します。
+
+TARGET登録後は対象レースを選択して **TARGETローカルデータから更新** を押します。TARGET登録前の候補と管理者確認候補は一覧から自動削除せず、結果を確認してから **保存して公開データへ反映** を押すと、開催日・レース単位の `app/race-rankings/` JSONだけが更新されます。GitHubへのpush、Pull Request、マージは自動実行しません。
 
 GitHub Pagesは保存済みの `app/race-rankings/index.json` を閲覧し、未保存のTARGETデータを直接読み取りません。週次のnetkeiba再取得はこの順位JSONを削除しません。
 

@@ -25,6 +25,8 @@ type DetailRow = {
   weight_kg: number | null;
   rank?: number | null;
   ranking_status?: string;
+  status_label?: string;
+  source_kind?: string;
 };
 
 type RaceDetail = {
@@ -36,6 +38,8 @@ type RaceDetail = {
   conditions: string;
   full_gate: number | null;
   registration_count?: number;
+  registration_count_status?: string;
+  target_registration_count?: number | null;
   source_url: string;
   calculation_note: string;
   rows: DetailRow[];
@@ -50,6 +54,8 @@ type PublishedRanking = {
     conditions?: string;
     full_gate?: number | null;
     registration_count?: number;
+    registration_count_status?: string;
+    target_registration_count?: number | null;
   };
   rows?: Array<Record<string, unknown>>;
   calculation_note?: string;
@@ -72,6 +78,8 @@ function normalizePublishedRanking(value: PublishedRanking): RaceDetail {
     conditions: race.conditions ?? "",
     full_gate: race.full_gate ?? null,
     registration_count: race.registration_count,
+    registration_count_status: race.registration_count_status,
+    target_registration_count: race.target_registration_count ?? null,
     source_url: value.source_url ?? "",
     calculation_note: value.calculation_note ?? "TARGETローカルデータから計算した順位目安です。",
     rows: (value.rows ?? []).map((row) => ({
@@ -100,6 +108,8 @@ function normalizePublishedRanking(value: PublishedRanking): RaceDetail {
       weight_kg: typeof row.weight_kg === "number" ? row.weight_kg : null,
       rank: typeof row.rank === "number" ? row.rank : null,
       ranking_status: typeof row.ranking_status === "string" ? row.ranking_status : undefined,
+      status_label: typeof row.status_label === "string" ? row.status_label : undefined,
+      source_kind: typeof row.source_kind === "string" ? row.source_kind : undefined,
     })),
   };
 }
@@ -151,7 +161,7 @@ function allRows(): RaceRow[] {
         update: existing.get(row.horse)?.update ?? "",
         horse: row.horse,
         next_race: detail.race,
-        horse_url: `https://db.netkeiba.com/horse/${row.ketto_num}/`,
+        horse_url: row.ketto_num ? `https://db.netkeiba.com/horse/${row.ketto_num}/` : "",
         race_url: detail.source_url,
       })),
     ),
@@ -387,6 +397,7 @@ export default function Home() {
                     <th className="numeric totalHead">合計</th>
                     <th className="numeric">斤量</th>
                     <th>次走</th>
+                    <th>状態</th>
                   </>
                 ) : (
                   <>
@@ -411,7 +422,7 @@ export default function Home() {
                     }
                   >
                     <td><span className="rankBadge">{detail.rank ?? "—"}</span></td>
-                    <td><a href={row.horse_url} target="_blank" rel="noreferrer">{row.horse}↗</a></td>
+                    <td>{row.horse_url ? <a href={row.horse_url} target="_blank" rel="noreferrer">{row.horse}↗</a> : row.horse}</td>
                     <td>{detail.jockey || <span className="unverified">未定</span>}</td>
                     <td className="numeric">{money(detail.current_yen)}</td>
                     <td className="numeric plus">{detail.one_year_yen === null ? "未取得" : `+${money(detail.one_year_yen)}`}</td>
@@ -431,6 +442,7 @@ export default function Home() {
                         {selectedRace.race}↗
                       </a>
                     </td>
+                    <td>{detail.status_label ?? (detail.ranking_status === "calculated" ? "計算済み" : "順位未計算")}</td>
                   </tr>
                 ) : (
                   <tr key={`${row.horse}-${row.next_race}`}>
@@ -451,7 +463,7 @@ export default function Home() {
               })}
               {!shown.length && (
                 <tr>
-                  <td className="empty" colSpan={detailed ? 9 : 4}>
+                  <td className="empty" colSpan={detailed ? 10 : 4}>
                     条件に一致する馬が見つかりません。
                   </td>
                 </tr>
